@@ -2,6 +2,8 @@
 
 > Plataforma de inteligencia inmobiliaria para Argentina. Conectamos inversores, compradores y vendedores con datos precisos del mercado de CABA.
 
+[![CI](https://github.com/TU_USUARIO/terrium/actions/workflows/ci.yml/badge.svg)](https://github.com/TU_USUARIO/terrium/actions/workflows/ci.yml)
+
 ---
 
 ## 📐 Arquitectura
@@ -89,9 +91,71 @@ La aplicación estará disponible en:
 | PRO         | $14.999        | + Mapa de calor, analytics avanzados, API access       |
 | ENTERPRISE  | A convenir     | + Acceso completo, soporte prioritario, white-label    |
 
+## 📡 Endpoints Principales
+
+### Auth (`/api/auth`)
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Registrar usuario |
+| POST | `/api/auth/login` | Login y obtener JWT |
+| GET  | `/api/auth/me` | Perfil del usuario |
+
+### Listings (`/api/listings`) — 🔐 JWT requerido
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET  | `/api/listings?type=VENTA&neighborhood=Palermo&page=1` | Listar propiedades con filtros |
+| GET  | `/api/listings/:id` | Detalle de propiedad |
+| POST | `/api/listings` | Publicar propiedad |
+| PUT  | `/api/listings/:id` | Editar propiedad |
+| DELETE | `/api/listings/:id` | Eliminar propiedad |
+
+### Valuations (`/api/valuations`) — 🔐 JWT requerido
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/valuations/estimate` | Valuación automática ({neighborhood, surfaceM2}) |
+| GET  | `/api/valuations/property/:id` | Valuación de propiedad específica |
+| GET  | `/api/valuations/history/:neighborhood` | Historial de precios |
+
+### Analytics (`/api/analytics`) — 🔐 JWT requerido (PRO para heatmap)
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/analytics/overview` | Resumen del mercado |
+| GET | `/api/analytics/trends?months=6` | Tendencias de precio por barrio |
+| GET | `/api/analytics/heatmap` | Puntos para mapa de calor |
+| GET | `/api/analytics/ranking` | Ranking de barrios por score |
+| GET | `/api/analytics/score/:neighborhood` | Score de un barrio |
+
+### Subscriptions (`/api/subscriptions`) — 🔐 JWT requerido
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET  | `/api/subscriptions/plans` | Ver todos los planes (público) |
+| GET  | `/api/subscriptions/me` | Suscripción activa |
+| POST | `/api/subscriptions/upgrade` | Cambiar de plan ({tier}) |
+
+### WebSocket — Mapa de calor en tiempo real
+```
+ws://localhost:4000/socket.io
+Evento escuchar: 'heatmap:update' → Array de puntos [{lat, lng, intensity, neighborhood, avgPriceUsdM2}]
+```
+
 ---
 
-## 🛠️ Desarrollo local (sin Docker)
+## 🗺️ Páginas del Frontend
+
+| Página | URL | Tier mínimo |
+|--------|-----|-------------|
+| Landing | `/index.html` | Todos |
+| Registro | `/register.html` | Todos |
+| Login | `/login.html` | Todos |
+| Dashboard | `/dashboard.html` | FREE |
+| Propiedades | `/listings.html` | FREE |
+| Calculadora ROI | `/calculator.html` | FREE |
+| Mapa de Calor | `/heatmap.html` | **PRO** |
+| Planes | `/pricing.html` | Todos |
+
+---
+
+
 
 ```bash
 # Instalar dependencias de todos los servicios
