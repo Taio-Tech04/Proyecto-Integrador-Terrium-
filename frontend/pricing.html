@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planes y Precios — Terrium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    body { background: var(--gray-100); }
+    .pricing-hero { background: linear-gradient(135deg, var(--navy), var(--navy-light)); padding: 64px 5%; text-align: center; }
+    .pricing-hero h1 { color: var(--white); margin-bottom: 12px; }
+    .pricing-hero p { color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto; font-size: 1.1rem; }
+    .pricing-section { padding: 60px 5%; max-width: 1200px; margin: 0 auto; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+    .plan-card { background: var(--white); border-radius: var(--radius-lg); padding: 36px 28px; box-shadow: var(--shadow); border: 2px solid transparent; transition: var(--transition); position: relative; }
+    .plan-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+    .plan-card.featured { border-color: var(--gold); background: linear-gradient(160deg, #fff9e8 0%, var(--white) 60%); }
+    .plan-card.featured::before { content: '⭐ MÁS POPULAR'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--navy); padding: 4px 16px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; white-space: nowrap; }
+    .plan-name { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gray-400); margin-bottom: 8px; font-weight: 700; }
+    .plan-price { margin-bottom: 8px; }
+    .plan-price .amount { font-size: 2.4rem; font-weight: 800; color: var(--navy); }
+    .plan-price .period { font-size: 0.85rem; color: var(--gray-400); }
+    .plan-price .currency { font-size: 1rem; font-weight: 600; color: var(--gray-600); vertical-align: super; }
+    .plan-desc { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 24px; min-height: 40px; }
+    .plan-features { margin-bottom: 28px; }
+    .plan-features li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--gray-200); font-size: 0.875rem; color: var(--gray-800); }
+    .plan-features li:last-child { border-bottom: none; }
+    .plan-features li::before { content: '✓'; color: var(--gold); font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+    .plan-features li.disabled { color: var(--gray-400); }
+    .plan-features li.disabled::before { content: '✕'; color: var(--gray-300); }
+    .section-title { text-align: center; margin-bottom: 48px; }
+    .section-title h2 { color: var(--navy); margin-bottom: 12px; }
+
+    /* Modal upgrade */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9000; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--white); border-radius: var(--radius-lg); padding: 40px; max-width: 460px; width: 100%; text-align: center; }
+    .modal-box h3 { color: var(--navy); margin-bottom: 12px; }
+    .modal-box p { color: var(--gray-600); margin-bottom: 28px; }
+    .modal-actions { display: flex; gap: 12px; justify-content: center; }
+
+    /* FAQ */
+    .faq-section { max-width: 720px; margin: 0 auto; padding: 0 5% 60px; }
+    .faq-section h2 { color: var(--navy); margin-bottom: 32px; text-align: center; }
+    .faq-item { border: 1px solid var(--gray-200); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+    .faq-question { padding: 18px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: var(--navy); font-size: 0.95rem; }
+    .faq-question:hover { background: var(--gray-50); }
+    .faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; color: var(--gray-600); font-size: 0.9rem; line-height: 1.7; }
+    .faq-item.open .faq-answer { max-height: 200px; padding: 0 20px 18px; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-arrow { transition: transform 0.3s; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand"><div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div></div>
+    <div class="navbar-nav">
+      <a href="index.html">Inicio</a><a href="dashboard.html">Dashboard</a>
+      <a href="listings.html">Propiedades</a><a href="calculator.html">Calc. ROI</a>
+      <a href="heatmap.html">Mapa de Calor</a><a href="pricing.html" class="active">Planes</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="user-info" style="display:none; align-items:center; gap:8px;"><span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span><span id="user-tier-badge" class="badge"></span></div>
+      <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <a href="register.html" class="btn btn-primary btn-sm" id="register-btn">Comenzar gratis</a>
+      <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+    </div>
+  </nav>
+
+  <div class="pricing-hero">
+    <h1>Planes para cada tipo de inversor</h1>
+    <p>Comenzá gratis y escalá según tus necesidades. Sin compromisos, cancelá cuando quieras.</p>
+  </div>
+
+  <div class="pricing-section">
+    <div id="plans-loading" class="loading-center"><div class="spinner"></div></div>
+    <div id="pricing-grid" class="pricing-grid" style="display:none;"></div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <h2>Preguntas frecuentes</h2>
+
+    <div class="faq-item">
+      <div class="faq-question">¿Puedo cambiar de plan en cualquier momento? <span class="faq-arrow">▾</span></div>
+      <div class="faq-answer">Sí. Podés hacer upgrade o downgrade de tu plan en cualquier momento desde tu cuenta. El cambio tiene efecto inmediato.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">¿Cómo se cobra la suscripción? <span class="faq-arrow">▾</span></div>
+      <div class="faq-answer">La suscripción se cobra mensualmente de forma automática. Aceptamos tarjetas de crédito, débito y transferencia bancaria a través de MercadoPago.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">¿Los datos del mapa son en tiempo real? <span class="faq-arrow">▾</span></div>
+      <div class="faq-answer">El mapa de calor para planes PRO y Enterprise se actualiza en tiempo real mediante WebSockets, con datos del mercado de CABA actualizados diariamente.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">¿Qué incluye el plan Enterprise? <span class="faq-arrow">▾</span></div>
+      <div class="faq-answer">El plan Enterprise incluye todo lo de PRO más: acceso API ilimitado, white-label (tu logo y dominio), reportes personalizados, account manager dedicado y soporte 24/7 con SLA garantizado.</div>
+    </div>
+  </div>
+
+  <!-- Modal confirm upgrade -->
+  <div id="upgrade-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🚀</div>
+      <h3 id="modal-title">Activar plan</h3>
+      <p id="modal-desc">Confirmá el upgrade de tu suscripción.</p>
+      <div class="modal-actions">
+        <button id="modal-confirm" class="btn btn-primary">Confirmar</button>
+        <button id="modal-cancel" class="btn btn-ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    const PLAN_ICONS = { FREE: '🆓', INVERSOR: '📈', PRO: '💎', ENTERPRISE: '🏢' };
+    const PLAN_DESC  = {
+      FREE:       'Ideal para comenzar a explorar el mercado inmobiliario.',
+      INVERSOR:   'Para inversores activos que quieren datos avanzados.',
+      PRO:        'Para profesionales del sector con acceso completo.',
+      ENTERPRISE: 'Soluciones personalizadas para empresas y fondos.'
+    };
+    let pendingTier = null;
+
+    async function loadPlans() {
+      try {
+        const plans = await apiFetch('/api/subscriptions/plans');
+        const currentTier = getUserTier();
+        const grid = document.getElementById('pricing-grid');
+
+        grid.innerHTML = plans.map((plan) => {
+          const isCurrent  = plan.tier === currentTier;
+          const isEnterprise = plan.tier === 'ENTERPRISE';
+          const isFeatured = plan.tier === 'INVERSOR';
+          const priceText  = plan.priceArs === 0 && isEnterprise ? 'A consultar' :
+                             plan.priceArs === 0 ? '<span class="amount">$0</span><span class="period">/mes</span>' :
+                             `<span class="currency">ARS</span><span class="amount">${plan.priceArs.toLocaleString('es-AR')}</span><span class="period">/mes</span>`;
+
+          let ctaBtn = '';
+          if (isCurrent) {
+            ctaBtn = `<button class="btn btn-ghost btn-full" disabled>✓ Plan actual</button>`;
+          } else if (isEnterprise) {
+            ctaBtn = `<a href="mailto:enterprise@terrium.ar" class="btn btn-secondary btn-full">Contactar ventas</a>`;
+          } else if (plan.tier === 'FREE') {
+            ctaBtn = isAuthenticated()
+              ? `<button class="btn btn-ghost btn-full" disabled>Plan gratuito</button>`
+              : `<a href="register.html" class="btn btn-outline btn-full">Comenzar gratis</a>`;
+          } else {
+            ctaBtn = isAuthenticated()
+              ? `<button class="btn btn-primary btn-full upgrade-btn" data-tier="${plan.tier}" data-price="${plan.priceArs}">Activar plan</button>`
+              : `<a href="register.html" class="btn btn-primary btn-full">Comenzar gratis</a>`;
+          }
+
+          return `
+            <div class="plan-card ${isFeatured ? 'featured' : ''}" id="plan-${plan.tier}">
+              <div class="plan-name">${PLAN_ICONS[plan.tier] || ''} ${plan.tier}</div>
+              <div class="plan-price">${priceText}</div>
+              <div class="plan-desc">${PLAN_DESC[plan.tier] || ''}</div>
+              <ul class="plan-features">
+                ${plan.features.map((f) => `<li>${f}</li>`).join('')}
+              </ul>
+              ${ctaBtn}
+            </div>`;
+        }).join('');
+
+        document.getElementById('plans-loading').style.display = 'none';
+        grid.style.display = 'grid';
+
+        // Bind upgrade buttons
+        document.querySelectorAll('.upgrade-btn').forEach((btn) => {
+          btn.addEventListener('click', () => openUpgradeModal(btn.dataset.tier, btn.dataset.price));
+        });
+      } catch (err) {
+        document.getElementById('plans-loading').innerHTML = `<p style="color:var(--red);">Error al cargar planes.</p>`;
+      }
+    }
+
+    function openUpgradeModal(tier, price) {
+      if (!isAuthenticated()) { window.location.href = 'login.html'; return; }
+      pendingTier = tier;
+      document.getElementById('modal-title').textContent = `Activar plan ${tier}`;
+      document.getElementById('modal-desc').textContent  = `Confirmás activar el plan ${tier} por ARS ${parseInt(price).toLocaleString('es-AR')}/mes.`;
+      document.getElementById('upgrade-modal').classList.add('open');
+    }
+
+    document.getElementById('modal-cancel').addEventListener('click', () => {
+      document.getElementById('upgrade-modal').classList.remove('open');
+    });
+
+    document.getElementById('modal-confirm').addEventListener('click', async () => {
+      if (!pendingTier) return;
+      const btn = document.getElementById('modal-confirm');
+      btn.textContent = 'Procesando...'; btn.disabled = true;
+      try {
+        const data = await apiFetch('/api/subscriptions/upgrade', {
+          method: 'POST',
+          body: JSON.stringify({ tier: pendingTier })
+        });
+        // Actualizar local storage
+        const user = getUser();
+        if (user) { user.tier = pendingTier; localStorage.setItem('terrium_user', JSON.stringify(user)); }
+        showToast(`¡Plan ${pendingTier} activado exitosamente! 🎉`);
+        document.getElementById('upgrade-modal').classList.remove('open');
+        setTimeout(() => window.location.reload(), 800);
+      } catch (err) {
+        showToast(err.message || 'Error al procesar el upgrade', 'error');
+        btn.textContent = 'Confirmar'; btn.disabled = false;
+      }
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-question').forEach((q) => {
+      q.addEventListener('click', () => {
+        const item = q.parentElement;
+        document.querySelectorAll('.faq-item.open').forEach((i) => { if (i !== item) i.classList.remove('open'); });
+        item.classList.toggle('open');
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', loadPlans);
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingresar — Terrium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    body { background: var(--navy); display: flex; flex-direction: column; min-height: 100vh; }
+    .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 16px; }
+    .auth-card { background: var(--white); border-radius: var(--radius-lg); padding: 48px 40px; width: 100%; max-width: 440px; box-shadow: var(--shadow-md); }
+    .auth-logo { text-align: center; margin-bottom: 32px; }
+    .auth-logo .logo-text { color: var(--navy); font-size: 1.8rem; font-weight: 800; letter-spacing: 2px; }
+    .auth-logo .logo-sub { color: var(--gray-400); font-size: 0.7rem; letter-spacing: 1px; display: block; }
+    .auth-title { font-size: 1.5rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+    .auth-subtitle { color: var(--gray-600); margin-bottom: 28px; font-size: 0.9rem; }
+    .auth-footer { text-align: center; margin-top: 24px; font-size: 0.85rem; color: var(--gray-600); }
+    .auth-footer a { color: var(--gold); font-weight: 600; }
+    .divider { text-align: center; color: var(--gray-400); font-size: 0.8rem; margin: 20px 0; position: relative; }
+    .divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: var(--gray-200); }
+    .divider::before { left: 0; } .divider::after { right: 0; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand"><div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div></div>
+    <div class="navbar-nav">
+      <a href="index.html">Inicio</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="listings.html">Propiedades</a>
+    </div>
+    <div class="navbar-actions">
+      <a href="register.html" class="btn btn-primary btn-sm">Comenzar gratis</a>
+    </div>
+  </nav>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-text">TERRIUM</div>
+        <span class="logo-sub">Real Estate Intelligence</span>
+      </div>
+      <h2 class="auth-title">Bienvenido de vuelta</h2>
+      <p class="auth-subtitle">Ingresá a tu cuenta para ver el mercado</p>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" class="form-control" placeholder="tu@email.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-full" style="margin-top:8px;">
+          Ingresar
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        ¿No tenés cuenta? <a href="register.html">Registrate gratis</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    // Redirigir si ya está logueado
+    if (isAuthenticated()) window.location.href = 'dashboard.html';
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      btn.textContent = 'Ingresando...';
+      btn.disabled = true;
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const data = await apiFetch('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+
+        localStorage.setItem('terrium_token', data.token);
+        localStorage.setItem('terrium_user', JSON.stringify(data.user));
+
+        showToast(`¡Bienvenido, ${data.user.name || data.user.email}!`);
+        setTimeout(() => window.location.href = 'dashboard.html', 800);
+      } catch (err) {
+        showToast(err.message || 'Credenciales incorrectas', 'error');
+        btn.textContent = 'Ingresar';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
+

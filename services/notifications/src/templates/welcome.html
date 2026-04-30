@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡Bienvenido a Terrium!</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f4f7; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #0D1B2A, #1a3a5c); padding: 40px; text-align: center; }
+    .header h1 { color: #D4AF37; margin: 0; font-size: 28px; letter-spacing: 2px; }
+    .header p { color: #ccc; margin: 8px 0 0; }
+    .body { padding: 40px; }
+    .body h2 { color: #0D1B2A; }
+    .body p { color: #555; line-height: 1.7; }
+    .cta { display: block; width: fit-content; margin: 30px auto; background: #D4AF37; color: #0D1B2A; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: bold; font-size: 16px; }
+    .footer { background: #f8f8f8; padding: 20px; text-align: center; color: #999; font-size: 13px; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>TERRIUM</h1>
+      <p>Real Estate Intelligence Platform</p>
+    </div>
+    <div class="body">
+      <h2>¡Hola, {{name}}! 👋</h2>
+      <p>Bienvenido/a a <strong>Terrium</strong>, la plataforma de inteligencia inmobiliaria más completa de Argentina.</p>
+      <p>Tu cuenta fue creada exitosamente. Ya podés empezar a explorar el mercado inmobiliario de CABA con datos actualizados, análisis de inversión y mucho más.</p>
+      <p>Con tu plan <strong>FREE</strong> tenés acceso a:</p>
+      <ul>
+        <li>Búsqueda y exploración de propiedades</li>
+        <li>Datos generales del mercado</li>
+        <li>Calculadora ROI básica</li>
+      </ul>
+      <a href="http://localhost" class="cta">Ir al Dashboard →</a>
+    </div>
+    <div class="footer">
+      <p>© 2025 Terrium S.A.S. · Buenos Aires, Argentina</p>
+      <p>Si no creaste esta cuenta, podés ignorar este email.</p>
+    </div>
+  </div>
+</body>
+</html>
+

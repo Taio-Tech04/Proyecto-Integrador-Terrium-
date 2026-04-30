@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terrium — Real Estate Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    /* Hero */
+    .hero { background: linear-gradient(135deg, var(--navy) 0%, #1a3a5c 60%, #0a2540 100%); min-height: 92vh; display: flex; align-items: center; padding: 0 5%; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%); top: -100px; right: -100px; border-radius: 50%; }
+    .hero-content { max-width: 640px; z-index: 1; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.3); color: var(--gold); padding: 8px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
+    .hero h1 { color: var(--white); margin-bottom: 20px; }
+    .hero h1 span { color: var(--gold); }
+    .hero p { color: rgba(255,255,255,0.7); font-size: 1.15rem; margin-bottom: 36px; line-height: 1.8; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-stats { display: flex; gap: 40px; margin-top: 60px; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat .value { font-size: 2rem; font-weight: 800; color: var(--gold); }
+    .hero-stat .label { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Features */
+    .features { background: var(--white); }
+    .feature-card { padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); transition: var(--transition); }
+    .feature-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .feature-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 20px; }
+    .feature-card h3 { color: var(--navy); margin-bottom: 10px; }
+
+    /* How it works */
+    .how-it-works { background: var(--gray-100); }
+    .step { display: flex; gap: 24px; align-items: flex-start; }
+    .step-number { width: 48px; height: 48px; min-width: 48px; background: var(--gold); color: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; }
+    .step-content h3 { color: var(--navy); margin-bottom: 8px; }
+
+    /* Pricing preview */
+    .pricing-preview { background: var(--navy); }
+    .pricing-preview .section-title h2 { color: var(--white); }
+    .pricing-preview .section-title p { color: rgba(255,255,255,0.6); }
+    .price-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 32px; transition: var(--transition); }
+    .price-card.featured { background: var(--gold); border-color: var(--gold); }
+    .price-card.featured * { color: var(--navy) !important; }
+    .price-card:hover { transform: translateY(-4px); }
+    .price-card .tier-name { color: rgba(255,255,255,0.5); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .price-card .price { font-size: 2.2rem; font-weight: 800; color: var(--white); }
+    .price-card .price span { font-size: 0.9rem; font-weight: 400; color: rgba(255,255,255,0.5); }
+    .price-card ul { margin: 20px 0; }
+    .price-card ul li { color: rgba(255,255,255,0.7); font-size: 0.9rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; }
+    .price-card ul li::before { content: '✓'; color: var(--gold); font-weight: 700; }
+    .price-card.featured ul li { color: var(--navy); border-bottom-color: rgba(0,0,0,0.1); }
+    .price-card.featured ul li::before { color: var(--navy); }
+
+    /* CTA */
+    .cta-section { background: linear-gradient(135deg, var(--gold) 0%, #b8941e 100%); text-align: center; padding: 80px 5%; }
+    .cta-section h2 { color: var(--navy); }
+    .cta-section p { color: rgba(13,27,42,0.7); max-width: 500px; margin: 16px auto 36px; }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div>
+    </div>
+    <div class="navbar-nav">
+      <a href="index.html" class="active">Inicio</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="listings.html">Propiedades</a>
+      <a href="calculator.html">Calc. ROI</a>
+      <a href="heatmap.html">Mapa de Calor</a>
+      <a href="pricing.html">Planes</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="user-info" style="display:none; align-items:center; gap:8px;">
+        <span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span>
+        <span id="user-tier-badge" class="badge"></span>
+      </div>
+      <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Comenzar gratis</a>
+      <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">🏙️ Plataforma #1 de Inteligencia Inmobiliaria Argentina</div>
+      <h1>Invertí en el <span>inmueble correcto</span> con datos reales</h1>
+      <p>Terrium combina análisis de mercado, valuaciones automáticas y datos geoespaciales para que tomes decisiones de inversión inmobiliaria con confianza en CABA.</p>
+      <div class="hero-actions">
+        <a href="register.html" class="btn btn-primary btn-lg">Empezar gratis →</a>
+        <a href="dashboard.html" class="btn btn-outline btn-lg">Ver el mercado</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="value">+12K</div><div class="label">Propiedades</div></div>
+        <div class="hero-stat"><div class="value">48</div><div class="label">Barrios CABA</div></div>
+        <div class="hero-stat"><div class="value">+3K</div><div class="label">Inversores</div></div>
+        <div class="hero-stat"><div class="value">99%</div><div class="label">Uptime</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section features">
+    <div class="container">
+      <div class="section-title">
+        <h2>Todo lo que necesitás para invertir con inteligencia</h2>
+        <p>Herramientas profesionales, antes reservadas para grandes inversores, ahora al alcance de todos.</p>
+      </div>
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Información de Mercado</h3>
+          <p>Datos actualizados de precios por m², volumen de transacciones y tendencias históricas por barrio de CABA.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🗺️</div>
+          <h3>Mapa de Calor CABA</h3>
+          <p>Visualizá en tiempo real las zonas con mayor movimiento inmobiliario y potencial de valorización.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧮</div>
+          <h3>Calculadora ROI</h3>
+          <p>Calculá el retorno de inversión esperado, rendimiento neto y período de repago para cualquier propiedad.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💎</div>
+          <h3>Valuación Automática</h3>
+          <p>Algoritmo de valuación basado en comparables reales del mercado para estimar el valor justo de cualquier propiedad.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⭐</div>
+          <h3>Score de Inversión</h3>
+          <p>Ranking de barrios según rentabilidad, tendencia de precios y demanda. Tomá decisiones basadas en datos.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3>Alertas Inteligentes</h3>
+          <p>Recibí notificaciones cuando una propiedad baje de precio o aparezca una nueva oportunidad en tu barrio objetivo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section how-it-works">
+    <div class="container">
+      <div class="section-title">
+        <h2>¿Cómo funciona?</h2>
+        <p>En 3 pasos estás analizando el mercado como un profesional.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:32px; max-width:600px; margin:0 auto;">
+        <div class="step"><div class="step-number">1</div><div class="step-content"><h3>Creá tu cuenta gratis</h3><p>Registrate en segundos. Sin tarjeta de crédito. El plan FREE ya incluye acceso al mercado general.</p></div></div>
+        <div class="step"><div class="step-number">2</div><div class="step-content"><h3>Explorá el mercado</h3><p>Buscá propiedades, analizá tendencias de precios y usá la calculadora ROI para evaluar oportunidades.</p></div></div>
+        <div class="step"><div class="step-number">3</div><div class="step-content"><h3>Upgrádeate para acceso total</h3><p>Desbloqueá el mapa de calor, valuaciones avanzadas y analytics profesionales con nuestros planes premium.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing preview -->
+  <section class="section pricing-preview">
+    <div class="container">
+      <div class="section-title">
+        <h2>Planes para cada tipo de inversor</h2>
+        <p>Comenzá gratis y escalá según tus necesidades.</p>
+      </div>
+      <div class="grid-4">
+        <div class="price-card">
+          <div class="tier-name">Free</div>
+          <div class="price">$0 <span>/mes</span></div>
+          <ul>
+            <li>Búsqueda de propiedades</li>
+            <li>Datos generales del mercado</li>
+            <li>Calculadora ROI básica</li>
+          </ul>
+          <a href="register.html" class="btn btn-outline btn-full">Comenzar gratis</a>
+        </div>
+        <div class="price-card featured">
+          <div class="tier-name">Inversor</div>
+          <div class="price">$4.999 <span>/mes</span></div>
+          <ul>
+            <li>Historial de precios</li>
+            <li>Valuaciones automáticas</li>
+            <li>Alertas de precio</li>
+          </ul>
+          <a href="pricing.html" class="btn btn-secondary btn-full">Elegir plan</a>
+        </div>
+        <div class="price-card">
+          <div class="tier-name">Pro</div>
+          <div class="price">$14.999 <span>/mes</span></div>
+          <ul>
+            <li>Mapa de calor CABA</li>
+            <li>Analytics avanzados</li>
+            <li>Ranking de barrios</li>
+            <li>Acceso a API</li>
+          </ul>
+          <a href="pricing.html" class="btn btn-outline btn-full">Elegir plan</a>
+        </div>
+        <div class="price-card">
+          <div class="tier-name">Enterprise</div>
+          <div class="price">Custom</div>
+          <ul>
+            <li>Todo lo de Pro</li>
+            <li>White-label</li>
+            <li>Account manager</li>
+            <li>Soporte 24/7</li>
+          </ul>
+          <a href="mailto:enterprise@terrium.ar" class="btn btn-outline btn-full">Contactar</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>¿Listo para invertir con datos?</h2>
+    <p>Sumate a más de 3.000 inversores que ya usan Terrium para tomar mejores decisiones.</p>
+    <a href="register.html" class="btn btn-secondary btn-lg">Crear cuenta gratuita →</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-text">TERRIUM</div>
+        <p>La plataforma de inteligencia inmobiliaria más completa de Argentina. Datos reales, decisiones inteligentes.</p>
+      </div>
+      <div><h4>Plataforma</h4><ul><li><a href="dashboard.html">Dashboard</a></li><li><a href="listings.html">Propiedades</a></li><li><a href="calculator.html">Calculadora ROI</a></li><li><a href="heatmap.html">Mapa de Calor</a></li></ul></div>
+      <div><h4>Planes</h4><ul><li><a href="pricing.html">Ver todos los planes</a></li><li><a href="pricing.html#inversor">Inversor</a></li><li><a href="pricing.html#pro">Pro</a></li><li><a href="mailto:enterprise@terrium.ar">Enterprise</a></li></ul></div>
+      <div><h4>Empresa</h4><ul><li><a href="#">Sobre nosotros</a></li><li><a href="#">Blog</a></li><li><a href="#">API Docs</a></li><li><a href="#">Contacto</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Terrium S.A.S. · Buenos Aires, Argentina</span>
+      <span>Términos · Privacidad</span>
+    </div>
+  </footer>
+
+  <div id="toast"></div>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>
+

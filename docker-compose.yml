@@ -1,0 +1,246 @@
+version: '3.9'
+
+networks:
+  terrium-net:
+    driver: bridge
+
+volumes:
+  pg_data:
+  redis_data:
+  rabbitmq_data:
+
+services:
+  # ─── BASES DE DATOS ──────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: terrium-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: terrium
+      POSTGRES_PASSWORD: terrium_secret
+      POSTGRES_DB: terrium_main
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - terrium-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U terrium"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: terrium-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - terrium-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: terrium-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: terrium
+      RABBITMQ_DEFAULT_PASS: terrium_secret
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - terrium-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ─── MICROSERVICIOS ───────────────────────────────────────────────────────────
+  users:
+    build:
+      context: ./services/users
+      dockerfile: Dockerfile
+    container_name: terrium-users
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_users
+      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
+      JWT_EXPIRES_IN: 7d
+      PORT: 3005
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3005:3005"
+    networks:
+      - terrium-net
+
+  listings:
+    build:
+      context: ./services/listings
+      dockerfile: Dockerfile
+    container_name: terrium-listings
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_listings
+      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+      PORT: 3001
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    networks:
+      - terrium-net
+
+  valuations:
+    build:
+      context: ./services/valuations
+      dockerfile: Dockerfile
+    container_name: terrium-valuations
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_valuations
+      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+      PORT: 3002
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3002:3002"
+    networks:
+      - terrium-net
+
+  analytics:
+    build:
+      context: ./services/analytics
+      dockerfile: Dockerfile
+    container_name: terrium-analytics
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_analytics
+      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+      PORT: 3003
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3003:3003"
+    networks:
+      - terrium-net
+
+  notifications:
+    build:
+      context: ./services/notifications
+      dockerfile: Dockerfile
+    container_name: terrium-notifications
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_notifications
+      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
+      SMTP_HOST: ${SMTP_HOST:-smtp.mailtrap.io}
+      SMTP_PORT: ${SMTP_PORT:-2525}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      FROM_EMAIL: ${FROM_EMAIL:-noreply@terrium.ar}
+      PORT: 3004
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3004:3004"
+    networks:
+      - terrium-net
+
+  # ─── API GATEWAY ─────────────────────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: terrium-gateway
+    restart: unless-stopped
+    environment:
+      LISTINGS_URL: http://listings:3001
+      VALUATIONS_URL: http://valuations:3002
+      ANALYTICS_URL: http://analytics:3003
+      NOTIFICATIONS_URL: http://notifications:3004
+      USERS_URL: http://users:3005
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
+      REDIS_URL: redis://redis:6379
+      PORT: 4000
+      NODE_ENV: development
+    depends_on:
+      - users
+      - listings
+      - valuations
+      - analytics
+      - notifications
+    ports:
+      - "4000:4000"
+    networks:
+      - terrium-net
+
+  # ─── FRONTEND ─────────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: terrium-frontend
+    restart: unless-stopped
+    depends_on:
+      - api-gateway
+    ports:
+      - "80:80"
+    networks:
+      - terrium-net
+
+  # ─── HERRAMIENTAS DE ADMIN ────────────────────────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: terrium-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@terrium.ar
+      PGADMIN_DEFAULT_PASSWORD: admin_secret
+    ports:
+      - "5050:80"
+    networks:
+      - terrium-net
+    profiles:
+      - tools
+
