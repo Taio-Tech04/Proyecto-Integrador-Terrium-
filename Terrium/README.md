@@ -2,7 +2,7 @@
 
 > Plataforma de inteligencia inmobiliaria para Argentina. Conectamos inversores, compradores y vendedores con datos precisos del mercado de CABA.
 
-[![CI](https://github.com/TU_USUARIO/terrium/actions/workflows/ci.yml/badge.svg)](https://github.com/TU_USUARIO/terrium/actions/workflows/ci.yml)
+[![CI](https://github.com/Taio-Tech04/Proyecto-Integrador-Terrium-/actions/workflows/ci.yml/badge.svg)](https://github.com/Taio-Tech04/Proyecto-Integrador-Terrium-/actions/workflows/ci.yml)
 
 ---
 
@@ -46,8 +46,8 @@ Users    Listings  Valuations Analytics Notifications
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/tu-usuario/terrium.git
-cd terrium
+git clone https://github.com/Taio-Tech04/Proyecto-Integrador-Terrium-.git
+cd Proyecto-Integrador-Terrium-
 
 # 2. Copiar variables de entorno
 cp .env.example .env
