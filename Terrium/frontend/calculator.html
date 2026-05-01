@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora ROI — Terrium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { background: var(--gray-100); }
+    .calc-layout { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+    .page-title { color: var(--navy); margin-bottom: 8px; }
+    .page-subtitle { color: var(--gray-600); margin-bottom: 32px; }
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .calc-section { background: var(--white); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow); }
+    .calc-section h3 { color: var(--navy); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200); }
+    .input-prefix { position: relative; }
+    .input-prefix span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-600); font-weight: 600; font-size: 0.9rem; }
+    .input-prefix input { padding-left: 44px; }
+    .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .result-item { background: var(--gray-100); border-radius: var(--radius); padding: 16px; }
+    .result-item .r-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-600); margin-bottom: 6px; font-weight: 600; }
+    .result-item .r-value { font-size: 1.4rem; font-weight: 800; color: var(--navy); }
+    .result-item .r-note { font-size: 0.75rem; color: var(--gray-400); margin-top: 2px; }
+    .result-item.highlight { background: linear-gradient(135deg, var(--navy), var(--navy-light)); }
+    .result-item.highlight .r-label { color: rgba(255,255,255,0.6); }
+    .result-item.highlight .r-value { color: var(--gold); font-size: 1.8rem; }
+    .result-item.highlight .r-note { color: rgba(255,255,255,0.4); }
+    .result-item.good { border-left: 4px solid var(--green); }
+    .result-item.warn { border-left: 4px solid var(--gold); }
+    .valuation-box { background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.3); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; display: none; }
+    .valuation-box .label { font-size: 0.8rem; color: var(--gray-600); margin-bottom: 4px; }
+    .valuation-box .val { font-size: 1.2rem; font-weight: 700; color: var(--navy); }
+    .chart-section { background: var(--white); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow); margin-top: 28px; }
+    .chart-section h3 { color: var(--navy); margin-bottom: 20px; }
+    .recommendation-box { border-radius: var(--radius); padding: 16px 20px; margin-top: 20px; font-size: 0.9rem; line-height: 1.6; }
+    .rec-buy   { background: rgba(40,167,69,0.1); border-left: 4px solid var(--green); color: #1a5c2e; }
+    .rec-watch { background: rgba(212,175,55,0.1); border-left: 4px solid var(--gold); color: #7a5a00; }
+    .rec-avoid { background: rgba(220,53,69,0.1); border-left: 4px solid var(--red); color: #7a1525; }
+    @media (max-width: 768px) { .calc-grid { grid-template-columns: 1fr; } .results-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand"><div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div></div>
+    <div class="navbar-nav">
+      <a href="index.html">Inicio</a><a href="dashboard.html">Dashboard</a>
+      <a href="listings.html">Propiedades</a><a href="calculator.html" class="active">Calc. ROI</a>
+      <a href="heatmap.html">Mapa de Calor</a><a href="pricing.html">Planes</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="user-info" style="display:none; align-items:center; gap:8px;"><span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span><span id="user-tier-badge" class="badge"></span></div>
+      <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+    </div>
+  </nav>
+
+  <div class="calc-layout">
+    <h2 class="page-title">🧮 Calculadora de ROI Inmobiliario</h2>
+    <p class="page-subtitle">Calculá el retorno esperado de una inversión inmobiliaria en CABA. Completá los datos y obtené el análisis.</p>
+
+    <div class="calc-grid">
+      <!-- Inputs -->
+      <div class="calc-section">
+        <h3>📋 Datos de la propiedad</h3>
+
+        <div class="form-group">
+          <label>Barrio</label>
+          <select id="inp-neighborhood" class="form-control" required>
+            <option value="">Seleccionar barrio</option>
+            <option>Palermo</option><option>Belgrano</option><option>Recoleta</option>
+            <option>Puerto Madero</option><option>Villa Crespo</option><option>Caballito</option>
+            <option>San Telmo</option><option>Flores</option><option>Villa Devoto</option>
+            <option>Microcentro</option><option>Almagro</option><option>Núñez</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Superficie (m²)</label>
+          <input type="number" id="inp-surface" class="form-control" placeholder="ej: 50" min="10" max="2000">
+        </div>
+
+        <div class="form-group">
+          <label>Precio de compra</label>
+          <div class="input-prefix">
+            <span>USD</span>
+            <input type="number" id="inp-price" class="form-control" placeholder="ej: 80000" min="1000">
+          </div>
+        </div>
+
+        <h3 style="margin-top:24px;">💰 Datos de rentabilidad</h3>
+
+        <div class="form-group">
+          <label>Alquiler mensual estimado</label>
+          <div class="input-prefix">
+            <span>USD</span>
+            <input type="number" id="inp-rent" class="form-control" placeholder="ej: 500" min="0">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Gastos anuales (% del valor) <span style="color:var(--gray-400);font-weight:400;">(impuestos, mantenimiento, vacancia)</span></label>
+          <div class="input-prefix">
+            <span>%</span>
+            <input type="number" id="inp-expenses" class="form-control" value="3.5" min="0" max="30" step="0.1">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Tasa de vacancia estimada (%)</label>
+          <div class="input-prefix">
+            <span>%</span>
+            <input type="number" id="inp-vacancy" class="form-control" value="5" min="0" max="100" step="0.5">
+          </div>
+        </div>
+
+        <button id="calc-btn" class="btn btn-primary btn-full" style="margin-top:8px;">
+          Calcular ROI →
+        </button>
+
+        <button id="valuation-btn" class="btn btn-ghost btn-full" style="margin-top:8px;">
+          🤖 Obtener valuación automática
+        </button>
+
+        <div id="valuation-box" class="valuation-box">
+          <div class="label">Valuación estimada Terrium</div>
+          <div class="val" id="valuation-val">—</div>
+          <div style="font-size:0.75rem;color:var(--gray-400);margin-top:4px;">Confianza: <span id="valuation-conf">—</span></div>
+        </div>
+      </div>
+
+      <!-- Resultados -->
+      <div class="calc-section" id="results-card">
+        <h3>📊 Resultados del análisis</h3>
+
+        <div id="placeholder" style="text-align:center;padding:60px 20px;color:var(--gray-400);">
+          <div style="font-size:3rem;margin-bottom:12px;">🏗️</div>
+          <p>Completá los datos y presioná "Calcular ROI" para ver el análisis de inversión.</p>
+        </div>
+
+        <div id="results-content" style="display:none;">
+          <div class="results-grid">
+            <div class="result-item highlight">
+              <div class="r-label">ROI Neto Anual</div>
+              <div class="r-value" id="res-roi">—</div>
+              <div class="r-note">Rendimiento sobre inversión</div>
+            </div>
+            <div class="result-item good">
+              <div class="r-label">Período de repago</div>
+              <div class="r-value" id="res-payback">—</div>
+              <div class="r-note">Años hasta recuperar inversión</div>
+            </div>
+            <div class="result-item warn">
+              <div class="r-label">Ingreso anual neto</div>
+              <div class="r-value" id="res-net-income">—</div>
+              <div class="r-note">Después de gastos y vacancia</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Precio USD/m²</div>
+              <div class="r-value" id="res-price-m2">—</div>
+              <div class="r-note">Precio pagado por m²</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Renta bruta anual</div>
+              <div class="r-value" id="res-gross">—</div>
+              <div class="r-note">Antes de descontar gastos</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Gastos anuales</div>
+              <div class="r-value" id="res-expenses">—</div>
+              <div class="r-note">Impuestos + mantenimiento</div>
+            </div>
+          </div>
+
+          <div id="recommendation-box" class="recommendation-box"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico de flujo de caja -->
+    <div class="chart-section" id="chart-section" style="display:none;">
+      <h3>📈 Proyección de flujo de caja (10 años)</h3>
+      <canvas id="cashflowChart" height="260"></canvas>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    const fmtUSD = (n) => `USD ${Math.round(n).toLocaleString('es-AR')}`;
+    const fmtPct = (n) => `${n.toFixed(2)}%`;
+    let cashflowChart;
+
+    function calculate() {
+      const neighborhood = document.getElementById('inp-neighborhood').value;
+      const surface      = parseFloat(document.getElementById('inp-surface').value);
+      const price        = parseFloat(document.getElementById('inp-price').value);
+      const rent         = parseFloat(document.getElementById('inp-rent').value);
+      const expensePct   = parseFloat(document.getElementById('inp-expenses').value) / 100;
+      const vacancyPct   = parseFloat(document.getElementById('inp-vacancy').value) / 100;
+
+      if (!neighborhood || !surface || !price || !rent) {
+        showToast('Completá todos los campos requeridos', 'error');
+        return;
+      }
+
+      // Cálculos
+      const grossAnnual     = rent * 12;
+      const effectiveRent   = grossAnnual * (1 - vacancyPct);
+      const annualExpenses  = price * expensePct;
+      const netIncome       = effectiveRent - annualExpenses;
+      const roi             = (netIncome / price) * 100;
+      const payback         = roi > 0 ? (100 / roi) : 999;
+      const priceM2         = price / surface;
+
+      // Mostrar resultados
+      document.getElementById('res-roi').textContent        = fmtPct(roi);
+      document.getElementById('res-payback').textContent    = roi > 0 ? `${payback.toFixed(1)} años` : 'N/A';
+      document.getElementById('res-net-income').textContent = fmtUSD(netIncome);
+      document.getElementById('res-price-m2').textContent   = fmtUSD(priceM2) + '/m²';
+      document.getElementById('res-gross').textContent      = fmtUSD(grossAnnual);
+      document.getElementById('res-expenses').textContent   = fmtUSD(annualExpenses);
+
+      // Recomendación
+      const recBox = document.getElementById('recommendation-box');
+      if (roi >= 6) {
+        recBox.className = 'recommendation-box rec-buy';
+        recBox.innerHTML = `✅ <strong>Recomendación: COMPRAR</strong> — ROI del ${fmtPct(roi)} es excelente para el mercado de CABA. Esta propiedad supera el promedio histórico de rentabilidad de 4-5%.`;
+      } else if (roi >= 3.5) {
+        recBox.className = 'recommendation-box rec-watch';
+        recBox.innerHTML = `👀 <strong>Recomendación: ANALIZAR</strong> — ROI del ${fmtPct(roi)} está dentro del promedio del mercado. Evaluá la ubicación y potencial de valorización del barrio ${neighborhood}.`;
+      } else {
+        recBox.className = 'recommendation-box rec-avoid';
+        recBox.innerHTML = `⚠️ <strong>Recomendación: PRECAUCIÓN</strong> — ROI del ${fmtPct(roi)} es bajo para el mercado actual. Considerá negociar el precio de compra o buscar una propiedad con mayor renta en el mismo barrio.`;
+      }
+
+      document.getElementById('placeholder').style.display      = 'none';
+      document.getElementById('results-content').style.display  = 'block';
+
+      // Gráfico de proyección 10 años
+      renderCashflowChart(price, netIncome, 0.03); // asumiendo 3% valorización anual
+      document.getElementById('chart-section').style.display = 'block';
+    }
+
+    function renderCashflowChart(initialPrice, annualNetIncome, appreciationRate) {
+      const years = Array.from({ length: 11 }, (_, i) => `Año ${i}`);
+      const cumulative = years.map((_, i) => {
+        const appreciation = initialPrice * (Math.pow(1 + appreciationRate, i) - 1);
+        return Math.round(annualNetIncome * i + appreciation);
+      });
+      const annual = years.map((_, i) => i === 0 ? 0 : Math.round(annualNetIncome));
+
+      if (cashflowChart) cashflowChart.destroy();
+      cashflowChart = new Chart(document.getElementById('cashflowChart'), {
+        type: 'bar',
+        data: {
+          labels: years,
+          datasets: [
+            {
+              label: 'Flujo anual neto',
+              data: annual,
+              backgroundColor: 'rgba(212,175,55,0.6)',
+              borderColor: '#D4AF37',
+              borderWidth: 2,
+              borderRadius: 4,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Ganancia acumulada',
+              data: cumulative,
+              type: 'line',
+              borderColor: '#1a3a5c',
+              backgroundColor: 'transparent',
+              tension: 0.4,
+              pointRadius: 4,
+              borderWidth: 2.5,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (ctx) => `USD ${ctx.parsed.y.toLocaleString('es-AR')}` } } },
+          scales: {
+            y:  { position: 'left',  ticks: { callback: (v) => `$${(v/1000).toFixed(0)}k` }, title: { display: true, text: 'Flujo anual' } },
+            y1: { position: 'right', ticks: { callback: (v) => `$${(v/1000).toFixed(0)}k` }, title: { display: true, text: 'Acumulado' }, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+    }
+
+    document.getElementById('calc-btn').addEventListener('click', calculate);
+
+    document.getElementById('valuation-btn').addEventListener('click', async () => {
+      const neighborhood = document.getElementById('inp-neighborhood').value;
+      const surface      = parseFloat(document.getElementById('inp-surface').value);
+      if (!neighborhood || !surface) {
+        showToast('Seleccioná barrio y superficie para obtener valuación', 'error');
+        return;
+      }
+      const btn = document.getElementById('valuation-btn');
+      btn.textContent = 'Consultando...';
+      btn.disabled = true;
+      try {
+        const data = await apiFetch('/api/valuations/estimate', {
+          method: 'POST',
+          body: JSON.stringify({ neighborhood, surfaceM2: surface })
+        });
+        document.getElementById('valuation-val').textContent  = `USD ${data.estimatedValue.toLocaleString('es-AR')} · ${data.priceUsdM2.toLocaleString()} USD/m²`;
+        document.getElementById('valuation-conf').textContent = `${(data.confidenceScore * 100).toFixed(0)}%`;
+        document.getElementById('valuation-box').style.display = 'block';
+        // Autocompletar precio
+        document.getElementById('inp-price').value = data.estimatedValue;
+      } catch (err) {
+        showToast('No se pudo obtener valuación. Verificá tu plan.', 'error');
+      } finally {
+        btn.textContent = '🤖 Obtener valuación automática';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
+

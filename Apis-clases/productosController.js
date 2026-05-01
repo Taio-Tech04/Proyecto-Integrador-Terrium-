@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/',(req,res)=>{
-    rest.json([
+    res.json([
         {id:1 ,nombre: "Laptop", precio: 1500},
         {id:2, nombre: "Celular", precio: 500},
         {id:3 ,nombre: "Impresora", precio: 250},

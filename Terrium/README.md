@@ -1,0 +1,233 @@
+# Terrium — Real Estate Intelligence Platform 🏙️
+
+> Plataforma de inteligencia inmobiliaria para Argentina. Conectamos inversores, compradores y vendedores con datos precisos del mercado de CABA.
+
+[![CI](https://github.com/TU_USUARIO/terrium/actions/workflows/ci.yml/badge.svg)](https://github.com/TU_USUARIO/terrium/actions/workflows/ci.yml)
+
+---
+
+## 📐 Arquitectura
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                        FRONTEND (Nginx)                       │
+│          HTML / CSS / JS  ·  Leaflet  ·  Chart.js            │
+└────────────────────────┬─────────────────────────────────────┘
+                         │ HTTP
+┌────────────────────────▼─────────────────────────────────────┐
+│                   API GATEWAY :4000                           │
+│              REST Proxy  +  Apollo GraphQL                    │
+└──┬─────────┬──────────┬──────────┬──────────┬───────────────┘
+   │         │          │          │          │
+:3005      :3001      :3002      :3003      :3004
+Users    Listings  Valuations Analytics Notifications
+   │         │          │          │          │
+   └────────────────────┴──────────┴──────────┘
+                         │
+              ┌──────────▼──────────┐
+              │   RabbitMQ :5672    │  ← Event Bus
+              └─────────────────────┘
+                         │
+              ┌──────────▼──────────┐
+              │   PostgreSQL :5432  │  (5 DBs)
+              │   Redis :6379       │  (Cache)
+              └─────────────────────┘
+```
+
+## 🚀 Inicio rápido
+
+### Requisitos
+- Docker Desktop 24+
+- Docker Compose v2+
+- Node.js 20+ (solo para desarrollo local)
+- Git
+
+### Levantar todo con Docker
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/tu-usuario/terrium.git
+cd terrium
+
+# 2. Copiar variables de entorno
+cp .env.example .env
+# Editar .env con tus valores reales
+
+# 3. Levantar todos los servicios
+docker compose up --build
+
+# 4. Con herramientas de admin (pgAdmin)
+docker compose --profile tools up --build
+```
+
+La aplicación estará disponible en:
+- 🌐 **Frontend**: http://localhost
+- 🔌 **API Gateway**: http://localhost:4000
+- 📊 **GraphQL Playground**: http://localhost:4000/graphql
+- 🐇 **RabbitMQ Admin**: http://localhost:15672 (terrium / terrium_secret)
+- 🗄️ **pgAdmin**: http://localhost:5050 (solo con `--profile tools`)
+
+---
+
+## 📦 Microservicios
+
+| Servicio      | Puerto | Base de datos          | Descripción                            |
+|---------------|--------|------------------------|----------------------------------------|
+| API Gateway   | 4000   | —                      | Punto de entrada REST + GraphQL        |
+| Users         | 3005   | terrium_users          | Auth, perfiles, suscripciones          |
+| Listings      | 3001   | terrium_listings       | Propiedades e inmuebles                |
+| Valuations    | 3002   | terrium_valuations     | Valuación automática con comparables   |
+| Analytics     | 3003   | terrium_analytics      | Métricas, tendencias, mapa de calor    |
+| Notifications | 3004   | terrium_notifications  | Emails y alertas                       |
+
+---
+
+## 💳 Planes de Suscripción
+
+| Tier        | Precio ARS/mes | Herramientas                                           |
+|-------------|----------------|--------------------------------------------------------|
+| FREE        | Gratis         | Búsqueda básica, datos generales del mercado           |
+| INVERSOR    | $4.999         | + Historial de precios, valuaciones, alertas           |
+| PRO         | $14.999        | + Mapa de calor, analytics avanzados, API access       |
+| ENTERPRISE  | A convenir     | + Acceso completo, soporte prioritario, white-label    |
+
+## 📡 Endpoints Principales
+
+### Auth (`/api/auth`)
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Registrar usuario |
+| POST | `/api/auth/login` | Login y obtener JWT |
+| GET  | `/api/auth/me` | Perfil del usuario |
+
+### Listings (`/api/listings`) — 🔐 JWT requerido
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET  | `/api/listings?type=VENTA&neighborhood=Palermo&page=1` | Listar propiedades con filtros |
+| GET  | `/api/listings/:id` | Detalle de propiedad |
+| POST | `/api/listings` | Publicar propiedad |
+| PUT  | `/api/listings/:id` | Editar propiedad |
+| DELETE | `/api/listings/:id` | Eliminar propiedad |
+
+### Valuations (`/api/valuations`) — 🔐 JWT requerido
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/valuations/estimate` | Valuación automática ({neighborhood, surfaceM2}) |
+| GET  | `/api/valuations/property/:id` | Valuación de propiedad específica |
+| GET  | `/api/valuations/history/:neighborhood` | Historial de precios |
+
+### Analytics (`/api/analytics`) — 🔐 JWT requerido (PRO para heatmap)
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/analytics/overview` | Resumen del mercado |
+| GET | `/api/analytics/trends?months=6` | Tendencias de precio por barrio |
+| GET | `/api/analytics/heatmap` | Puntos para mapa de calor |
+| GET | `/api/analytics/ranking` | Ranking de barrios por score |
+| GET | `/api/analytics/score/:neighborhood` | Score de un barrio |
+
+### Subscriptions (`/api/subscriptions`) — 🔐 JWT requerido
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET  | `/api/subscriptions/plans` | Ver todos los planes (público) |
+| GET  | `/api/subscriptions/me` | Suscripción activa |
+| POST | `/api/subscriptions/upgrade` | Cambiar de plan ({tier}) |
+
+### WebSocket — Mapa de calor en tiempo real
+```
+ws://localhost:4000/socket.io
+Evento escuchar: 'heatmap:update' → Array de puntos [{lat, lng, intensity, neighborhood, avgPriceUsdM2}]
+```
+
+---
+
+## 🗺️ Páginas del Frontend
+
+| Página | URL | Tier mínimo |
+|--------|-----|-------------|
+| Landing | `/index.html` | Todos |
+| Registro | `/register.html` | Todos |
+| Login | `/login.html` | Todos |
+| Dashboard | `/dashboard.html` | FREE |
+| Propiedades | `/listings.html` | FREE |
+| Calculadora ROI | `/calculator.html` | FREE |
+| Mapa de Calor | `/heatmap.html` | **PRO** |
+| Planes | `/pricing.html` | Todos |
+
+---
+
+## 🛠️ Desarrollo local (sin Docker)
+
+```bash
+# Instalar dependencias de todos los servicios
+cd api-gateway && npm install && cd ..
+cd services/users && npm install && cd ../..
+cd services/listings && npm install && cd ../..
+cd services/valuations && npm install && cd ../..
+cd services/analytics && npm install && cd ../..
+cd services/notifications && npm install && cd ../..
+
+# Necesitás PostgreSQL y RabbitMQ corriendo localmente
+# Podés levantarlos solo con Docker:
+docker compose up postgres redis rabbitmq
+
+# Luego cada servicio en una terminal separada
+cd services/users && npm run dev
+cd services/listings && npm run dev
+# etc.
+```
+
+---
+
+## 🧪 Tests
+
+```bash
+# En cualquier servicio
+cd services/listings
+npm test
+```
+
+---
+
+## 🚢 CI/CD
+
+El proyecto incluye dos workflows de GitHub Actions:
+
+- **ci.yml**: Se ejecuta en cada push y PR → instala dependencias y corre tests
+- **cd.yml**: Se ejecuta al hacer push a `main` → construye imágenes Docker, las publica en GHCR y despliega en producción vía SSH
+
+---
+
+## 📂 Estructura del proyecto
+
+```
+terrium/
+├── .github/workflows/       # CI/CD
+├── api-gateway/             # API Gateway (REST + GraphQL)
+├── services/
+│   ├── listings/            # Microservicio de propiedades
+│   ├── valuations/          # Microservicio de valuaciones
+│   ├── analytics/           # Microservicio de analytics
+│   ├── notifications/       # Microservicio de notificaciones
+│   └── users/               # Microservicio de usuarios
+├── frontend/                # Frontend estático (Nginx)
+├── scripts/                 # Scripts de init de base de datos
+├── docker-compose.yml
+└── .env.example
+```
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Integración con MercadoPago para pagos de suscripción
+- [ ] Autenticación OAuth2 (Google, LinkedIn)
+- [ ] App mobile (React Native)
+- [ ] Integración con portales inmobiliarios (ZonaProp, Argenprop)
+- [ ] ML para predicción de precios
+
+---
+
+## 📄 Licencia
+
+MIT — © 2025 Terrium. Todos los derechos reservados.
+

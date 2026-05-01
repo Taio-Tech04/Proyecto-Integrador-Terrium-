@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Calor CABA — Terrium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    body { overflow: hidden; }
+    .map-wrapper { position: relative; height: calc(100vh - 64px); }
+    #map { width: 100%; height: 100%; }
+
+    /* Panel de control */
+    .map-control-panel { position: absolute; top: 16px; left: 16px; z-index: 1000; background: var(--white); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-md); min-width: 260px; max-height: calc(100vh - 120px); overflow-y: auto; }
+    .map-control-panel h3 { color: var(--navy); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .stat-mini { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gray-200); }
+    .stat-mini:last-of-type { border-bottom: none; }
+    .stat-mini .label { font-size: 0.8rem; color: var(--gray-600); }
+    .stat-mini .value { font-size: 0.95rem; font-weight: 700; color: var(--navy); }
+
+    /* Leyenda */
+    .map-legend { position: absolute; bottom: 40px; right: 16px; z-index: 1000; background: var(--white); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+    .map-legend h4 { color: var(--navy); font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .legend-gradient { height: 12px; width: 200px; border-radius: 6px; background: linear-gradient(90deg, #4575b4, #91bfdb, #fee090, #fc8d59, #d73027); margin-bottom: 6px; }
+    .legend-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--gray-600); }
+
+    /* Lock overlay para FREE */
+    .tier-lock { position: absolute; inset: 0; z-index: 999; background: rgba(13,27,42,0.7); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .tier-lock-card { background: var(--white); border-radius: var(--radius-lg); padding: 48px; text-align: center; max-width: 420px; }
+    .tier-lock-card .lock-icon { font-size: 3rem; margin-bottom: 16px; }
+    .tier-lock-card h2 { color: var(--navy); margin-bottom: 12px; }
+    .tier-lock-card p { color: var(--gray-600); margin-bottom: 28px; }
+
+    /* Tooltip barrio */
+    .neighborhood-tooltip { background: var(--navy); color: var(--white); border: none; padding: 10px 16px; border-radius: 8px; font-family: var(--font); font-size: 0.85rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand"><div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div></div>
+    <div class="navbar-nav">
+      <a href="index.html">Inicio</a><a href="dashboard.html">Dashboard</a>
+      <a href="listings.html">Propiedades</a><a href="calculator.html">Calc. ROI</a>
+      <a href="heatmap.html" class="active">Mapa de Calor</a><a href="pricing.html">Planes</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="user-info" style="display:none; align-items:center; gap:8px;"><span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span><span id="user-tier-badge" class="badge"></span></div>
+      <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+    </div>
+  </nav>
+
+  <div class="map-wrapper">
+    <div id="map"></div>
+
+    <!-- Panel lateral -->
+    <div class="map-control-panel">
+      <h3>🗺️ Mapa de Precios CABA</h3>
+      <p style="font-size:0.8rem; color:var(--gray-600); margin-bottom:16px;">Intensidad de color = USD/m²</p>
+
+      <div id="stats-panel">
+        <div class="stat-mini"><span class="label">Precio máx. observado</span><span class="value" id="max-price-stat">—</span></div>
+        <div class="stat-mini"><span class="label">Precio mín. observado</span><span class="value" id="min-price-stat">—</span></div>
+        <div class="stat-mini"><span class="label">Barrio más caro</span><span class="value" id="most-expensive">—</span></div>
+        <div class="stat-mini"><span class="label">Barrio más accesible</span><span class="value" id="least-expensive">—</span></div>
+        <div class="stat-mini"><span class="label">Total puntos</span><span class="value" id="total-points">—</span></div>
+      </div>
+
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--gray-200);">
+        <h4 style="color:var(--navy); font-size:0.85rem; margin-bottom:12px;">Filtrar por rango USD/m²</h4>
+        <div class="form-group" style="margin-bottom:0;">
+          <input type="range" id="price-filter" min="0" max="5500" step="100" value="0" style="width:100%;">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--gray-400);">
+            <span>$0</span><span id="price-filter-val">Todos</span><span>$5.500</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="map-legend">
+      <h4>Precio USD/m²</h4>
+      <div class="legend-gradient"></div>
+      <div class="legend-labels"><span>Bajo</span><span>Medio</span><span>Alto</span></div>
+    </div>
+
+    <!-- Tier lock overlay (se muestra si no es PRO+) -->
+    <div class="tier-lock" id="tier-lock" style="display:none;">
+      <div class="tier-lock-card">
+        <div class="lock-icon">🔒</div>
+        <h2>Función exclusiva Plan PRO</h2>
+        <p>El mapa de calor de CABA está disponible para suscriptores <strong>PRO</strong> y <strong>Enterprise</strong>. Accedé a datos geoespaciales avanzados con precios por zona.</p>
+        <a href="pricing.html" class="btn btn-primary btn-lg">Ver planes →</a>
+        <br><br>
+        <a href="dashboard.html" class="btn btn-ghost">Volver al dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/heatmap.js"></script>
+</body>
+</html>
+

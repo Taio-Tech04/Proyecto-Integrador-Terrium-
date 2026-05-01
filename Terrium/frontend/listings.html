@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propiedades — Terrium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    body { background: var(--gray-100); }
+    .page-layout { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 64px); }
+    .filters-panel { background: var(--white); padding: 24px; border-right: 1px solid var(--gray-200); position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; }
+    .filters-panel h3 { color: var(--navy); margin-bottom: 20px; }
+    .results-area { padding: 28px; }
+    .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .results-count { font-size: 0.9rem; color: var(--gray-600); }
+    .listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .listing-card { background: var(--white); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; }
+    .listing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .listing-img { height: 180px; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); position: relative; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+    .listing-type-badge { position: absolute; top: 12px; left: 12px; background: var(--gold); color: var(--navy); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    .listing-body { padding: 18px; }
+    .listing-price { font-size: 1.4rem; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+    .listing-address { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 10px; }
+    .listing-features { display: flex; gap: 14px; font-size: 0.8rem; color: var(--gray-600); }
+    .listing-feature { display: flex; align-items: center; gap: 4px; }
+    .listing-neighborhood { display: inline-block; background: var(--gray-100); color: var(--navy); padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-top: 10px; }
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 32px; }
+    .pagination button { width: 36px; height: 36px; border-radius: var(--radius); border: 1.5px solid var(--gray-200); background: var(--white); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: var(--transition); }
+    .pagination button.active { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+    .pagination button:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--gray-600); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 16px; }
+    @media (max-width: 768px) { .page-layout { grid-template-columns: 1fr; } .filters-panel { position: static; height: auto; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand"><div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div></div>
+    <div class="navbar-nav">
+      <a href="index.html">Inicio</a><a href="dashboard.html">Dashboard</a>
+      <a href="listings.html" class="active">Propiedades</a><a href="calculator.html">Calc. ROI</a>
+      <a href="heatmap.html">Mapa de Calor</a><a href="pricing.html">Planes</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="user-info" style="display:none; align-items:center; gap:8px;"><span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span><span id="user-tier-badge" class="badge"></span></div>
+      <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+    </div>
+  </nav>
+
+  <div class="page-layout">
+    <!-- Panel de filtros -->
+    <aside class="filters-panel">
+      <h3>🔍 Filtros</h3>
+
+      <div class="form-group">
+        <label>Tipo de operación</label>
+        <select id="filter-type" class="form-control">
+          <option value="">Todos</option>
+          <option value="VENTA">Venta</option>
+          <option value="ALQUILER">Alquiler</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Barrio</label>
+        <select id="filter-neighborhood" class="form-control">
+          <option value="">Todos los barrios</option>
+          <option>Palermo</option><option>Belgrano</option><option>Recoleta</option>
+          <option>Puerto Madero</option><option>Villa Crespo</option><option>Caballito</option>
+          <option>San Telmo</option><option>Flores</option><option>Villa Devoto</option>
+          <option>Microcentro</option><option>Almagro</option><option>Núñez</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Ambientes</label>
+        <select id="filter-rooms" class="form-control">
+          <option value="">Todos</option>
+          <option value="1">1 ambiente</option>
+          <option value="2">2 ambientes</option>
+          <option value="3">3 ambientes</option>
+          <option value="4">4+ ambientes</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Precio mínimo (USD)</label>
+        <input type="number" id="filter-min-price" class="form-control" placeholder="0" min="0">
+      </div>
+
+      <div class="form-group">
+        <label>Precio máximo (USD)</label>
+        <input type="number" id="filter-max-price" class="form-control" placeholder="Sin límite" min="0">
+      </div>
+
+      <button id="search-btn" class="btn btn-primary btn-full" style="margin-top:8px;">
+        Buscar propiedades
+      </button>
+      <button id="clear-btn" class="btn btn-ghost btn-full" style="margin-top:8px;">
+        Limpiar filtros
+      </button>
+    </aside>
+
+    <!-- Resultados -->
+    <main class="results-area">
+      <div class="results-header">
+        <div>
+          <h2 style="color:var(--navy); margin-bottom:4px;">Propiedades en CABA</h2>
+          <p id="results-count" class="results-count">Cargando...</p>
+        </div>
+        <select id="sort-select" class="form-control" style="width:auto;">
+          <option value="">Ordenar por</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+        </select>
+      </div>
+
+      <div id="loading-state" class="loading-center"><div class="spinner"></div></div>
+      <div id="listings-grid" class="listings-grid" style="display:none;"></div>
+      <div id="empty-state" class="empty-state" style="display:none;">
+        <div class="icon">🏠</div>
+        <h3>No se encontraron propiedades</h3>
+        <p>Intentá con otros filtros de búsqueda</p>
+      </div>
+      <div id="pagination" class="pagination"></div>
+    </main>
+  </div>
+
+  <div id="toast"></div>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    const TYPE_ICONS = { VENTA: '🏡', ALQUILER: '🔑', COMERCIAL: '🏢' };
+    let currentPage = 1;
+    let currentFilters = {};
+
+    function buildQueryString(filters, page) {
+      const params = new URLSearchParams();
+      if (filters.type)         params.append('type', filters.type);
+      if (filters.neighborhood) params.append('neighborhood', filters.neighborhood);
+      if (filters.rooms)        params.append('rooms', filters.rooms);
+      if (filters.minPrice)     params.append('minPrice', filters.minPrice);
+      if (filters.maxPrice)     params.append('maxPrice', filters.maxPrice);
+      params.append('page', page);
+      params.append('limit', 12);
+      return params.toString();
+    }
+
+    function renderCard(l) {
+      const icon  = TYPE_ICONS[l.type] || '🏠';
+      const price = l.currency === 'USD'
+        ? `USD ${parseInt(l.price).toLocaleString('es-AR')}`
+        : `ARS ${parseInt(l.price).toLocaleString('es-AR')}`;
+      return `
+        <div class="listing-card" onclick="window.location.href='#listing-${l.id}'">
+          <div class="listing-img">
+            ${icon}
+            <span class="listing-type-badge">${l.type || 'VENTA'}</span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-price">${price}</div>
+            <div class="listing-address">${l.address || 'Dirección no especificada'}</div>
+            <div class="listing-features">
+              ${l.rooms ? `<span class="listing-feature">🛏 ${l.rooms} amb.</span>` : ''}
+              ${l.bathrooms ? `<span class="listing-feature">🚿 ${l.bathrooms} baño${l.bathrooms > 1 ? 's' : ''}</span>` : ''}
+              ${l.surface_m2 ? `<span class="listing-feature">📐 ${l.surface_m2}m²</span>` : ''}
+            </div>
+            <span class="listing-neighborhood">📍 ${l.neighborhood || 'CABA'}</span>
+          </div>
+        </div>`;
+    }
+
+    function renderPagination(total, page, limit) {
+      const totalPages = Math.ceil(total / limit);
+      const pag = document.getElementById('pagination');
+      pag.innerHTML = '';
+      if (totalPages <= 1) return;
+      for (let i = 1; i <= Math.min(totalPages, 8); i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === page) btn.classList.add('active');
+        btn.addEventListener('click', () => { currentPage = i; loadListings(currentFilters, i); });
+        pag.appendChild(btn);
+      }
+    }
+
+    async function loadListings(filters = {}, page = 1) {
+      const grid    = document.getElementById('listings-grid');
+      const loading = document.getElementById('loading-state');
+      const empty   = document.getElementById('empty-state');
+      const count   = document.getElementById('results-count');
+
+      loading.style.display = 'flex'; grid.style.display = 'none'; empty.style.display = 'none';
+
+      try {
+        const qs   = buildQueryString(filters, page);
+        const data = await apiFetch(`/api/listings?${qs}`);
+        const listings = Array.isArray(data) ? data : (data.listings || data.data || []);
+        const total    = data.total || listings.length;
+
+        loading.style.display = 'none';
+        count.textContent = `${total.toLocaleString('es-AR')} propiedad${total !== 1 ? 'es' : ''} encontrada${total !== 1 ? 's' : ''}`;
+
+        if (!listings.length) { empty.style.display = 'block'; return; }
+
+        grid.innerHTML = listings.map(renderCard).join('');
+        grid.style.display = 'grid';
+        renderPagination(total, page, 12);
+      } catch (err) {
+        loading.style.display = 'none';
+        count.textContent = 'Error al cargar propiedades';
+        showToast('Error al cargar propiedades', 'error');
+      }
+    }
+
+    function getFilters() {
+      return {
+        type:         document.getElementById('filter-type').value,
+        neighborhood: document.getElementById('filter-neighborhood').value,
+        rooms:        document.getElementById('filter-rooms').value,
+        minPrice:     document.getElementById('filter-min-price').value,
+        maxPrice:     document.getElementById('filter-max-price').value
+      };
+    }
+
+    document.getElementById('search-btn').addEventListener('click', () => {
+      currentFilters = getFilters();
+      currentPage = 1;
+      loadListings(currentFilters, 1);
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      document.getElementById('filter-type').value = '';
+      document.getElementById('filter-neighborhood').value = '';
+      document.getElementById('filter-rooms').value = '';
+      document.getElementById('filter-min-price').value = '';
+      document.getElementById('filter-max-price').value = '';
+      currentFilters = {};
+      loadListings({}, 1);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => loadListings({}, 1));
+  </script>
+</body>
+</html>
+

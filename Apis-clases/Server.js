@@ -27,10 +27,10 @@ app.get('/productos/:id', (req, res) => {
 app.get("/buscar", (req, res) => {
     const nombre= req.query.nombre;
     if(nombre===undefined){
-        res.json({mensaje: "No ingresaste un valor de busqueda"});
+        return res.json({mensaje: "No ingresaste un valor de busqueda"});
     }
 
-    res.json({mensaje: "Nombre Obtenido por QP: ${nombre}"});
+    res.json({mensaje: `Nombre Obtenido por QP: ${nombre}`});
     });
 
 app.post("/productos", (req, res) => {
