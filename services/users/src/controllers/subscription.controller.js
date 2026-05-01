@@ -41,10 +41,8 @@ const upgrade = async (req, res) => {
     const expiresAt = new Date();
     expiresAt.setMonth(expiresAt.getMonth() + 1);
 
-    // Vencer suscripciones anteriores
     await query(`UPDATE subscriptions SET status = 'CANCELADA' WHERE user_id = $1 AND status = 'ACTIVA'`, [userId]);
 
-    // Crear nueva suscripción
     await query(
       `INSERT INTO subscriptions (user_id, tier, price_ars, expires_at) VALUES ($1, $2, $3, $4)`,
       [userId, tier, plan.priceArs, expiresAt]

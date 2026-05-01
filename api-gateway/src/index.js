@@ -21,39 +21,31 @@ async function bootstrap() {
   const app = express();
   const server = http.createServer(app);
 
-  // ── Socket.io (proxy WebSocket hacia Analytics) ──────────────────────────
+  // Socket.io — proxy de eventos hacia el servicio Analytics
   const io = new SocketServer(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] },
     transports: ['websocket', 'polling']
   });
 
-  // Cuando llega un cliente, conectamos al analytics service y re-emitimos
   io.on('connection', (clientSocket) => {
-    logger.info(`🔌 WS Gateway: cliente conectado ${clientSocket.id}`);
-
+    logger.info(`WS Gateway: cliente conectado ${clientSocket.id}`);
     const { io: ioClient } = require('socket.io-client');
     const upstream = ioClient(config.ANALYTICS_URL, { transports: ['websocket', 'polling'] });
-
     upstream.on('heatmap:update', (data) => clientSocket.emit('heatmap:update', data));
     upstream.on('connect_error', (err) => logger.warn(`Upstream WS error: ${err.message}`));
-
-    clientSocket.on('disconnect', () => { upstream.disconnect(); });
+    clientSocket.on('disconnect', () => upstream.disconnect());
   });
 
-  // ── Seguridad y utilities ──────────────────────────────────────────────────
+  // Middleware
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] }));
   app.use(morgan('dev'));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
-
-  // ── Rate limiting ──────────────────────────────────────────────────────────
   app.use('/api/', rateLimiter);
-
-  // ── Health check ──────────────────────────────────────────────────────────
   app.use('/health', healthRouter);
 
-  // ── Proxies REST ──────────────────────────────────────────────────────────
+  // Proxy REST
   const proxyOptions = (target) => ({
     target,
     changeOrigin: true,
@@ -65,72 +57,41 @@ async function bootstrap() {
     }
   });
 
-  // Ruta de suscripciones (pública para ver planes, protegida para upgrade)
+  // Rutas públicas
   app.get('/api/subscriptions/plans', createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/subscriptions': '/subscriptions' } }));
-  app.use('/api/subscriptions', authMiddleware, createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/subscriptions': '/subscriptions' } }));
-
-  // Rutas públicas (sin auth)
   app.use('/api/auth', createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/auth': '/auth' } }));
 
   // Rutas protegidas
-  app.use('/api/listings', authMiddleware, createProxyMiddleware({ ...proxyOptions(config.LISTINGS_URL), pathRewrite: { '^/api/listings': '/' } }));
-  app.use('/api/valuations', authMiddleware, createProxyMiddleware({ ...proxyOptions(config.VALUATIONS_URL), pathRewrite: { '^/api/valuations': '/' } }));
-  app.use('/api/analytics', authMiddleware, createProxyMiddleware({ ...proxyOptions(config.ANALYTICS_URL), pathRewrite: { '^/api/analytics': '/' } }));
+  app.use('/api/subscriptions', authMiddleware, createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/subscriptions': '/subscriptions' } }));
+  app.use('/api/listings',      authMiddleware, createProxyMiddleware({ ...proxyOptions(config.LISTINGS_URL),      pathRewrite: { '^/api/listings': '/' } }));
+  app.use('/api/valuations',    authMiddleware, createProxyMiddleware({ ...proxyOptions(config.VALUATIONS_URL),    pathRewrite: { '^/api/valuations': '/' } }));
+  app.use('/api/analytics',     authMiddleware, createProxyMiddleware({ ...proxyOptions(config.ANALYTICS_URL),     pathRewrite: { '^/api/analytics': '/' } }));
   app.use('/api/notifications', authMiddleware, createProxyMiddleware({ ...proxyOptions(config.NOTIFICATIONS_URL), pathRewrite: { '^/api/notifications': '/' } }));
-  app.use('/api/users', authMiddleware, createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/users': '/users' } }));
+  app.use('/api/users',         authMiddleware, createProxyMiddleware({ ...proxyOptions(config.USERS_URL),         pathRewrite: { '^/api/users': '/users' } }));
 
-  // ── GraphQL ─────────────────────────────────────────────────────────────
+  // GraphQL
   const apolloServer = new ApolloServer({ typeDefs, resolvers });
   await apolloServer.start();
-
-  app.use(
-    '/graphql',
-    cors(),
-    express.json(),
-    expressMiddleware(apolloServer, {
-      context: async ({ req }) => {
-        const token = req.headers.authorization?.replace('Bearer ', '');
-        let user = null;
-        if (token) {
-          try {
-            const jwt = require('jsonwebtoken');
-            user = jwt.verify(token, config.JWT_SECRET);
-          } catch (_) {}
-        }
-        return { user };
+  app.use('/graphql', cors(), express.json(), expressMiddleware(apolloServer, {
+    context: async ({ req }) => {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      let user = null;
+      if (token) {
+        try { const jwt = require('jsonwebtoken'); user = jwt.verify(token, config.JWT_SECRET); } catch (_) {}
       }
-    })
-  );
+      return { user };
+    }
+  }));
 
-  // ── Ruta raíz ──────────────────────────────────────────────────────────
-  app.get('/', (req, res) => {
-    res.json({
-      name: 'Terrium API Gateway',
-      version: '1.0.0',
-      docs: '/graphql',
-      health: '/health',
-      websocket: 'ws://HOST/socket.io'
-    });
-  });
-
-  // ── 404 ─────────────────────────────────────────────────────────────────
+  app.get('/', (req, res) => res.json({ name: 'Terrium API Gateway', version: '1.0.0', docs: '/graphql', health: '/health' }));
   app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
-
-  // ── Error handler ────────────────────────────────────────────────────────
-  app.use((err, req, res, next) => {
-    logger.error(err.stack);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  });
+  app.use((err, req, res, next) => { logger.error(err.stack); res.status(500).json({ error: 'Error interno del servidor' }); });
 
   server.listen(config.PORT, () => {
-    logger.info(`🚀 Terrium API Gateway corriendo en http://localhost:${config.PORT}`);
-    logger.info(`📊 GraphQL Playground: http://localhost:${config.PORT}/graphql`);
-    logger.info(`🔌 WebSocket: ws://localhost:${config.PORT}/socket.io`);
+    logger.info(`API Gateway: http://localhost:${config.PORT}`);
+    logger.info(`GraphQL:     http://localhost:${config.PORT}/graphql`);
+    logger.info(`WebSocket:   ws://localhost:${config.PORT}/socket.io`);
   });
 }
 
-bootstrap().catch((err) => {
-  console.error('Error al iniciar el gateway:', err);
-  process.exit(1);
-});
-
+bootstrap().catch((err) => { logger.error(err); process.exit(1); });

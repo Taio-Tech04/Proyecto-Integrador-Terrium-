@@ -9,7 +9,7 @@ const connectDB = async () => {
     logger.info('✅ Conectado a PostgreSQL (analytics)');
     await runMigrations();
   } catch (err) {
-    logger.warn('Reintentando conexión a PostgreSQL (analytics)...');
+    logger.warn('Reintentando conexión PostgreSQL (analytics)...');
     setTimeout(connectDB, 5000);
   }
 };
@@ -40,7 +40,6 @@ const runMigrations = async () => {
     );
   `);
 
-  // Insertar datos reales de CABA
   const { rows } = await pool.query('SELECT COUNT(*) FROM market_metrics');
   if (parseInt(rows[0].count) === 0) {
     const now = new Date();
@@ -77,8 +76,8 @@ const runMigrations = async () => {
         [b.n, b.score, b.yield, b.trend, getRecommendation(b.score, b.trend)]
       );
     }
-    logger.info('📦 Datos de analytics insertados');
-  }
+      logger.info('Datos de analytics inicializados');
+    }
 };
 
 const getRecommendation = (score, trend) => {

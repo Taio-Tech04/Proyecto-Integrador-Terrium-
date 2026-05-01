@@ -1,8 +1,6 @@
-const axios = require('axios');
 const { query } = require('../db/connection');
 const logger = require('../utils/logger');
 
-// Precios promedio por barrio en USD/m² (datos de referencia CABA 2024)
 const BASE_PRICES = {
   'Palermo': 3200, 'Belgrano': 2900, 'Recoleta': 3500, 'Puerto Madero': 5200,
   'Villa Crespo': 2100, 'Caballito': 1900, 'San Telmo': 2200, 'Flores': 1500,
@@ -45,7 +43,6 @@ const estimate = async (req, res) => {
     }
 
     const basePrice = BASE_PRICES[neighborhood] || 2000;
-    // Variación aleatoria para simular comparables reales
     const variation = 0.95 + Math.random() * 0.1;
     const priceUsdM2 = Math.round(basePrice * variation);
     const estimatedValue = Math.round(priceUsdM2 * surfaceM2);

@@ -155,7 +155,7 @@ Evento escuchar: 'heatmap:update' → Array de puntos [{lat, lng, intensity, nei
 
 ---
 
-
+## 🛠️ Desarrollo local (sin Docker)
 
 ```bash
 # Instalar dependencias de todos los servicios

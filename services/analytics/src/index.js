@@ -14,7 +14,22 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3003;
 
-// ── Socket.io ──────────────────────────────────────────────────────────────
+const CABA_COORDS = {
+  'Palermo':      { lat: -34.5889, lng: -58.4277 },
+  'Belgrano':     { lat: -34.5601, lng: -58.4568 },
+  'Recoleta':     { lat: -34.5875, lng: -58.3944 },
+  'Puerto Madero':{ lat: -34.6118, lng: -58.3622 },
+  'Villa Crespo': { lat: -34.5999, lng: -58.4433 },
+  'Caballito':    { lat: -34.6189, lng: -58.4402 },
+  'San Telmo':    { lat: -34.6212, lng: -58.3731 },
+  'Flores':       { lat: -34.6312, lng: -58.4648 },
+  'Villa Devoto': { lat: -34.6148, lng: -58.5234 },
+  'Microcentro':  { lat: -34.6083, lng: -58.3712 },
+  'Almagro':      { lat: -34.6064, lng: -58.4204 },
+  'Núñez':        { lat: -34.5449, lng: -58.4612 }
+};
+
+// Socket.io
 const io = new Server(server, {
   cors: { origin: '*', methods: ['GET', 'POST'] },
   transports: ['websocket', 'polling'],
@@ -23,26 +38,16 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  logger.info(`🔌 Cliente WebSocket conectado: ${socket.id}`);
-  socket.on('disconnect', () => logger.info(`⚡ Cliente desconectado: ${socket.id}`));
+  logger.info(`WS Analytics: cliente ${socket.id}`);
+  socket.on('disconnect', () => logger.info(`WS Analytics: desconectado ${socket.id}`));
 });
 
-// Exportar io para usarlo en otros módulos si es necesario
 app.set('io', io);
 
-// ── Broadcast heatmap cada 30 segundos ────────────────────────────────────
-const CABA_COORDS = {
-  'Palermo': { lat: -34.5889, lng: -58.4277 }, 'Belgrano': { lat: -34.5601, lng: -58.4568 },
-  'Recoleta': { lat: -34.5875, lng: -58.3944 }, 'Puerto Madero': { lat: -34.6118, lng: -58.3622 },
-  'Villa Crespo': { lat: -34.5999, lng: -58.4433 }, 'Caballito': { lat: -34.6189, lng: -58.4402 },
-  'San Telmo': { lat: -34.6212, lng: -58.3731 }, 'Flores': { lat: -34.6312, lng: -58.4648 },
-  'Villa Devoto': { lat: -34.6148, lng: -58.5234 }, 'Microcentro': { lat: -34.6083, lng: -58.3712 },
-  'Almagro': { lat: -34.6064, lng: -58.4204 }, 'Núñez': { lat: -34.5449, lng: -58.4612 }
-};
-
+// Broadcast heatmap cada 30 segundos
 async function broadcastHeatmap() {
   try {
-    if (io.engine.clientsCount === 0) return; // No hay clientes, saltar
+    if (io.engine.clientsCount === 0) return;
     const { rows } = await query(
       `SELECT DISTINCT ON (neighborhood) neighborhood, avg_price_usd_m2
        FROM market_metrics ORDER BY neighborhood, year DESC, month DESC`
@@ -53,19 +58,24 @@ async function broadcastHeatmap() {
       const intensity = Math.min(parseFloat(r.avg_price_usd_m2) / 5500, 1);
       points.push({ lat: coords.lat, lng: coords.lng, intensity, neighborhood: r.neighborhood, avgPriceUsdM2: parseFloat(r.avg_price_usd_m2) });
       for (let i = 0; i < 5; i++) {
-        points.push({ lat: coords.lat + (Math.random() * 0.012 - 0.006), lng: coords.lng + (Math.random() * 0.012 - 0.006), intensity: intensity * (0.7 + Math.random() * 0.3), neighborhood: r.neighborhood, avgPriceUsdM2: parseFloat(r.avg_price_usd_m2) });
+        points.push({
+          lat: coords.lat + (Math.random() * 0.012 - 0.006),
+          lng: coords.lng + (Math.random() * 0.012 - 0.006),
+          intensity: intensity * (0.7 + Math.random() * 0.3),
+          neighborhood: r.neighborhood,
+          avgPriceUsdM2: parseFloat(r.avg_price_usd_m2)
+        });
       }
     });
     io.emit('heatmap:update', points);
-    logger.debug(`📡 Heatmap broadcast → ${io.engine.clientsCount} clientes`);
   } catch (err) {
-    logger.error('Error en broadcastHeatmap:', err.message);
+    logger.error('broadcastHeatmap:', err.message);
   }
 }
 
-cron.schedule('*/30 * * * * *', broadcastHeatmap); // Cada 30 segundos
+cron.schedule('*/30 * * * * *', broadcastHeatmap);
 
-// ── Middleware ─────────────────────────────────────────────────────────────
+// Middleware
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
@@ -78,7 +88,6 @@ app.use((err, req, res, next) => { logger.error(err.stack); res.status(500).json
 async function start() {
   await connectDB();
   startSyncJob();
-  server.listen(PORT, () => logger.info(`📈 Analytics Service corriendo en puerto ${PORT} (WebSocket activo)`));
+  server.listen(PORT, () => logger.info(`Analytics Service: puerto ${PORT}`));
 }
 start().catch((err) => { logger.error(err); process.exit(1); });
-

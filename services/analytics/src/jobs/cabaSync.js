@@ -1,7 +1,3 @@
-/**
- * cabaSync.js — Sincronización con datos abiertos de CABA
- * Corre diariamente a las 3:00 AM (America/Argentina/Buenos_Aires)
- */
 const axios = require('axios');
 const cron = require('node-cron');
 const { query } = require('../db/connection');
@@ -27,15 +23,10 @@ function normalizeNeighborhood(name) {
 }
 
 async function fetchFromCABAAPI() {
-  const url = process.env.CABA_API_URL ||
-    'https://data.buenosaires.gob.ar/api/3/action/datastore_search';
+  const url = process.env.CABA_API_URL || 'https://data.buenosaires.gob.ar/api/3/action/datastore_search';
   const resourceId = process.env.CABA_RESOURCE_ID || 'e4bc6e71-7a0a-4a7b-8a36-0b82a5d9f42c';
   const headers = process.env.CABA_API_KEY ? { Authorization: process.env.CABA_API_KEY } : {};
-  const res = await axios.get(url, {
-    params: { resource_id: resourceId, limit: 500 },
-    timeout: 15000,
-    headers
-  });
+  const res = await axios.get(url, { params: { resource_id: resourceId, limit: 500 }, timeout: 15000, headers });
   if (!res.data?.result?.records) throw new Error('Formato inesperado');
   return res.data.result.records;
 }
@@ -59,7 +50,8 @@ function processRecords(records) {
     const p = parseFloat(r.precio_m2 || r.PRECIO_M2 || 0);
     if (p <= 0 || p > 20000) continue;
     if (!grouped[n]) grouped[n] = { sum: 0, count: 0 };
-    grouped[n].sum += p; grouped[n].count++;
+    grouped[n].sum += p;
+    grouped[n].count++;
   }
   const now = new Date();
   return Object.entries(grouped).map(([n, d]) => ({
@@ -87,40 +79,35 @@ async function upsertMetrics(metrics) {
 }
 
 async function syncCABAData() {
-  logger.info('🔄 Sync CABA iniciado...');
+  logger.info('Sync CABA iniciado...');
   let metrics;
   try {
     const records = await fetchFromCABAAPI();
     metrics = processRecords(records);
-    logger.info(`✅ API CABA: ${metrics.length} barrios procesados`);
+    logger.info(`API CABA: ${metrics.length} barrios procesados`);
   } catch (err) {
-    logger.warn(`⚠️ API CABA no disponible: ${err.message} — usando fallback`);
+    logger.warn(`API CABA no disponible: ${err.message} — usando datos de referencia`);
     metrics = generateFallbackData();
   }
   const n = await upsertMetrics(metrics);
-  logger.info(`💾 ${n} métricas actualizadas en DB`);
+  logger.info(`${n} métricas actualizadas en DB`);
 }
 
 function startSyncJob() {
   const interval = process.env.CABA_SYNC_INTERVAL_MIN;
   if (interval) {
     cron.schedule(`*/${interval} * * * *`, syncCABAData);
-    logger.info(`📅 CABA sync: cada ${interval} minutos (modo test)`);
+    logger.info(`CABA sync: cada ${interval} minutos`);
   } else {
     cron.schedule('0 3 * * *', syncCABAData, { timezone: 'America/Argentina/Buenos_Aires' });
-    logger.info('📅 CABA sync: diariamente a las 3:00 AM Buenos Aires');
+    logger.info('CABA sync: diariamente 3:00 AM Buenos Aires');
   }
-  // Ejecutar inmediatamente si la DB está vacía
   setTimeout(async () => {
     try {
       const { rows } = await query('SELECT COUNT(*) FROM market_metrics');
-      if (parseInt(rows[0].count) === 0) {
-        logger.info('📦 DB vacía — ejecutando sync inicial');
-        await syncCABAData();
-      }
+      if (parseInt(rows[0].count) === 0) await syncCABAData();
     } catch (_) {}
   }, 8000);
 }
 
 module.exports = { startSyncJob, syncCABAData };
-
