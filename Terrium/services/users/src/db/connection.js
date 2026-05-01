@@ -1,7 +1,13 @@
 const { Pool } = require('pg');
 const logger = require('../utils/logger');
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// Supabase requiere SSL; detectamos si la URL apunta a Supabase
+const isSupabase = (process.env.DATABASE_URL || '').includes('supabase.co');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: isSupabase ? { rejectUnauthorized: false } : false,
+});
 
 const connectDB = async () => {
   try {

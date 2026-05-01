@@ -1,5 +1,18 @@
 version: '3.9'
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  TERRIUM — docker-compose
+#
+#  MODO SUPABASE (producción / staging):
+#    Completá el archivo .env con tus credenciales de Supabase y levantá sin
+#    el perfil "local":
+#      docker compose --env-file .env up
+#
+#  MODO LOCAL (desarrollo sin internet):
+#    Usá el perfil "local" para levantar PostgreSQL en Docker:
+#      docker compose --env-file .env --profile local up
+# ─────────────────────────────────────────────────────────────────────────────
+
 networks:
   terrium-net:
     driver: bridge
@@ -10,11 +23,12 @@ volumes:
   rabbitmq_data:
 
 services:
-  # ─── BASES DE DATOS ──────────────────────────────────────────────────────────
+  # ─── BASE DE DATOS LOCAL (solo con --profile local) ──────────────────────
   postgres:
     image: postgres:16-alpine
     container_name: terrium-postgres
     restart: unless-stopped
+    profiles: [local]
     environment:
       POSTGRES_USER: terrium
       POSTGRES_PASSWORD: terrium_secret
@@ -77,12 +91,12 @@ services:
     container_name: terrium-users
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_users
-      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
+      DATABASE_URL: ${USERS_DATABASE_URL:-postgresql://terrium:terrium_secret@postgres:5432/terrium_users}
+      AMQP_URL: ${AMQP_URL:-amqp://terrium:terrium_secret@rabbitmq:5672}
       JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
-      JWT_EXPIRES_IN: 7d
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       PORT: 3005
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
     depends_on:
       postgres:
         condition: service_healthy
@@ -100,11 +114,11 @@ services:
     container_name: terrium-listings
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_listings
-      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: ${LISTINGS_DATABASE_URL:-postgresql://terrium:terrium_secret@postgres:5432/terrium_listings}
+      AMQP_URL: ${AMQP_URL:-amqp://terrium:terrium_secret@rabbitmq:5672}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       PORT: 3001
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
     depends_on:
       postgres:
         condition: service_healthy
@@ -124,11 +138,11 @@ services:
     container_name: terrium-valuations
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_valuations
-      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: ${VALUATIONS_DATABASE_URL:-postgresql://terrium:terrium_secret@postgres:5432/terrium_valuations}
+      AMQP_URL: ${AMQP_URL:-amqp://terrium:terrium_secret@rabbitmq:5672}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       PORT: 3002
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
     depends_on:
       postgres:
         condition: service_healthy
@@ -146,11 +160,11 @@ services:
     container_name: terrium-analytics
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_analytics
-      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: ${ANALYTICS_DATABASE_URL:-postgresql://terrium:terrium_secret@postgres:5432/terrium_analytics}
+      AMQP_URL: ${AMQP_URL:-amqp://terrium:terrium_secret@rabbitmq:5672}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       PORT: 3003
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
     depends_on:
       postgres:
         condition: service_healthy
@@ -168,15 +182,15 @@ services:
     container_name: terrium-notifications
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://terrium:terrium_secret@postgres:5432/terrium_notifications
-      AMQP_URL: amqp://terrium:terrium_secret@rabbitmq:5672
+      DATABASE_URL: ${NOTIFICATIONS_DATABASE_URL:-postgresql://terrium:terrium_secret@postgres:5432/terrium_notifications}
+      AMQP_URL: ${AMQP_URL:-amqp://terrium:terrium_secret@rabbitmq:5672}
       SMTP_HOST: ${SMTP_HOST:-smtp.mailtrap.io}
       SMTP_PORT: ${SMTP_PORT:-2525}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       FROM_EMAIL: ${FROM_EMAIL:-noreply@terrium.ar}
       PORT: 3004
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
     depends_on:
       postgres:
         condition: service_healthy
@@ -195,15 +209,17 @@ services:
     container_name: terrium-gateway
     restart: unless-stopped
     environment:
-      LISTINGS_URL: http://listings:3001
-      VALUATIONS_URL: http://valuations:3002
-      ANALYTICS_URL: http://analytics:3003
-      NOTIFICATIONS_URL: http://notifications:3004
-      USERS_URL: http://users:3005
+      LISTINGS_URL: ${LISTINGS_URL:-http://listings:3001}
+      VALUATIONS_URL: ${VALUATIONS_URL:-http://valuations:3002}
+      ANALYTICS_URL: ${ANALYTICS_URL:-http://analytics:3003}
+      NOTIFICATIONS_URL: ${NOTIFICATIONS_URL:-http://notifications:3004}
+      USERS_URL: ${USERS_URL:-http://users:3005}
       JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
       PORT: 4000
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
     depends_on:
       - users
       - listings
