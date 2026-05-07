@@ -153,19 +153,24 @@ ALTER TABLE public.investment_scores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications    ENABLE ROW LEVEL SECURITY;
 
 -- Políticas públicas de lectura para listings y analytics
+DROP POLICY IF EXISTS "Listings son visibles para todos" ON public.listings;
 CREATE POLICY "Listings son visibles para todos"
   ON public.listings FOR SELECT USING (status = 'ACTIVO');
 
+DROP POLICY IF EXISTS "Market metrics son públicas" ON public.market_metrics;
 CREATE POLICY "Market metrics son públicas"
   ON public.market_metrics FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Investment scores son públicos" ON public.investment_scores;
 CREATE POLICY "Investment scores son públicos"
   ON public.investment_scores FOR SELECT USING (true);
 
 -- Políticas de escritura solo con service_role (backend)
+DROP POLICY IF EXISTS "Solo backend puede insertar listings" ON public.listings;
 CREATE POLICY "Solo backend puede insertar listings"
   ON public.listings FOR INSERT WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Solo backend puede actualizar listings" ON public.listings;
 CREATE POLICY "Solo backend puede actualizar listings"
   ON public.listings FOR UPDATE USING (true);
 
