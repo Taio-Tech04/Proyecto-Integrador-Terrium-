@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
   plan            VARCHAR(20) NOT NULL CHECK (plan IN ('FREE','BASIC','PRO','ENTERPRISE')),
   status          VARCHAR(20) NOT NULL DEFAULT 'ACTIVE'
                     CHECK (status IN ('ACTIVE','CANCELLED','EXPIRED','PENDING')),
+  price_ars       NUMERIC(10,2),
   started_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   expires_at      TIMESTAMPTZ,
   payment_ref     TEXT,
@@ -71,9 +72,9 @@ CREATE TABLE IF NOT EXISTS public.valuations (
   listing_id        UUID REFERENCES public.listings(id) ON DELETE SET NULL,
   user_id           UUID REFERENCES public.users(id) ON DELETE SET NULL,
   neighborhood      VARCHAR(100) NOT NULL,
-  surface_m2        NUMERIC(8,2) NOT NULL,
-  rooms             INTEGER NOT NULL DEFAULT 0,
-  type              VARCHAR(20) NOT NULL,
+  surface_m2        NUMERIC(8,2),
+  rooms             INTEGER DEFAULT 0,
+  type              VARCHAR(20),
   estimated_price   NUMERIC(12,2),
   price_per_m2      NUMERIC(8,2),
   confidence        NUMERIC(5,2),   -- porcentaje 0-100
