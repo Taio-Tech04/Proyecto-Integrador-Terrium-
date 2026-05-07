@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 const logger = require('../utils/logger');
 
-const isSupabase = (process.env.DATABASE_URL || '').includes('supabase.co');
+const isSupabase = (process.env.DATABASE_URL || '').includes('supabase');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
