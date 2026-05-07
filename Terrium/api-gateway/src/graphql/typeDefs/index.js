@@ -1,6 +1,4 @@
-const { gql } = require('graphql-tag');
-
-const listingTypeDefs = gql`
+const listingTypeDefs = `
   type Listing {
     id: ID!
     title: String!
@@ -63,7 +61,7 @@ const listingTypeDefs = gql`
   }
 `;
 
-const valuationTypeDefs = gql`
+const valuationTypeDefs = `
   type Valuation {
     id: ID!
     propertyId: String!
@@ -93,7 +91,7 @@ const valuationTypeDefs = gql`
   }
 `;
 
-const analyticsTypeDefs = gql`
+const analyticsTypeDefs = `
   type MarketMetric {
     neighborhood: String!
     avgPriceM2: Float!
@@ -127,7 +125,7 @@ const analyticsTypeDefs = gql`
   }
 `;
 
-const userTypeDefs = gql`
+const userTypeDefs = `
   type User {
     id: ID!
     name: String!
@@ -159,7 +157,7 @@ const userTypeDefs = gql`
   }
 `;
 
-const baseTypeDefs = gql`
+const baseTypeDefs = `
   type Query
   type Mutation
 `;
