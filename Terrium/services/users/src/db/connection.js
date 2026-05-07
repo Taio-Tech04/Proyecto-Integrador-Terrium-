@@ -29,7 +29,7 @@ const runMigrations = async () => {
       name VARCHAR(100) NOT NULL,
       email VARCHAR(150) UNIQUE NOT NULL,
       password_hash VARCHAR(255) NOT NULL,
-      tier VARCHAR(20) DEFAULT 'FREE' CHECK (tier IN ('FREE','INVERSOR','PRO','ENTERPRISE')),
+      tier VARCHAR(20) DEFAULT 'FREE' CHECK (tier IN ('FREE','BASIC','PRO','ENTERPRISE')),
       is_active BOOLEAN DEFAULT TRUE,
       created_at TIMESTAMPTZ DEFAULT NOW(),
       updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -38,11 +38,11 @@ const runMigrations = async () => {
     CREATE TABLE IF NOT EXISTS subscriptions (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
       user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      tier VARCHAR(20) NOT NULL,
+      plan VARCHAR(20) NOT NULL CHECK (plan IN ('FREE','BASIC','PRO','ENTERPRISE')),
       price_ars DECIMAL(10,2),
       started_at TIMESTAMPTZ DEFAULT NOW(),
       expires_at TIMESTAMPTZ,
-      status VARCHAR(20) DEFAULT 'ACTIVA' CHECK (status IN ('ACTIVA','VENCIDA','CANCELADA')),
+      status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','CANCELLED','EXPIRED','PENDING')),
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
   `);

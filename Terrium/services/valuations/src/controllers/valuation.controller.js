@@ -10,7 +10,7 @@ const BASE_PRICES = {
 const getByProperty = async (req, res) => {
   try {
     const { rows } = await query(
-      'SELECT * FROM valuations WHERE property_id = $1 ORDER BY calculated_at DESC LIMIT 1',
+      'SELECT * FROM valuations WHERE listing_id = $1 ORDER BY created_at DESC LIMIT 1',
       [req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Valuación no encontrada' });
@@ -25,7 +25,8 @@ const getPriceHistory = async (req, res) => {
     const { neighborhood } = req.params;
     const months = parseInt(req.query.months) || 12;
     const { rows } = await query(
-      `SELECT * FROM price_history WHERE neighborhood ILIKE $1
+      `SELECT neighborhood, avg_price_usd_m2, total_listings, month, year
+       FROM market_metrics WHERE neighborhood ILIKE $1
        ORDER BY year DESC, month DESC LIMIT $2`,
       [`%${neighborhood}%`, months]
     );
@@ -37,28 +38,27 @@ const getPriceHistory = async (req, res) => {
 
 const estimate = async (req, res) => {
   try {
-    const { propertyId, neighborhood, surfaceM2 } = req.body;
+    const { listingId, neighborhood, surfaceM2 } = req.body;
     if (!neighborhood || !surfaceM2) {
       return res.status(400).json({ error: 'neighborhood y surfaceM2 son requeridos' });
     }
 
     const basePrice = BASE_PRICES[neighborhood] || 2000;
     const variation = 0.95 + Math.random() * 0.1;
-    const priceUsdM2 = Math.round(basePrice * variation);
-    const estimatedValue = Math.round(priceUsdM2 * surfaceM2);
-    const confidenceScore = 0.75 + Math.random() * 0.20;
+    const pricePerM2 = Math.round(basePrice * variation);
+    const estimatedPrice = Math.round(pricePerM2 * surfaceM2);
+    const confidence = parseFloat((0.75 + Math.random() * 0.20).toFixed(2));
 
-    let id = propertyId;
-    if (id) {
+    if (listingId) {
       const { rows } = await query(
-        `INSERT INTO valuations (property_id, price_usd_m2, estimated_value, confidence_score, neighborhood)
-         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-        [id, priceUsdM2, estimatedValue, confidenceScore.toFixed(2), neighborhood]
+        `INSERT INTO valuations (listing_id, price_per_m2, estimated_price, confidence, neighborhood, method)
+         VALUES ($1, $2, $3, $4, $5, 'ML_MODEL') RETURNING *`,
+        [listingId, pricePerM2, estimatedPrice, confidence, neighborhood]
       );
       return res.status(201).json(rows[0]);
     }
 
-    res.json({ priceUsdM2, estimatedValue, confidenceScore: parseFloat(confidenceScore.toFixed(2)), neighborhood });
+    res.json({ pricePerM2, estimatedPrice, confidence, neighborhood });
   } catch (err) {
     logger.error('Error en estimate:', err);
     res.status(500).json({ error: 'Error al calcular valuación' });
