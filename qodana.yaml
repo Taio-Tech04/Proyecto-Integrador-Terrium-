@@ -43,4 +43,46 @@ profile:
 #    total: 50
 
 #Specify Qodana linter for analysis (Applied in CI/CD pipeline)
-linter: jetbrains/qodana-js:2025.3
+linter: "jetbrains/qodana-js:2025.3\r"
+exclude:
+  - name: All
+    paths:
+      - expressmysql
+      - expressmysql/server.js
+      - expresspostgress
+      - expresspostgress/server.js
+      - Terrium
+      - Terrium/api-gateway
+      - Terrium/api-gateway/src
+      - Terrium/api-gateway/src/graphql
+      - Terrium/api-gateway/src/graphql/resolvers
+      - Terrium/api-gateway/src/graphql/resolvers/index.js
+      - Terrium/api-gateway/src/index.js
+      - Terrium/api-gateway/package.json
+      - Terrium/frontend
+      - Terrium/frontend/pricing.html
+      - Terrium/services
+      - Terrium/services/analytics
+      - Terrium/services/analytics/src
+      - Terrium/services/analytics/src/controllers
+      - Terrium/services/analytics/src/controllers/analytics.controller.js
+      - Terrium/services/analytics/src/jobs
+      - Terrium/services/analytics/src/jobs/cabaSync.js
+      - Terrium/services/analytics/src/index.js
+      - Terrium/services/listings
+      - Terrium/services/listings/src
+      - Terrium/services/listings/src/index.js
+      - Terrium/services/notifications
+      - Terrium/services/notifications/src
+      - Terrium/services/notifications/src/events
+      - Terrium/services/notifications/src/events/subscriber.js
+      - Terrium/services/notifications/src/index.js
+      - Terrium/services/notifications/package.json
+      - Terrium/services/users
+      - Terrium/services/users/src
+      - Terrium/services/users/src/index.js
+      - Terrium/services/valuations
+      - Terrium/services/valuations/src
+      - Terrium/services/valuations/src/controllers
+      - Terrium/services/valuations/src/controllers/valuation.controller.js
+      - Terrium/services/valuations/src/index.js

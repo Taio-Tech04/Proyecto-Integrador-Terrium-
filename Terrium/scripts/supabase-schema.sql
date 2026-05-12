@@ -107,8 +107,9 @@ CREATE TABLE IF NOT EXISTS public.investment_scores (
   neighborhood  VARCHAR(100) UNIQUE NOT NULL,
   score         NUMERIC(5,2) NOT NULL CHECK (score BETWEEN 0 AND 100),
   yield_pct     NUMERIC(5,2),    -- rendimiento estimado %
-  trend         VARCHAR(10) DEFAULT 'STABLE'
-                  CHECK (trend IN ('UP','DOWN','STABLE')),
+  trend         VARCHAR(10) DEFAULT 'ESTABLE'
+                  CHECK (trend IN ('ALZA','BAJA','ESTABLE')),
+  recommendation TEXT,
   details       JSONB,
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -120,6 +121,10 @@ CREATE TABLE IF NOT EXISTS public.notifications (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id     UUID REFERENCES public.users(id) ON DELETE CASCADE,
   type        VARCHAR(50) NOT NULL,   -- 'EMAIL','PUSH','IN_APP'
+  subject     VARCHAR(200),
+  body        TEXT,
+  status      VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE'
+                  CHECK (status IN ('PENDIENTE','ENVIADO','LEIDO','ERROR')),
   event       VARCHAR(100) NOT NULL,  -- 'user.registered','listing.created', etc.
   payload     JSONB,
   sent        BOOLEAN NOT NULL DEFAULT FALSE,
@@ -178,18 +183,18 @@ CREATE POLICY "Solo backend puede actualizar listings"
 --  DATOS INICIALES — Investment Scores (barrios de CABA)
 -- ================================================================
 INSERT INTO public.investment_scores (neighborhood, score, yield_pct, trend) VALUES
-  ('Palermo',       82.5, 4.8, 'UP'),
-  ('Belgrano',      79.0, 4.2, 'STABLE'),
-  ('Recoleta',      76.5, 3.9, 'STABLE'),
-  ('Puerto Madero', 88.0, 3.5, 'UP'),
-  ('Villa Crespo',  71.0, 5.2, 'UP'),
-  ('Caballito',     68.5, 5.0, 'STABLE'),
-  ('San Telmo',     65.0, 5.5, 'UP'),
-  ('Flores',        58.0, 5.8, 'STABLE'),
-  ('Villa Devoto',  62.5, 5.3, 'STABLE'),
-  ('Microcentro',   70.0, 4.6, 'DOWN'),
-  ('Almagro',       66.5, 5.1, 'STABLE'),
-  ('Núñez',         73.5, 4.4, 'UP')
+  ('Palermo',       82.5, 4.8, 'ALZA'),
+  ('Belgrano',      79.0, 4.2, 'ESTABLE'),
+  ('Recoleta',      76.5, 3.9, 'ESTABLE'),
+  ('Puerto Madero', 88.0, 3.5, 'ALZA'),
+  ('Villa Crespo',  71.0, 5.2, 'ALZA'),
+  ('Caballito',     68.5, 5.0, 'ESTABLE'),
+  ('San Telmo',     65.0, 5.5, 'ALZA'),
+  ('Flores',        58.0, 5.8, 'ESTABLE'),
+  ('Villa Devoto',  62.5, 5.3, 'ESTABLE'),
+  ('Microcentro',   70.0, 4.6, 'BAJA'),
+  ('Almagro',       66.5, 5.1, 'ESTABLE'),
+  ('Núñez',         73.5, 4.4, 'ALZA')
 ON CONFLICT (neighborhood) DO UPDATE
   SET score = EXCLUDED.score, yield_pct = EXCLUDED.yield_pct, trend = EXCLUDED.trend, updated_at = NOW();
 
