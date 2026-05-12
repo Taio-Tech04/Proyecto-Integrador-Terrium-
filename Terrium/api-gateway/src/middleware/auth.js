@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 
+/** @type {import('express').RequestHandler} */
 module.exports = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -14,7 +15,9 @@ module.exports = (req, res, next) => {
     req.headers['x-user-tier']  = decoded.tier;
     req.headers['x-user-email'] = decoded.email;
     next();
-  } catch (err) {
+  } catch (_err) {
     return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 };
+
+

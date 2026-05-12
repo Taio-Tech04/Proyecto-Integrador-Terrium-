@@ -6,16 +6,53 @@ const makeRequest = async (url, options = {}) => {
   return data;
 };
 
-const listingResolvers = {
+// ─── Resolvers unificados en un solo objeto (requerido por Apollo Server v4) ───
+const resolvers = {
   Query: {
-    listings: async (_, { filter = {}, page = 1, limit = 20 }, { user }) => {
+    // Listings
+    listings: async (_root, { filter = {}, page = 1, limit = 20 }, { user: _user }) => {
       const params = new URLSearchParams({ page, limit, ...filter }).toString();
       return makeRequest(`${config.LISTINGS_URL}/?${params}`);
     },
-    listing: async (_, { id }) => makeRequest(`${config.LISTINGS_URL}/${id}`)
+    listing: async (_root, { id }) => makeRequest(`${config.LISTINGS_URL}/${id}`),
+
+    // Valuations
+    valuation: async (_root, { propertyId }, { user }) => {
+      if (!user) throw new Error('Autenticación requerida');
+      return makeRequest(`${config.VALUATIONS_URL}/property/${propertyId}`);
+    },
+    priceHistory: async (_root, { neighborhood, months = 12 }, { user }) => {
+      if (!user) throw new Error('Autenticación requerida');
+      if (!['BASIC', 'PRO', 'ENTERPRISE'].includes(user.tier)) {
+        throw new Error('Se requiere plan BASIC o superior');
+      }
+      return makeRequest(`${config.VALUATIONS_URL}/history/${neighborhood}?months=${months}`);
+    },
+
+    // Analytics
+    marketTrends: async (_root, { months = 6 }) =>
+      makeRequest(`${config.ANALYTICS_URL}/trends?months=${months}`),
+    heatmapData: async (_root, _args, { user }) => {
+      if (!['PRO', 'ENTERPRISE'].includes(user?.tier)) {
+        throw new Error('Se requiere plan PRO o superior para acceder al mapa de calor');
+      }
+      return makeRequest(`${config.ANALYTICS_URL}/heatmap`);
+    },
+    investmentScore: async (_root, { neighborhood }) =>
+      makeRequest(`${config.ANALYTICS_URL}/score/${neighborhood}`),
+    neighborhoodRanking: async () => makeRequest(`${config.ANALYTICS_URL}/ranking`),
+
+    // Users
+    me: async (_root, _args, { user }) => {
+      if (!user) throw new Error('No autenticado');
+      return makeRequest(`${config.USERS_URL}/users/${user.userId}`);
+    },
+    subscriptionPlans: async () => makeRequest(`${config.USERS_URL}/subscriptions/plans`)
   },
+
   Mutation: {
-    createListing: async (_, { input }, { user }) => {
+    // Listings
+    createListing: async (_root, { input }, { user }) => {
       if (!user) throw new Error('Autenticación requerida');
       return makeRequest(`${config.LISTINGS_URL}/`, {
         method: 'POST',
@@ -23,71 +60,37 @@ const listingResolvers = {
         headers: { 'x-user-id': user.userId, 'x-user-tier': user.tier }
       });
     },
-    updateListing: async (_, { id, input }, { user }) => {
+    updateListing: async (_root, { id, input }, { user }) => {
       if (!user) throw new Error('Autenticación requerida');
       return makeRequest(`${config.LISTINGS_URL}/${id}`, { method: 'PUT', data: input });
     },
-    deleteListing: async (_, { id }, { user }) => {
+    deleteListing: async (_root, { id }, { user }) => {
       if (!user) throw new Error('Autenticación requerida');
       await makeRequest(`${config.LISTINGS_URL}/${id}`, { method: 'DELETE' });
       return true;
-    }
-  }
-};
+    },
 
-const valuationResolvers = {
-  Query: {
-    valuation: async (_, { propertyId }, { user }) => {
+    // Valuations
+    requestValuation: async (_root, { propertyId }, { user }) => {
       if (!user) throw new Error('Autenticación requerida');
-      return makeRequest(`${config.VALUATIONS_URL}/property/${propertyId}`);
+      return makeRequest(`${config.VALUATIONS_URL}/estimate`, {
+        method: 'POST',
+        data: { propertyId }
+      });
     },
-    priceHistory: async (_, { neighborhood, months = 12 }, { user }) => {
-      if (!user) throw new Error('Autenticación requerida');
-      const tier = user?.tier;
-      if (!['INVERSOR', 'PRO', 'ENTERPRISE'].includes(tier)) {
-        throw new Error('Se requiere plan INVERSOR o superior');
-      }
-      return makeRequest(`${config.VALUATIONS_URL}/history/${neighborhood}?months=${months}`);
-    }
-  },
-  Mutation: {
-    requestValuation: async (_, { propertyId }, { user }) => {
-      if (!user) throw new Error('Autenticación requerida');
-      return makeRequest(`${config.VALUATIONS_URL}/estimate`, { method: 'POST', data: { propertyId } });
-    }
-  }
-};
 
-const analyticsResolvers = {
-  Query: {
-    marketTrends: async (_, { months = 6 }) => makeRequest(`${config.ANALYTICS_URL}/trends?months=${months}`),
-    heatmapData: async (_, __, { user }) => {
-      if (!['PRO', 'ENTERPRISE'].includes(user?.tier)) {
-        throw new Error('Se requiere plan PRO o superior para acceder al mapa de calor');
-      }
-      return makeRequest(`${config.ANALYTICS_URL}/heatmap`);
-    },
-    investmentScore: async (_, { neighborhood }) => makeRequest(`${config.ANALYTICS_URL}/score/${neighborhood}`),
-    neighborhoodRanking: async () => makeRequest(`${config.ANALYTICS_URL}/ranking`)
-  }
-};
-
-const userResolvers = {
-  Query: {
-    me: async (_, __, { user }) => {
-      if (!user) throw new Error('No autenticado');
-      return makeRequest(`${config.USERS_URL}/users/${user.userId}`);
-    },
-    subscriptionPlans: async () => makeRequest(`${config.USERS_URL}/subscriptions/plans`)
-  },
-  Mutation: {
-    register: async (_, { name, email, password }) => {
-      return makeRequest(`${config.USERS_URL}/auth/register`, { method: 'POST', data: { name, email, password } });
-    },
-    login: async (_, { email, password }) => {
-      return makeRequest(`${config.USERS_URL}/auth/login`, { method: 'POST', data: { email, password } });
-    },
-    upgradeSubscription: async (_, { tier }, { user }) => {
+    // Users
+    register: async (_root, { name, email, password }) =>
+      makeRequest(`${config.USERS_URL}/auth/register`, {
+        method: 'POST',
+        data: { name, email, password }
+      }),
+    login: async (_root, { email, password }) =>
+      makeRequest(`${config.USERS_URL}/auth/login`, {
+        method: 'POST',
+        data: { email, password }
+      }),
+    upgradeSubscription: async (_root, { tier }, { user }) => {
       if (!user) throw new Error('Autenticación requerida');
       return makeRequest(`${config.USERS_URL}/subscriptions/upgrade`, {
         method: 'POST',
@@ -98,6 +101,5 @@ const userResolvers = {
   }
 };
 
-const resolvers = [listingResolvers, valuationResolvers, analyticsResolvers, userResolvers];
 module.exports = { resolvers };
 

@@ -66,7 +66,7 @@ const valuationTypeDefs = `
     id: ID!
     propertyId: String!
     priceUsdM2: Float!
-    priceArsM2: Float!
+    priceArsM2: Float
     estimatedValue: Float!
     confidenceScore: Float!
     method: String!

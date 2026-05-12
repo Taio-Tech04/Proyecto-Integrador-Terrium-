@@ -6,7 +6,7 @@ const { expressMiddleware } = require('@apollo/server/express4');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const { createProxyMiddleware, fixRequestBody } = require('http-proxy-middleware');
 const { Server: SocketServer } = require('socket.io');
 
 const config = require('./config');
@@ -37,6 +37,7 @@ async function bootstrap() {
   });
 
   // Middleware
+  app.set('trust proxy', 1); // Nginx es el proxy en frente
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] }));
   app.use(morgan('dev'));
@@ -50,6 +51,9 @@ async function bootstrap() {
     target,
     changeOrigin: true,
     on: {
+      // fixRequestBody re-adjunta el body al proxy request
+      // Necesario en http-proxy-middleware v3 cuando express.json() ya leyó el body
+      proxyReq: fixRequestBody,
       error: (err, req, res) => {
         logger.error(`Proxy error: ${err.message}`);
         res.status(502).json({ error: 'Servicio no disponible temporalmente' });
@@ -58,16 +62,26 @@ async function bootstrap() {
   });
 
   // Rutas públicas
-  app.get('/api/subscriptions/plans', createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/subscriptions': '/subscriptions' } }));
-  app.use('/api/auth', createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/auth': '/auth' } }));
+  // NOTA: Express stripea el prefijo antes del proxy, así que pathRewrite 
+  // solo necesita agregar el prefijo del servicio destino
+  app.get('/api/subscriptions/plans',
+    createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/subscriptions/' } }));
+  app.use('/api/auth',
+    createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/auth/' } }));
 
   // Rutas protegidas
-  app.use('/api/subscriptions', authMiddleware, createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/subscriptions': '/subscriptions' } }));
-  app.use('/api/listings',      authMiddleware, createProxyMiddleware({ ...proxyOptions(config.LISTINGS_URL),      pathRewrite: { '^/api/listings': '/' } }));
-  app.use('/api/valuations',    authMiddleware, createProxyMiddleware({ ...proxyOptions(config.VALUATIONS_URL),    pathRewrite: { '^/api/valuations': '/' } }));
-  app.use('/api/analytics',     authMiddleware, createProxyMiddleware({ ...proxyOptions(config.ANALYTICS_URL),     pathRewrite: { '^/api/analytics': '/' } }));
-  app.use('/api/notifications', authMiddleware, createProxyMiddleware({ ...proxyOptions(config.NOTIFICATIONS_URL), pathRewrite: { '^/api/notifications': '/' } }));
-  app.use('/api/users',         authMiddleware, createProxyMiddleware({ ...proxyOptions(config.USERS_URL),         pathRewrite: { '^/api/users': '/users' } }));
+  app.use('/api/subscriptions', authMiddleware,
+    createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/subscriptions/' } }));
+  app.use('/api/listings', authMiddleware,
+    createProxyMiddleware({ ...proxyOptions(config.LISTINGS_URL), pathRewrite: { '^/': '/' } }));
+  app.use('/api/valuations', authMiddleware,
+    createProxyMiddleware({ ...proxyOptions(config.VALUATIONS_URL), pathRewrite: { '^/': '/' } }));
+  app.use('/api/analytics', authMiddleware,
+    createProxyMiddleware({ ...proxyOptions(config.ANALYTICS_URL), pathRewrite: { '^/': '/' } }));
+  app.use('/api/notifications', authMiddleware,
+    createProxyMiddleware({ ...proxyOptions(config.NOTIFICATIONS_URL), pathRewrite: { '^/': '/' } }));
+  app.use('/api/users', authMiddleware,
+    createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/users/' } }));
 
   // GraphQL
   const apolloServer = new ApolloServer({ typeDefs, resolvers });
@@ -84,8 +98,18 @@ async function bootstrap() {
   }));
 
   app.get('/', (req, res) => res.json({ name: 'Terrium API Gateway', version: '1.0.0', docs: '/graphql', health: '/health' }));
-  app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
-  app.use((err, req, res, next) => { logger.error(err.stack); res.status(500).json({ error: 'Error interno del servidor' }); });
+
+  // 404 handler
+  app.use(( /** @type {any} */ req, /** @type {import('express').Response} */ res) => {
+    res.status(404).json({ error: 'Ruta no encontrada' });
+  });
+
+  // Error handler (4 parámetros requeridos por Express para que lo reconozca como error handler)
+  // noinspection JSUnusedLocalSymbols
+  app.use((/** @type {any} */ err, /** @type {any} */ _req, /** @type {import('express').Response} */ res, /** @type {import('express').NextFunction} */ _next) => {
+    logger.error(err instanceof Error ? err.stack : String(err));
+    res.status(500).json({ error: 'Error interno del servidor' });
+  });
 
   server.listen(config.PORT, () => {
     logger.info(`API Gateway: http://localhost:${config.PORT}`);
