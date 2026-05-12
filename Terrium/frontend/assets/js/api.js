@@ -1,12 +1,25 @@
 /* API client centralizado */
-const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:4000' : '/api-gateway';
+// Siempre usa rutas relativas → nginx las proxea al gateway sin CORS
+const API_BASE = '';
 
 const apiFetch = async (endpoint, options = {}) => {
   const token = localStorage.getItem('terrium_token');
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  // Timeout de 15 segundos para evitar carga infinita
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers, signal: controller.signal });
+  } catch (err) {
+    if (err.name === 'AbortError') throw new Error('El servidor no responde. Verificá tu conexión e intentá de nuevo.');
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (response.status === 401) {
     localStorage.removeItem('terrium_token');

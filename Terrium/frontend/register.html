@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crear cuenta — Terrium</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Fuentes no-bloqueantes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript></noscript>
   <link rel="stylesheet" href="assets/css/main.css">
   <style>
     body { background: var(--navy); display: flex; flex-direction: column; min-height: 100vh; }
@@ -81,9 +86,7 @@
   </div>
 
   <div id="toast"></div>
-  <!-- Supabase SDK (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="assets/js/supabase.js"></script>
+  <!-- register NO necesita el SDK de Supabase -->
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
   <script>
