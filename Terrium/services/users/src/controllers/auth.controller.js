@@ -25,7 +25,7 @@ const register = async (req, res) => {
     const existing = await UserModel.findByEmail(email);
     if (existing) return res.status(409).json({ error: 'El email ya está registrado' });
 
-    const passwordHash = await bcrypt.hash(password, 12);
+    const passwordHash = await bcrypt.hash(password, 10);
     const user = await UserModel.create({ name, email, passwordHash });
 
     const token = jwt.sign(

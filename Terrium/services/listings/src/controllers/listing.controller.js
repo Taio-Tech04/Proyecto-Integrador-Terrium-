@@ -62,7 +62,7 @@ const create = async (req, res) => {
     const { error, value } = createSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const ownerId = req.headers['x-user-id'] || 'anonymous';
+    const ownerId = req.headers['x-user-id'] || null;
     const { rows } = await query(
       `INSERT INTO listings (title, description, price_usd, surface_m2, rooms, type, neighborhood, lat, lng, owner_id)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,

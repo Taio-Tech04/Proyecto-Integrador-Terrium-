@@ -18,7 +18,8 @@ app.use((err, req, res, next) => { logger.error(err.stack); res.status(500).json
 
 async function start() {
   await connectDB();
-  await startConsumer();
+  // RabbitMQ consumer en segundo plano, no bloquea el arranque
+  startConsumer().catch((err) => logger.warn('RabbitMQ consumer no disponible al iniciar:', err.message));
   app.listen(PORT, () => logger.info(`🔔 Notifications Service corriendo en puerto ${PORT}`));
 }
 start().catch((err) => { logger.error(err); process.exit(1); });

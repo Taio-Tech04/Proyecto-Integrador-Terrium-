@@ -6,6 +6,9 @@ const isSupabase = (process.env.DATABASE_URL || '').includes('supabase');
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: isSupabase ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
+  max: 10,
 });
 
 const connectDB = async () => {
@@ -14,7 +17,7 @@ const connectDB = async () => {
     logger.info('✅ Conectado a PostgreSQL (listings)');
     await runMigrations();
   } catch (err) {
-    logger.warn('Reintentando conexión a PostgreSQL...');
+    logger.error(`Error conectando a PostgreSQL (listings): [${err.code}] ${err.message}`);
     setTimeout(connectDB, 5000);
   }
 };

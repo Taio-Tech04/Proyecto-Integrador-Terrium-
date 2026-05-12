@@ -48,9 +48,12 @@ const upgrade = async (req, res) => {
       [userId, tier, plan.priceArs, expiresAt]
     );
 
+    // Capturar el tier anterior ANTES de actualizar
+    const currentUser = await UserModel.findById(userId);
+    const previousTier = currentUser?.tier;
+
     const user = await UserModel.updateTier(userId, tier);
-    // Incluir email para que el servicio de notificaciones pueda enviar el correo
-    await publish('users', 'subscription.upgraded', { userId, tier, previousTier: user?.tier, email: req.headers['x-user-email'] });
+    await publish('users', 'subscription.upgraded', { userId, tier, previousTier, email: req.headers['x-user-email'] });
 
     res.json({ message: `Suscripción actualizada a ${tier}`, user });
   } catch (err) {

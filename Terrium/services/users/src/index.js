@@ -34,7 +34,8 @@ app.use((err, req, res, next) => {
 
 async function start() {
   await connectDB();
-  await connectRabbitMQ();
+  // RabbitMQ se conecta en segundo plano, no bloquea el arranque
+  connectRabbitMQ().catch((err) => logger.warn('RabbitMQ no disponible al iniciar:', err.message));
   app.listen(PORT, () => logger.info(`👤 Users Service corriendo en puerto ${PORT}`));
 }
 
