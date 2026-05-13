@@ -164,6 +164,9 @@ async function loadRanking() {
 
 // ── Inicio ───────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+  // Redirigir a login si no está autenticado (evita parpadeo y errores de consola)
+  if (!requireAuth()) return;
+
   const monthsFilter = document.getElementById('months-filter');
 
   await Promise.all([loadOverview(), loadTrends(monthsFilter?.value || 6), loadRanking()]);

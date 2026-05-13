@@ -15,13 +15,14 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Health check — antes de rutas para garantizar que siempre sea accesible
+app.get('/health', (req, res) => res.json({ status: 'ok', service: 'users' }));
+
 // Rutas
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/subscriptions', subscriptionRoutes);
 
-// Health check
-app.get('/health', (req, res) => res.json({ status: 'ok', service: 'users' }));
 
 // 404
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));

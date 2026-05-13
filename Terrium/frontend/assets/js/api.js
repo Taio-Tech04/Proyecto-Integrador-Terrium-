@@ -33,8 +33,17 @@ const apiFetch = async (endpoint, options = {}) => {
     throw new Error('Suscripción insuficiente');
   }
 
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || 'Error en la solicitud');
+  // Respuestas sin cuerpo (204 No Content, 205 Reset Content)
+  if (response.status === 204 || response.status === 205) return null;
+
+  const text = await response.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch (_e) {
+    throw new Error('Respuesta inválida del servidor');
+  }
+  if (!response.ok) throw new Error(data?.error || 'Error en la solicitud');
   return data;
 };
 
