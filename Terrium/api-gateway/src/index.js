@@ -1,6 +1,7 @@
 require('dotenv').config();
 const http = require('http');
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const cors = require('cors');
@@ -8,6 +9,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const { createProxyMiddleware, fixRequestBody } = require('http-proxy-middleware');
 const { Server: SocketServer } = require('socket.io');
+const { io: ioClient } = require('socket.io-client');
 
 const config = require('./config');
 const logger = require('./utils/logger');
@@ -29,7 +31,6 @@ async function bootstrap() {
 
   io.on('connection', (clientSocket) => {
     logger.info(`WS Gateway: cliente conectado ${clientSocket.id}`);
-    const { io: ioClient } = require('socket.io-client');
     const upstream = ioClient(config.ANALYTICS_URL, { transports: ['websocket', 'polling'] });
     upstream.on('heatmap:update', (data) => clientSocket.emit('heatmap:update', data));
     upstream.on('connect_error', (err) => logger.warn(`Upstream WS error: ${err.message}`));
@@ -91,7 +92,7 @@ async function bootstrap() {
       const token = req.headers.authorization?.replace('Bearer ', '');
       let user = null;
       if (token) {
-        try { const jwt = require('jsonwebtoken'); user = jwt.verify(token, config.JWT_SECRET); } catch (_) {}
+        try { user = jwt.verify(token, config.JWT_SECRET); } catch (_e) {}
       }
       return { user };
     }

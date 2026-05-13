@@ -1,5 +1,5 @@
 const getToken = () => localStorage.getItem('terrium_token');
-const getUser = () => { try { return JSON.parse(localStorage.getItem('terrium_user')); } catch { return null; } };
+const getUser = () => { try { return JSON.parse(localStorage.getItem('terrium_user')); } catch (_e) { return null; } };
 const isAuthenticated = () => !!getToken();
 const getUserTier = () => getUser()?.tier || 'FREE';
 

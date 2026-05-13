@@ -15,8 +15,8 @@ app.use(express.json());
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'listings' }));
 app.use('/', listingRoutes);
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
-app.use((err, req, res, next) => {
-  logger.error(err.stack);
+app.use((err, _req, res, _next) => {
+  logger.error(err instanceof Error ? err.stack : String(err));
   res.status(500).json({ error: 'Error interno' });
 });
 

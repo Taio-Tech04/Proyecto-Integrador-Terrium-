@@ -81,8 +81,15 @@ const update = async (req, res) => {
     const { rows: existing } = await query('SELECT * FROM listings WHERE id = $1', [req.params.id]);
     if (!existing.length) return res.status(404).json({ error: 'Propiedad no encontrada' });
 
-    const fields = Object.keys(req.body);
+    // Solo se permiten actualizar estos campos (evita inyección de campos como id, owner_id, etc.)
+    const ALLOWED_FIELDS = ['title', 'description', 'priceUsd', 'priceArs', 'surfaceM2', 'rooms', 'status'];
     const columnMap = { priceUsd: 'price_usd', surfaceM2: 'surface_m2', priceArs: 'price_ars' };
+
+    const fields = Object.keys(req.body).filter((f) => ALLOWED_FIELDS.includes(f));
+    if (fields.length === 0) {
+      return res.status(400).json({ error: 'No se proporcionaron campos válidos para actualizar' });
+    }
+
     const sets = fields.map((f, i) => `${columnMap[f] || f} = $${i + 2}`).join(', ');
     const values = fields.map((f) => req.body[f]);
 

@@ -83,7 +83,7 @@ app.use(express.json());
 app.use('/', analyticsRoutes);
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'analytics', wsClients: io.engine.clientsCount }));
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
-app.use((err, req, res, next) => { logger.error(err.stack); res.status(500).json({ error: 'Error interno' }); });
+app.use((err, _req, res, _next) => { logger.error(err instanceof Error ? err.stack : String(err)); res.status(500).json({ error: 'Error interno' }); });
 
 async function start() {
   await connectDB();

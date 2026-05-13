@@ -1,5 +1,4 @@
 /* dashboard.js — Terrium */
-const MONTHS = parseInt(document.getElementById('months-filter')?.value || 6);
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const fmtUSD  = (n) => n ? `USD ${parseInt(n).toLocaleString('es-AR')}` : '—';
