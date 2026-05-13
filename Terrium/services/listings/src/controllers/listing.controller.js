@@ -49,7 +49,9 @@ const getAll = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    const { rows } = await query('SELECT * FROM listings WHERE id = $1', [req.params.id]);
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: 'ID inválido' });
+    const { rows } = await query('SELECT * FROM listings WHERE id = $1', [id]);
     if (!rows.length) return res.status(404).json({ error: 'Propiedad no encontrada' });
     res.json(rows[0]);
   } catch (err) {
@@ -78,7 +80,10 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    const { rows: existing } = await query('SELECT * FROM listings WHERE id = $1', [req.params.id]);
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: 'ID inválido' });
+
+    const { rows: existing } = await query('SELECT * FROM listings WHERE id = $1', [id]);
     if (!existing.length) return res.status(404).json({ error: 'Propiedad no encontrada' });
 
     // Solo se permiten actualizar estos campos (evita inyección de campos como id, owner_id, etc.)
@@ -95,7 +100,7 @@ const update = async (req, res) => {
 
     const { rows } = await query(
       `UPDATE listings SET ${sets}, updated_at = NOW() WHERE id = $1 RETURNING *`,
-      [req.params.id, ...values]
+      [id, ...values]
     );
     await publish('listings', 'listing.updated', rows[0]);
     res.json(rows[0]);
@@ -107,9 +112,11 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   try {
-    const { rows } = await query('DELETE FROM listings WHERE id = $1 RETURNING id', [req.params.id]);
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: 'ID inválido' });
+    const { rows } = await query('DELETE FROM listings WHERE id = $1 RETURNING id', [id]);
     if (!rows.length) return res.status(404).json({ error: 'Propiedad no encontrada' });
-    await publish('listings', 'listing.deleted', { id: req.params.id });
+    await publish('listings', 'listing.deleted', { id });
     res.json({ message: 'Propiedad eliminada' });
   } catch (err) {
     res.status(500).json({ error: 'Error al eliminar propiedad' });

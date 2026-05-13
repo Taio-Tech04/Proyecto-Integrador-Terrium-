@@ -43,8 +43,13 @@ async function loadTrends(months) {
     });
 
     const neighborhoods = Object.keys(grouped);
-    // Etiquetas del eje X (fechas únicas ordenadas)
-    const labels = [...new Set(rows.map((r) => `${r.month}/${r.year}`))];
+    // Etiquetas del eje X ordenadas cronológicamente (año ASC, mes ASC)
+    const labels = [...new Set(rows.map((r) => `${r.month}/${r.year}`))]
+      .sort((a, b) => {
+        const [ma, ya] = a.split('/').map(Number);
+        const [mb, yb] = b.split('/').map(Number);
+        return ya !== yb ? ya - yb : ma - mb;
+      });
 
     const datasets = neighborhoods.map((n, i) => ({
       label: n,
@@ -62,8 +67,10 @@ async function loadTrends(months) {
 
     document.getElementById('chart-subtitle').textContent = `(${months} meses)`;
 
+    const trendsCanvas = document.getElementById('trendsChart');
+    if (!trendsCanvas) return;
     if (trendsChart) trendsChart.destroy();
-    trendsChart = new Chart(document.getElementById('trendsChart'), {
+    trendsChart = new Chart(trendsCanvas, {
       type: 'line',
       data: { labels, datasets },
       options: {
@@ -91,8 +98,10 @@ async function loadRanking() {
     const rows = await apiFetch('/api/analytics/ranking');
 
     // Score bar chart
+    const scoreCanvas = document.getElementById('scoreChart');
     if (scoreChart) scoreChart.destroy();
-    scoreChart = new Chart(document.getElementById('scoreChart'), {
+    if (scoreCanvas) {
+    scoreChart = new Chart(scoreCanvas, {
       type: 'bar',
       data: {
         labels: rows.slice(0, 8).map((r) => r.neighborhood),
@@ -122,6 +131,7 @@ async function loadRanking() {
         }
       }
     });
+    } // fin if (scoreCanvas)
 
     // Tabla ranking
     tbody.innerHTML = rows.map((r, i) => {
