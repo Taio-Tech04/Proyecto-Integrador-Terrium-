@@ -52,9 +52,7 @@ async function bootstrap() {
     target,
     changeOrigin: true,
     on: {
-      // fixRequestBody re-adjunta el body al proxy request
-      // Necesario en http-proxy-middleware v3 cuando express.json() ya leyó el body
-      proxyReq: fixRequestBody,
+      proxyReq: fixRequestBody, // re-adjunta el body (http-proxy-middleware v3 + express.json())
       error: (err, req, res) => {
         logger.error(`Proxy error: ${err.message}`);
         res.status(502).json({ error: 'Servicio no disponible temporalmente' });
@@ -63,8 +61,6 @@ async function bootstrap() {
   });
 
   // Rutas públicas
-  // NOTA: Express stripea el prefijo antes del proxy, así que pathRewrite 
-  // solo necesita agregar el prefijo del servicio destino
   app.get('/api/subscriptions/plans',
     createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/subscriptions/' } }));
   app.use('/api/auth',
@@ -101,13 +97,12 @@ async function bootstrap() {
   app.get('/', (req, res) => res.json({ name: 'Terrium API Gateway', version: '1.0.0', docs: '/graphql', health: '/health' }));
 
   // 404 handler
-  app.use(( /** @type {any} */ req, /** @type {import('express').Response} */ res) => {
+  app.use((_req, res) => {
     res.status(404).json({ error: 'Ruta no encontrada' });
   });
 
-  // Error handler (4 parámetros requeridos por Express para que lo reconozca como error handler)
-  // noinspection JSUnusedLocalSymbols
-  app.use((/** @type {any} */ err, /** @type {any} */ _req, /** @type {import('express').Response} */ res, /** @type {import('express').NextFunction} */ _next) => {
+  // Error handler (4 parámetros requeridos por Express para reconocerlo como error handler)
+  app.use((err, _req, res, _next) => {
     logger.error(err instanceof Error ? err.stack : String(err));
     res.status(500).json({ error: 'Error interno del servidor' });
   });

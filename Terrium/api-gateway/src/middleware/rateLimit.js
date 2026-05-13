@@ -9,11 +9,7 @@ const limiter = rateLimit({
   // Necesario cuando Express está detrás de un proxy (nginx)
   validate: { xForwardedForHeader: false },
   message: { error: 'Demasiadas solicitudes. Por favor, intentá más tarde.' },
-  skip: (req) => {
-    const tier = req.headers['x-user-tier'];
-    if (tier === 'ENTERPRISE') return true;
-    return false;
-  }
+  skip: (req) => req.headers['x-user-tier'] === 'ENTERPRISE'
 });
 
 module.exports = limiter;

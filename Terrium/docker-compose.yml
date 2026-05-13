@@ -227,8 +227,6 @@ services:
       USERS_URL: ${USERS_URL:-http://users:3005}
       JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
-      SUPABASE_URL: ${SUPABASE_URL}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
       PORT: 4000
       NODE_ENV: ${NODE_ENV:-development}
     depends_on:
