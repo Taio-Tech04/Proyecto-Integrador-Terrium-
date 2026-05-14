@@ -110,4 +110,4 @@ function startSyncJob() {
   }, 8000);
 }
 
-module.exports = { startSyncJob, syncCABAData };
+module.exports = { startSyncJob };
