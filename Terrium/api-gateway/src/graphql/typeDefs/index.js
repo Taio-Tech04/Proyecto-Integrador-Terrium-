@@ -96,7 +96,7 @@ const analyticsTypeDefs = `
     neighborhood: String!
     avgPriceM2: Float!
     totalListings: Int!
-    medianDaysListed: Float!
+    medianDaysListed: Float
     month: Int!
     year: Int!
   }
@@ -165,4 +165,3 @@ const baseTypeDefs = `
 const typeDefs = [baseTypeDefs, listingTypeDefs, valuationTypeDefs, analyticsTypeDefs, userTypeDefs];
 
 module.exports = { typeDefs };
-

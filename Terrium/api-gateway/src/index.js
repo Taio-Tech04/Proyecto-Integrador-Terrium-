@@ -62,7 +62,7 @@ async function bootstrap() {
 
   // Rutas públicas
   app.get('/api/subscriptions/plans',
-    createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/subscriptions/' } }));
+    createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/subscriptions': '/subscriptions' } }));
   app.use('/api/auth',
     createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/auth/' } }));
 
@@ -102,10 +102,12 @@ async function bootstrap() {
   });
 
   // Error handler (4 parámetros requeridos por Express para reconocerlo como error handler)
-  app.use((err, _req, res, _next) => {
+  /** @type {import('express').ErrorRequestHandler} */
+  const errorHandler = (err, _req, res, _next) => {
     logger.error(err instanceof Error ? err.stack : String(err));
     res.status(500).json({ error: 'Error interno del servidor' });
-  });
+  };
+  app.use(errorHandler);
 
   server.listen(config.PORT, () => {
     logger.info(`API Gateway: http://localhost:${config.PORT}`);

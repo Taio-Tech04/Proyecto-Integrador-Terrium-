@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Propiedades — Terrium</title>
+  <meta name="description" content="Explorá propiedades en venta y alquiler en CABA con filtros por barrio, precio y tipo. Datos reales del mercado inmobiliario porteño.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Terrium">
+  <meta property="og:title" content="Propiedades — Terrium">
+  <meta property="og:description" content="Explorá propiedades en venta y alquiler en CABA con filtros por barrio, precio y tipo. Datos reales del mercado inmobiliario porteño.">
+  <meta property="og:image" content="assets/img/og-terrium.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Propiedades — Terrium">
+  <meta name="twitter:description" content="Explorá propiedades en venta y alquiler en CABA con filtros por barrio, precio y tipo. Datos reales del mercado inmobiliario porteño.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
@@ -48,8 +57,21 @@
       <div id="user-info" style="display:none; align-items:center; gap:8px;"><span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span><span id="user-tier-badge" class="badge"></span></div>
       <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
       <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+      <button class="hamburger-btn" id="hamburger" aria-label="Menú"><span></span><span></span><span></span></button>
     </div>
   </nav>
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="index.html">🏠 Inicio</a>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="listings.html" class="active">🏘️ Propiedades</a>
+    <a href="calculator.html">🧮 Calc. ROI</a>
+    <a href="heatmap.html">🗺️ Mapa de Calor</a>
+    <a href="pricing.html">💳 Planes</a>
+    <div class="mobile-nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">Ingresar</a>
+      <a href="register.html" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">Registrarse</a>
+    </div>
+  </div>
 
   <div class="page-layout">
     <!-- Panel de filtros -->
@@ -62,6 +84,7 @@
           <option value="">Todos</option>
           <option value="VENTA">Venta</option>
           <option value="ALQUILER">Alquiler</option>
+          <option value="COMERCIAL">Comercial</option>
         </select>
       </div>
 
@@ -152,9 +175,9 @@
 
     function renderCard(l) {
       const icon  = TYPE_ICONS[l.type] || '🏠';
-      const price = l.currency === 'USD'
-        ? `USD ${parseInt(l.price).toLocaleString('es-AR')}`
-        : `ARS ${parseInt(l.price).toLocaleString('es-AR')}`;
+      const price = l.price_usd
+        ? `USD ${parseInt(l.price_usd).toLocaleString('es-AR')}`
+        : l.price_ars ? `ARS ${parseInt(l.price_ars).toLocaleString('es-AR')}` : 'Consultar';
       return `
         <div class="listing-card" onclick="window.location.href='#listing-${l.id}'">
           <div class="listing-img">
@@ -244,6 +267,11 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => loadListings({}, 1));
+
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    if (hamburger) hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileNav.classList.toggle('open'); });
   </script>
 </body>
 </html>

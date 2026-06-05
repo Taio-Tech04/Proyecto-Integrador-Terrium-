@@ -1,4 +1,5 @@
 /* dashboard.js — Terrium */
+/* global Chart, apiFetch, requireAuth */
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const fmtUSD  = (n) => n ? `USD ${parseInt(n).toLocaleString('es-AR')}` : '—';
@@ -21,9 +22,9 @@ async function loadOverview() {
   try {
     const data = await apiFetch('/api/analytics/overview');
     document.getElementById('avg-price').textContent      = fmtUSD(data.avgPriceUsdM2);
-    document.getElementById('total-listings').textContent  = data.totalListings?.toLocaleString('es-AR') || '—';
+    document.getElementById('total-listings').textContent  = data.totalListings != null ? Number(data.totalListings).toLocaleString('es-AR') : '—';
     document.getElementById('neighborhoods').textContent   = data.neighborhoodsCount || '—';
-    const bestYield = data.topNeighborhoods?.[0]?.yield_pct;
+    const bestYield = data.topNeighborhoods?.[0]?.['yield_pct'];
     document.getElementById('best-yield').textContent     = fmtPct(bestYield);
   } catch (err) {
     console.warn('Overview no disponible:', err.message);
@@ -42,7 +43,11 @@ async function loadTrends(months) {
       grouped[r.neighborhood].push({ label: `${r.month}/${r.year}`, price: parseFloat(r.avg_price_usd_m2) });
     });
 
-    const neighborhoods = Object.keys(grouped);
+    // Limitar a los 8 barrios con más datos para que la leyenda no desborde
+    const neighborhoods = Object.keys(grouped)
+      .sort((a, b) => grouped[b].length - grouped[a].length)
+      .slice(0, 8);
+
     // Etiquetas del eje X ordenadas cronológicamente (año ASC, mes ASC)
     const labels = [...new Set(rows.map((r) => `${r.month}/${r.year}`))]
       .sort((a, b) => {
@@ -65,7 +70,7 @@ async function loadTrends(months) {
       pointRadius: 3
     }));
 
-    document.getElementById('chart-subtitle').textContent = `(${months} meses)`;
+    document.getElementById('chart-subtitle').textContent = `(${months} meses · top ${neighborhoods.length} barrios)`;
 
     const trendsCanvas = document.getElementById('trendsChart');
     if (!trendsCanvas) return;
@@ -76,10 +81,21 @@ async function loadTrends(months) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 10,
+              font: { size: 10 },
+              padding: 8,
+              // Máximo 4 items por fila para no desbordar
+              maxWidth: 400
+            }
+          }
+        },
         scales: {
           y: { ticks: { callback: (v) => `$${v.toLocaleString()}` }, grid: { color: '#f0f0f0' } },
-          x: { grid: { display: false } }
+          x: { grid: { display: false }, ticks: { maxRotation: 0, font: { size: 10 } } }
         }
       }
     });
@@ -133,7 +149,6 @@ async function loadRanking() {
     });
     } // fin if (scoreCanvas)
 
-    // Tabla ranking
     tbody.innerHTML = rows.map((r, i) => {
       const trendClass = r.trend === 'ALZA' ? 'trend-up' : r.trend === 'BAJA' ? 'trend-down' : 'trend-stable';
       const trendIcon  = r.trend === 'ALZA' ? '↑' : r.trend === 'BAJA' ? '↓' : '→';
@@ -142,22 +157,27 @@ async function loadRanking() {
         <td><strong>#${i+1}</strong></td>
         <td><strong>${r.neighborhood}</strong></td>
         <td>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-weight:700;color:var(--navy)">${parseFloat(r.score).toFixed(1)}</span>
-            <div class="score-bar"><div class="score-bar-fill" style="width:${scorePct}%"></div></div>
+          <div class="score-cell">
+            <span class="score-value">${parseFloat(r.score).toFixed(1)}</span>
+            <div class="score-bar"><div class="score-bar-fill" data-pct="${scorePct}"></div></div>
           </div>
         </td>
         <td>${fmtPct(r.yield_pct)}</td>
         <td><span class="${trendClass}">${trendIcon} ${r.trend}</span></td>
-        <td style="font-size:0.82rem;color:var(--gray-600);max-width:200px">${r.recommendation || '—'}</td>
+        <td class="recommendation-cell">${r.recommendation || '—'}</td>
       </tr>`;
     }).join('');
+
+    // Aplicar ancho de barras vía JS (evita que el parser CSS de WebStorm analice valores dinámicos)
+    tbody.querySelectorAll('.score-bar-fill[data-pct]').forEach((el) => {
+      el.style.width = (el.getAttribute('data-pct') || '0') + '%';
+    });
 
     if (loading) loading.style.display = 'none';
     if (table) table.style.display = 'table';
     document.getElementById('last-update').textContent = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
   } catch (err) {
-    if (loading) loading.innerHTML = '<p style="color:var(--red);">Error al cargar ranking.</p>';
+    if (loading) loading.innerHTML = '<p class="error-text">Error al cargar ranking.</p>';
     console.warn('Ranking no disponible:', err.message);
   }
 }
@@ -173,4 +193,3 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   monthsFilter?.addEventListener('change', (e) => loadTrends(e.target.value));
 });
-

@@ -7,6 +7,7 @@ const subscriptionRoutes = require('./routes/subscription.routes');
 const { connectDB } = require('./db/connection');
 const { connectRabbitMQ } = require('./events/publisher');
 const logger = require('./utils/logger');
+const registerHandlers = require('../../shared/utils/handlers');
 
 const app = express();
 const PORT = process.env.PORT || 3005;
@@ -24,14 +25,8 @@ app.use('/users', userRoutes);
 app.use('/subscriptions', subscriptionRoutes);
 
 
-// 404
-app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
-
-// Error handler
-app.use((err, _req, res, _next) => {
-  logger.error(err instanceof Error ? err.stack : String(err));
-  res.status(500).json({ error: 'Error interno del servidor' });
-});
+// 404 + Error handler
+registerHandlers(app, logger, 'Error interno del servidor');
 
 async function start() {
   await connectDB();
@@ -44,4 +39,3 @@ start().catch((err) => {
   logger.error('Error al iniciar Users Service:', err);
   process.exit(1);
 });
-

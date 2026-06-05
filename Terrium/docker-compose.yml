@@ -1,4 +1,3 @@
-version: '3.9'
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  TERRIUM — docker-compose
@@ -86,8 +85,8 @@ services:
   # ─── MICROSERVICIOS ───────────────────────────────────────────────────────────
   users:
     build:
-      context: ./services/users
-      dockerfile: Dockerfile
+      context: ./services
+      dockerfile: users/Dockerfile
     container_name: terrium-users
     restart: unless-stopped
     environment:
@@ -111,8 +110,8 @@ services:
 
   listings:
     build:
-      context: ./services/listings
-      dockerfile: Dockerfile
+      context: ./services
+      dockerfile: listings/Dockerfile
     container_name: terrium-listings
     restart: unless-stopped
     environment:
@@ -138,8 +137,8 @@ services:
 
   valuations:
     build:
-      context: ./services/valuations
-      dockerfile: Dockerfile
+      context: ./services
+      dockerfile: valuations/Dockerfile
     container_name: terrium-valuations
     restart: unless-stopped
     environment:
@@ -162,8 +161,8 @@ services:
 
   analytics:
     build:
-      context: ./services/analytics
-      dockerfile: Dockerfile
+      context: ./services
+      dockerfile: analytics/Dockerfile
     container_name: terrium-analytics
     restart: unless-stopped
     environment:
@@ -186,8 +185,8 @@ services:
 
   notifications:
     build:
-      context: ./services/notifications
-      dockerfile: Dockerfile
+      context: ./services
+      dockerfile: notifications/Dockerfile
     container_name: terrium-notifications
     restart: unless-stopped
     environment:
@@ -195,8 +194,8 @@ services:
       AMQP_URL: ${AMQP_URL:-amqp://terrium:terrium_secret@rabbitmq:5672}
       SMTP_HOST: ${SMTP_HOST:-smtp.mailtrap.io}
       SMTP_PORT: ${SMTP_PORT:-2525}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASS: ${SMTP_PASS}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
       FROM_EMAIL: ${FROM_EMAIL:-noreply@terrium.ar}
       PORT: 3004
       NODE_ENV: ${NODE_ENV:-development}

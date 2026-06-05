@@ -8,4 +8,3 @@ router.get('/ranking', getNeighborhoodRanking);
 router.get('/overview', getMarketOverview);
 
 module.exports = router;
-

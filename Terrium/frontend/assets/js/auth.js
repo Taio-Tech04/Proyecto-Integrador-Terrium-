@@ -40,4 +40,3 @@ window.isAuthenticated = isAuthenticated;
 window.getUserTier = getUserTier;
 window.logout = logout;
 window.requireAuth = requireAuth;
-

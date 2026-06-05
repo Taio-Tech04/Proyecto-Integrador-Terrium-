@@ -4,91 +4,194 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crear cuenta — Terrium</title>
-  <!-- Fuentes no-bloqueantes -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="assets/css/main.css">
   <style>
     body { background: var(--navy); display: flex; flex-direction: column; min-height: 100vh; }
-    .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 16px; }
-    .auth-card { background: var(--white); border-radius: var(--radius-lg); padding: 48px 40px; width: 100%; max-width: 460px; box-shadow: var(--shadow-md); }
-    .auth-logo { text-align: center; margin-bottom: 32px; }
-    .auth-logo .logo-text { color: var(--navy); font-size: 1.8rem; font-weight: 800; letter-spacing: 2px; }
-    .auth-logo .logo-sub { color: var(--gray-400); font-size: 0.7rem; letter-spacing: 1px; display: block; }
-    .auth-title { font-size: 1.5rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
-    .auth-subtitle { color: var(--gray-600); margin-bottom: 28px; font-size: 0.9rem; }
-    .auth-footer { text-align: center; margin-top: 24px; font-size: 0.85rem; color: var(--gray-600); }
-    .auth-footer a { color: var(--gold); font-weight: 600; }
-    .free-badge { background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 24px; font-size: 0.85rem; color: var(--navy); }
-    .free-badge strong { color: var(--gold); }
+    .auth-page { flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 64px); }
+
+    /* Left brand panel */
+    .auth-brand { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-light) 100%); padding: 60px; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+    .auth-brand::before { content: ''; position: absolute; width: 500px; height: 500px; background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%); bottom: -100px; right: -100px; border-radius: 50%; }
+    .auth-brand-logo { margin-bottom: 40px; }
+    .auth-brand-logo .logo-text { color: var(--gold); font-size: 2rem; font-weight: 800; letter-spacing: 3px; display: block; }
+    .auth-brand-logo .logo-sub { color: rgba(255,255,255,0.4); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; display: block; }
+    .auth-brand h2 { color: var(--white); font-size: 1.8rem; margin-bottom: 16px; line-height: 1.3; }
+    .auth-brand p { color: rgba(255,255,255,0.6); margin-bottom: 36px; line-height: 1.7; }
+    .auth-brand-features { display: flex; flex-direction: column; gap: 14px; }
+    .auth-brand-feature { display: flex; align-items: center; gap: 14px; }
+    .abf-icon { width: 40px; height: 40px; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.25); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .abf-text strong { color: var(--white); font-size: 0.88rem; display: block; }
+    .abf-text span { color: rgba(255,255,255,0.5); font-size: 0.78rem; }
+    .free-badge-brand { margin-top: 32px; background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.25); border-radius: var(--radius); padding: 14px 18px; font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+    .free-badge-brand strong { color: var(--gold); }
+
+    /* Right form panel */
+    .auth-form-panel { background: var(--gray-50); display: flex; align-items: center; justify-content: center; padding: 32px; overflow-y: auto; }
+    .auth-card { background: var(--white); border-radius: var(--radius-xl); padding: 40px; width: 100%; max-width: 440px; box-shadow: var(--shadow-lg); animation: fadeInUp 0.5s ease; }
+    .auth-logo { text-align: center; margin-bottom: 24px; }
+    .auth-logo .logo-text { color: var(--navy); font-size: 1.6rem; font-weight: 800; letter-spacing: 2px; }
+    .auth-logo .logo-sub { color: var(--gray-400); font-size: 0.65rem; letter-spacing: 1px; display: block; margin-top: 2px; }
+    .auth-title { font-size: 1.4rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; text-align: center; }
+    .auth-subtitle { color: var(--gray-600); margin-bottom: 20px; font-size: 0.9rem; text-align: center; }
+    .free-badge { background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06)); border: 1px solid rgba(212,175,55,0.3); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 20px; font-size: 0.82rem; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+    .free-badge strong { color: var(--gold-dark); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } .auth-card { padding: 32px 24px; } }
-    .terms { font-size: 0.8rem; color: var(--gray-600); margin-top: 12px; text-align: center; }
+    .auth-footer { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--gray-600); }
+    .auth-footer a { color: var(--gold); font-weight: 600; }
+    .terms { font-size: 0.78rem; color: var(--gray-400); margin-top: 12px; text-align: center; }
     .terms a { color: var(--gold); }
+
+    @media (max-width: 900px) {
+      .auth-page { grid-template-columns: 1fr; }
+      .auth-brand { display: none; }
+      .auth-form-panel { background: var(--navy); }
+      .auth-card { background: rgba(255,255,255,0.04); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); box-shadow: none; }
+      .auth-logo .logo-text { color: var(--gold); }
+      .auth-title { color: var(--white); }
+      .auth-subtitle { color: rgba(255,255,255,0.6); }
+      .auth-footer { color: rgba(255,255,255,0.5); }
+      .form-group label { color: rgba(255,255,255,0.8); }
+      .form-control { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); color: var(--white); }
+      .form-control::placeholder { color: rgba(255,255,255,0.3); }
+    }
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } .auth-card { padding: 32px 24px; } }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="navbar-brand"><div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div></div>
     <div class="navbar-nav"><a href="index.html">Inicio</a><a href="dashboard.html">Dashboard</a></div>
-    <div class="navbar-actions"><a href="login.html" class="btn btn-ghost btn-sm">Ingresar</a></div>
+    <div class="navbar-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm">Ingresar</a>
+      <button class="hamburger-btn" id="hamburger" aria-label="Menú"><span></span><span></span><span></span></button>
+    </div>
   </nav>
 
-  <div class="auth-wrapper">
-    <div class="auth-card">
-      <div class="auth-logo">
-        <div class="logo-text">TERRIUM</div>
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="index.html">🏠 Inicio</a>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="listings.html">🏘️ Propiedades</a>
+    <div class="mobile-nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">Ingresar</a>
+    </div>
+  </div>
+
+  <div class="auth-page">
+    <!-- Brand panel -->
+    <div class="auth-brand">
+      <div class="auth-brand-logo">
+        <span class="logo-text">TERRIUM</span>
         <span class="logo-sub">Real Estate Intelligence</span>
       </div>
-      <h2 class="auth-title">Creá tu cuenta gratis</h2>
-      <p class="auth-subtitle">Empezá a invertir con datos en menos de 1 minuto</p>
-
-      <div class="free-badge">
-        🎁 El plan <strong>FREE</strong> incluye: búsqueda de propiedades, datos del mercado y calculadora ROI.
+      <h2>Empezá a invertir con inteligencia</h2>
+      <p>Creá tu cuenta gratis y accedé al mercado inmobiliario de CABA con datos profesionales.</p>
+      <div class="auth-brand-features">
+        <div class="auth-brand-feature">
+          <div class="abf-icon">🆓</div>
+          <div class="abf-text">
+            <strong>Plan FREE para siempre</strong>
+            <span>Búsqueda de propiedades + datos del mercado</span>
+          </div>
+        </div>
+        <div class="auth-brand-feature">
+          <div class="abf-icon">🧮</div>
+          <div class="abf-text">
+            <strong>Calculadora ROI incluida</strong>
+            <span>Evaluá el potencial de cualquier propiedad</span>
+          </div>
+        </div>
+        <div class="auth-brand-feature">
+          <div class="abf-icon">📊</div>
+          <div class="abf-text">
+            <strong>Dashboard del mercado</strong>
+            <span>Ranking de barrios y estadísticas de CABA</span>
+          </div>
+        </div>
+        <div class="auth-brand-feature">
+          <div class="abf-icon">🔒</div>
+          <div class="abf-text">
+            <strong>100% seguro y privado</strong>
+            <span>Tus datos protegidos con cifrado de grado bancario</span>
+          </div>
+        </div>
       </div>
+      <div class="free-badge-brand">
+        🎁 Sin tarjeta de crédito. <strong>Sin compromisos.</strong> Cancelá cuando quieras.
+      </div>
+    </div>
 
-      <form id="register-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="name">Nombre</label>
-            <input type="text" id="name" class="form-control" placeholder="Juan" required>
+    <!-- Form panel -->
+    <div class="auth-form-panel">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <div class="logo-text">TERRIUM</div>
+          <span class="logo-sub">Real Estate Intelligence</span>
+        </div>
+        <h2 class="auth-title">Creá tu cuenta gratis</h2>
+        <p class="auth-subtitle">Empezá a invertir con datos en menos de 1 minuto</p>
+
+        <div class="free-badge">
+          🎁 Plan <strong>FREE</strong> incluye búsqueda, datos del mercado y calculadora ROI.
+        </div>
+
+        <form id="register-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Nombre</label>
+              <input type="text" id="name" class="form-control" placeholder="Juan" required>
+            </div>
+            <div class="form-group">
+              <label for="lastname">Apellido</label>
+              <input type="text" id="lastname" class="form-control" placeholder="Pérez">
+            </div>
           </div>
           <div class="form-group">
-            <label for="lastname">Apellido</label>
-            <input type="text" id="lastname" class="form-control" placeholder="Pérez">
+            <label for="email">Email</label>
+            <input type="email" id="email" class="form-control" placeholder="tu@email.com" required autocomplete="email">
           </div>
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" class="form-control" placeholder="tu@email.com" required autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" class="form-control" placeholder="Mínimo 8 caracteres" required minlength="8" autocomplete="new-password">
-        </div>
-        <div class="form-group">
-          <label for="confirm-password">Repetir contraseña</label>
-          <input type="password" id="confirm-password" class="form-control" placeholder="••••••••" required autocomplete="new-password">
-        </div>
-        <button type="submit" id="submit-btn" class="btn btn-primary btn-full" style="margin-top:8px;">
-          Crear cuenta gratuita
-        </button>
-        <p class="terms">Al registrarte aceptás los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a>.</p>
-      </form>
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <div class="input-icon">
+              <input type="password" id="password" class="form-control" placeholder="Mínimo 8 caracteres" required minlength="8" autocomplete="new-password">
+              <button type="button" class="toggle-pass" id="toggle-pass" title="Mostrar/ocultar">👁</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="confirm-password">Repetir contraseña</label>
+            <input type="password" id="confirm-password" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+          </div>
+          <button type="submit" id="submit-btn" class="btn btn-primary btn-full" style="margin-top:4px;">
+            Crear cuenta gratuita →
+          </button>
+          <p class="terms">Al registrarte aceptás los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a>.</p>
+        </form>
 
-      <div class="auth-footer">
-        ¿Ya tenés cuenta? <a href="login.html">Ingresá aquí</a>
+        <div class="auth-footer">
+          ¿Ya tenés cuenta? <a href="login.html">Ingresá aquí</a>
+        </div>
       </div>
     </div>
   </div>
 
   <div id="toast"></div>
-  <!-- register NO necesita el SDK de Supabase -->
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
   <script>
     if (isAuthenticated()) window.location.href = 'dashboard.html';
+
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileNav.classList.toggle('open'); });
+
+    // Toggle password
+    document.getElementById('toggle-pass').addEventListener('click', () => {
+      const inp = document.getElementById('password');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    });
 
     document.getElementById('register-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -113,19 +216,16 @@
           method: 'POST',
           body: JSON.stringify({ name: `${name} ${lastname}`.trim(), email, password })
         });
-
         localStorage.setItem('terrium_token', data.token);
         localStorage.setItem('terrium_user', JSON.stringify(data.user));
-
         showToast('¡Cuenta creada! Bienvenido a Terrium 🎉');
         setTimeout(() => window.location.href = 'dashboard.html', 1000);
       } catch (err) {
         showToast(err.message || 'Error al crear la cuenta', 'error');
-        btn.textContent = 'Crear cuenta gratuita';
+        btn.textContent = 'Crear cuenta gratuita →';
         btn.disabled = false;
       }
     });
   </script>
 </body>
 </html>
-

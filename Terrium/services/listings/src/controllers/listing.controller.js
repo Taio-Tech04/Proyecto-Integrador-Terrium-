@@ -3,16 +3,23 @@ const { query } = require('../db/connection');
 const { publish } = require('../events/publisher');
 const logger = require('../utils/logger');
 
+// Acepta tanto camelCase como snake_case para compatibilidad con el frontend
 const createSchema = Joi.object({
-  title: Joi.string().min(5).max(200).required(),
-  description: Joi.string().optional(),
-  priceUsd: Joi.number().positive().required(),
-  surfaceM2: Joi.number().positive().required(),
-  rooms: Joi.number().integer().min(0).default(0),
-  type: Joi.string().valid('DEPARTAMENTO','CASA','PH','OFICINA','LOCAL','TERRENO').required(),
+  title:        Joi.string().min(3).max(200).optional(),
+  description:  Joi.string().optional(),
+  priceUsd:     Joi.number().positive().optional(),
+  price_usd:    Joi.number().positive().optional(),
+  priceArs:     Joi.number().positive().optional(),
+  price_ars:    Joi.number().positive().optional(),
+  surfaceM2:    Joi.number().positive().optional(),
+  surface_m2:   Joi.number().positive().optional(),
+  rooms:        Joi.number().integer().min(0).default(0),
+  bathrooms:    Joi.number().integer().min(0).optional(),
+  type:         Joi.string().max(50).optional(),
   neighborhood: Joi.string().required(),
-  lat: Joi.number().optional(),
-  lng: Joi.number().optional()
+  address:      Joi.string().max(200).optional(),
+  lat:          Joi.number().optional(),
+  lng:          Joi.number().optional()
 });
 
 const getAll = async (req, res) => {
@@ -61,14 +68,31 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   try {
-    const { error, value } = createSchema.validate(req.body);
+    const { error, value } = createSchema.validate(req.body, { allowUnknown: false });
     if (error) return res.status(400).json({ error: error.details[0].message });
+
+    // Normalizar nombres de campo (snake_case → camelCase)
+    const priceUsd   = value.priceUsd   || value.price_usd   || null;
+    const priceArs   = value.priceArs   || value.price_ars   || null;
+    const surfaceM2  = value.surfaceM2  || value.surface_m2;
+    const propType   = value.type       || 'VENTA';
+    const address    = value.address    || null;
+
+    if (!priceUsd && !priceArs) {
+      return res.status(400).json({ error: 'Debés ingresar al menos un precio (USD o ARS)' });
+    }
+    if (!surfaceM2) {
+      return res.status(400).json({ error: 'La superficie es requerida' });
+    }
+
+    // Generar título si no se proporcionó
+    const title = value.title || `${propType} en ${value.neighborhood}${address ? ' · ' + address : ''}`;
 
     const ownerId = req.headers['x-user-id'] || null;
     const { rows } = await query(
-      `INSERT INTO listings (title, description, price_usd, surface_m2, rooms, type, neighborhood, lat, lng, owner_id)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-      [value.title, value.description, value.priceUsd, value.surfaceM2, value.rooms, value.type, value.neighborhood, value.lat, value.lng, ownerId]
+      `INSERT INTO listings (title, description, price_usd, price_ars, surface_m2, rooms, type, neighborhood, address, lat, lng, owner_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+      [title, value.description, priceUsd, priceArs, surfaceM2, value.rooms || 0, propType, value.neighborhood, address, value.lat, value.lng, ownerId]
     );
     await publish('listings', 'listing.created', rows[0]);
     res.status(201).json(rows[0]);
@@ -124,4 +148,3 @@ const remove = async (req, res) => {
 };
 
 module.exports = { getAll, getById, create, update, remove };
-

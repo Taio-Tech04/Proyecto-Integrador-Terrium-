@@ -6,4 +6,3 @@ router.get('/my-subscription', getMySubscription);
 router.post('/upgrade', upgrade);
 
 module.exports = router;
-

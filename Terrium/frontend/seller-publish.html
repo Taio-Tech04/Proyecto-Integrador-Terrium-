@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publicar Propiedad — Terrium Vendedor</title>
+  <meta name="description" content="Publicá tu propiedad en CABA en menos de 5 minutos. Completá los datos, sumá fotos y llegá a miles de compradores activos con Terrium.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Terrium">
+  <meta property="og:title" content="Publicar Propiedad — Terrium Vendedor">
+  <meta property="og:description" content="Publicá tu propiedad en CABA en menos de 5 minutos. Completá los datos, sumá fotos y llegá a miles de compradores activos con Terrium.">
+  <meta property="og:image" content="assets/img/og-terrium.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Publicar Propiedad — Terrium Vendedor">
+  <meta name="twitter:description" content="Publicá tu propiedad en CABA en menos de 5 minutos. Completá los datos, sumá fotos y llegá a miles de compradores activos con Terrium.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    :root {
+      --seller-green: #1e8a4a;
+      --seller-green-light: #27ae60;
+      --seller-green-dark: #166d3b;
+    }
+    body { background: var(--gray-100); }
+    .publish-layout { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+    .page-title { color: var(--navy); margin-bottom: 6px; }
+    .page-subtitle { color: var(--gray-600); margin-bottom: 32px; }
+
+    /* Steps indicator */
+    .steps-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 36px; }
+    .step-ind { display: flex; align-items: center; gap: 10px; }
+    .step-ind .snum { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; transition: var(--transition); }
+    .step-ind .snum.active { background: var(--seller-green); color: white; }
+    .step-ind .snum.done { background: rgba(30,138,74,0.2); color: var(--seller-green); }
+    .step-ind .snum.pending { background: var(--gray-200); color: var(--gray-400); }
+    .step-ind .slabel { font-size: 0.82rem; font-weight: 600; color: var(--gray-600); white-space: nowrap; }
+    .step-ind .slabel.active { color: var(--seller-green); }
+    .step-connector { flex: 1; height: 2px; background: var(--gray-200); margin: 0 8px; min-width: 20px; }
+    .step-connector.done { background: var(--seller-green); }
+
+    /* Form sections */
+    .form-section { background: var(--white); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .form-section.hidden { display: none; }
+    .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--gray-100); }
+    .section-num { width: 36px; height: 36px; background: var(--seller-green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; flex-shrink: 0; }
+    .section-title-text { color: var(--navy); font-size: 1.05rem; font-weight: 700; }
+    .section-subtitle { color: var(--gray-400); font-size: 0.82rem; margin-top: 2px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .input-prefix { position: relative; }
+    .input-prefix span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-600); font-weight: 600; font-size: 0.9rem; }
+    .input-prefix input { padding-left: 56px; }
+
+    /* Type selector */
+    .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 8px; }
+    .type-opt { border: 2px solid var(--gray-200); border-radius: var(--radius); padding: 18px 12px; text-align: center; cursor: pointer; transition: var(--transition); background: var(--white); }
+    .type-opt:hover { border-color: var(--seller-green); }
+    .type-opt.selected { border-color: var(--seller-green); background: rgba(30,138,74,0.06); }
+    .type-opt .type-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .type-opt .type-label { font-size: 0.85rem; font-weight: 700; color: var(--navy); }
+    .type-opt .type-desc { font-size: 0.75rem; color: var(--gray-400); margin-top: 2px; }
+
+    /* Price suggestion box */
+    .price-suggestion { background: rgba(30,138,74,0.07); border: 1px solid rgba(30,138,74,0.25); border-radius: var(--radius); padding: 16px 20px; margin-top: 8px; display: none; }
+    .price-suggestion .ps-label { font-size: 0.8rem; color: var(--gray-600); margin-bottom: 6px; font-weight: 600; }
+    .price-suggestion .ps-value { font-size: 1.5rem; font-weight: 800; color: var(--seller-green); }
+    .price-suggestion .ps-range { font-size: 0.8rem; color: var(--gray-600); margin-top: 4px; }
+    .price-suggestion .ps-confidence { font-size: 0.78rem; color: var(--gray-400); margin-top: 2px; }
+
+    /* Textarea */
+    .form-control-area { padding: 14px 16px; border: 2px solid var(--gray-200); border-radius: var(--radius); font-size: 0.95rem; font-family: var(--font), sans-serif; transition: var(--transition); background: var(--white); width: 100%; resize: vertical; min-height: 120px; }
+    .form-control-area:focus { outline: none; border-color: var(--seller-green); box-shadow: 0 0 0 3px rgba(30,138,74,0.12); }
+    .form-control:focus { border-color: var(--seller-green); box-shadow: 0 0 0 3px rgba(30,138,74,0.12); }
+
+    /* Highlights / amenities */
+    .amenities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+    .amenity-opt { border: 1.5px solid var(--gray-200); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: var(--gray-800); background: var(--white); }
+    .amenity-opt:hover { border-color: var(--seller-green); }
+    .amenity-opt.selected { border-color: var(--seller-green); background: rgba(30,138,74,0.08); color: var(--seller-green); }
+    .amenity-icon { font-size: 1rem; }
+
+    /* Bottom actions */
+    .form-actions { background: var(--white); border-radius: var(--radius-lg); padding: 24px 32px; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .btn-seller { background: var(--seller-green); color: var(--white); }
+    .btn-seller:hover { background: var(--seller-green-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(30,138,74,0.3); }
+
+    /* Preview card */
+    .preview-panel { background: var(--white); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); position: sticky; top: 80px; }
+    .preview-panel h4 { color: var(--navy); margin-bottom: 16px; font-size: 0.9rem; }
+    .preview-card { border: 1.5px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; }
+    .preview-img { height: 120px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+    .preview-body { padding: 14px; }
+    .preview-price { font-size: 1.3rem; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+    .preview-addr { font-size: 0.8rem; color: var(--gray-600); margin-bottom: 8px; }
+    .preview-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .preview-tag { background: var(--gray-100); color: var(--navy); padding: 3px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+
+    .two-col-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+
+    /* Char counter */
+    .char-counter { font-size: 0.75rem; color: var(--gray-400); text-align: right; margin-top: 4px; }
+
+    @media (max-width: 900px) {
+      .two-col-layout { grid-template-columns: 1fr; }
+      .preview-panel { display: none; }
+      .form-row, .form-row-3 { grid-template-columns: 1fr; }
+      .type-selector { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand"><div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div></div>
+    <div class="navbar-nav">
+      <a href="seller.html">Inicio</a>
+      <a href="seller-dashboard.html">Mis Publicaciones</a>
+      <a href="seller-publish.html" class="active">Publicar</a>
+      <a href="seller-valuation.html">Precio Justo</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="user-info" style="display:none; align-items:center; gap:8px;"><span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span><span id="user-tier-badge" class="badge"></span></div>
+      <a href="index.html" class="btn btn-ghost btn-sm">📈 Modo Inversor</a>
+      <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+      <button class="hamburger-btn" id="hamburger" aria-label="Menú"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="seller.html">🏠 Inicio Vendedor</a>
+    <a href="seller-dashboard.html">📊 Mis Publicaciones</a>
+    <a href="seller-publish.html" class="active">➕ Publicar</a>
+    <a href="seller-valuation.html">💰 Precio Justo</a>
+    <a href="index.html">📈 Modo Inversor</a>
+  </div>
+
+  <div class="publish-layout">
+    <h2 class="page-title">➕ Publicar mi propiedad</h2>
+    <p class="page-subtitle">Completá los datos y llegá a miles de compradores activos en CABA. La publicación se activa de inmediato.</p>
+
+    <!-- Steps indicator -->
+    <div class="steps-indicator">
+      <div class="step-ind">
+        <div class="snum active" id="snum-1">1</div>
+        <span class="slabel active" id="slabel-1">Tipo y barrio</span>
+      </div>
+      <div class="step-connector" id="conn-1"></div>
+      <div class="step-ind">
+        <div class="snum pending" id="snum-2">2</div>
+        <span class="slabel" id="slabel-2">Detalles</span>
+      </div>
+      <div class="step-connector" id="conn-2"></div>
+      <div class="step-ind">
+        <div class="snum pending" id="snum-3">3</div>
+        <span class="slabel" id="slabel-3">Precio</span>
+      </div>
+      <div class="step-connector" id="conn-3"></div>
+      <div class="step-ind">
+        <div class="snum pending" id="snum-4">4</div>
+        <span class="slabel" id="slabel-4">Descripción</span>
+      </div>
+    </div>
+
+    <div class="two-col-layout">
+      <!-- Form -->
+      <div>
+        <!-- Sección 1: Tipo + Barrio -->
+        <div class="form-section" id="section-1">
+          <div class="section-header">
+            <div class="section-num">1</div>
+            <div>
+              <div class="section-title-text">Tipo de operación y ubicación</div>
+              <div class="section-subtitle">¿Qué tipo de propiedad querés publicar y dónde está?</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de operación</label>
+            <div class="type-selector">
+              <div class="type-opt selected" data-type="VENTA" onclick="selectType(this)">
+                <div class="type-icon">🏡</div>
+                <div class="type-label">Venta</div>
+                <div class="type-desc">Transferencia definitiva</div>
+              </div>
+              <div class="type-opt" data-type="ALQUILER" onclick="selectType(this)">
+                <div class="type-icon">🔑</div>
+                <div class="type-label">Alquiler</div>
+                <div class="type-desc">Arrendamiento mensual</div>
+              </div>
+              <div class="type-opt" data-type="COMERCIAL" onclick="selectType(this)">
+                <div class="type-icon">🏢</div>
+                <div class="type-label">Comercial</div>
+                <div class="type-desc">Local u oficina</div>
+              </div>
+            </div>
+            <input type="hidden" id="inp-type" value="VENTA">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Barrio <span style="color:var(--red);">*</span></label>
+              <select id="inp-neighborhood" class="form-control" required>
+                <option value="">Seleccionar barrio</option>
+                <option>Palermo</option><option>Belgrano</option><option>Recoleta</option>
+                <option>Puerto Madero</option><option>Villa Crespo</option><option>Caballito</option>
+                <option>San Telmo</option><option>Flores</option><option>Villa Devoto</option>
+                <option>Microcentro</option><option>Almagro</option><option>Núñez</option>
+                <option>Villa Urquiza</option><option>Saavedra</option><option>Colegiales</option>
+                <option>Boedo</option><option>Parque Chacabuco</option><option>Balvanera</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Dirección <span style="color:var(--red);">*</span></label>
+              <input type="text" id="inp-address" class="form-control" placeholder="ej: Thames 1234, Piso 3° B" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 2: Detalles -->
+        <div class="form-section" id="section-2">
+          <div class="section-header">
+            <div class="section-num">2</div>
+            <div>
+              <div class="section-title-text">Detalles de la propiedad</div>
+              <div class="section-subtitle">Describí las características físicas del inmueble</div>
+            </div>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Ambientes</label>
+              <select id="inp-rooms" class="form-control">
+                <option value="">Seleccionar</option>
+                <option value="1">Monoambiente</option>
+                <option value="2">2 ambientes</option>
+                <option value="3">3 ambientes</option>
+                <option value="4">4 ambientes</option>
+                <option value="5">5+ ambientes</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Baños</label>
+              <select id="inp-bathrooms" class="form-control">
+                <option value="">Seleccionar</option>
+                <option value="1">1 baño</option>
+                <option value="2">2 baños</option>
+                <option value="3">3 baños</option>
+                <option value="4">4+ baños</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Superficie total (m²) <span style="color:var(--red);">*</span></label>
+              <input type="number" id="inp-surface" class="form-control" placeholder="ej: 72" min="5" max="5000" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Superficie cubierta (m²)</label>
+              <input type="number" id="inp-surface-covered" class="form-control" placeholder="ej: 65" min="0">
+            </div>
+            <div class="form-group">
+              <label>Antigüedad (años)</label>
+              <input type="number" id="inp-age" class="form-control" placeholder="ej: 10" min="0" max="200">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Comodidades incluidas</label>
+            <div class="amenities-grid">
+              <div class="amenity-opt" onclick="toggleAmenity(this)" data-val="cochera"><span class="amenity-icon">🚗</span> Cochera</div>
+              <div class="amenity-opt" onclick="toggleAmenity(this)" data-val="balcon"><span class="amenity-icon">🌿</span> Balcón</div>
+              <div class="amenity-opt" onclick="toggleAmenity(this)" data-val="terraza"><span class="amenity-icon">☀️</span> Terraza</div>
+              <div class="amenity-opt" onclick="toggleAmenity(this)" data-val="pileta"><span class="amenity-icon">🏊</span> Pileta</div>
+              <div class="amenity-opt" onclick="toggleAmenity(this)" data-val="gym"><span class="amenity-icon">🏋️</span> Gimnasio</div>
+              <div class="amenity-opt" onclick="toggleAmenity(this)" data-val="portero"><span class="amenity-icon">🔑</span> Portero 24hs</div>
+              <div class="amenity-opt" onclick="toggleAmenity(this)" data-val="sum"><span class="amenity-icon">🥂</span> Salón SUM</div>
+              <div class="amenity-opt" onclick="toggleAmenity(this)" data-val="vista"><span class="amenity-icon">🌆</span> Vista al río</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 3: Precio -->
+        <div class="form-section" id="section-3">
+          <div class="section-header">
+            <div class="section-num">3</div>
+            <div>
+              <div class="section-title-text">Precio de publicación</div>
+              <div class="section-subtitle">Fijá el precio de tu propiedad. Podés sugerirte un precio basado en el mercado.</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Precio en USD</label>
+              <div class="input-prefix">
+                <span>USD</span>
+                <input type="number" id="inp-price-usd" class="form-control" placeholder="ej: 145000" min="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Precio en ARS (opcional)</label>
+              <div class="input-prefix">
+                <span>ARS</span>
+                <input type="number" id="inp-price-ars" class="form-control" placeholder="ej: 120000000" min="0">
+              </div>
+            </div>
+          </div>
+
+          <button id="suggest-price-btn" class="btn btn-ghost" style="margin-bottom:12px;">
+            🤖 Sugerir precio automático con IA
+          </button>
+          <div id="price-suggestion" class="price-suggestion">
+            <div class="ps-label">Precio de mercado estimado (Terrium IA)</div>
+            <div class="ps-value" id="ps-value">—</div>
+            <div class="ps-range" id="ps-range">Rango de mercado: —</div>
+            <div class="ps-confidence" id="ps-conf">—</div>
+          </div>
+        </div>
+
+        <!-- Sección 4: Descripción -->
+        <div class="form-section" id="section-4">
+          <div class="section-header">
+            <div class="section-num">4</div>
+            <div>
+              <div class="section-title-text">Descripción y detalles finales</div>
+              <div class="section-subtitle">Una buena descripción genera hasta 3x más consultas</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Descripción de la propiedad <span style="color:var(--red);">*</span></label>
+            <textarea id="inp-description" class="form-control-area" placeholder="Describí tu propiedad: destacá las características principales, el estado de conservación, la iluminación, el barrio... Una descripción detallada atrae más compradores." maxlength="2000" oninput="updateCharCount(this)"></textarea>
+            <div class="char-counter"><span id="char-count">0</span>/2000 caracteres</div>
+          </div>
+
+          <div class="form-group">
+            <label>Información de contacto (opcional)</label>
+            <input type="text" id="inp-contact" class="form-control" placeholder="ej: WhatsApp +54 11 1234-5678 · Horario: 9 a 18hs">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <div style="font-size:0.85rem; color:var(--gray-600);">
+            <span id="form-status">✏️ Completá todos los campos marcados con *</span>
+          </div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+            <button id="preview-btn" class="btn btn-ghost btn-sm">👁 Vista previa</button>
+            <button id="publish-btn" class="btn btn-seller btn-lg">🚀 Publicar propiedad →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview panel -->
+      <div class="preview-panel">
+        <h4>👁 Vista previa en tiempo real</h4>
+        <div class="preview-card">
+          <div class="preview-img" id="prev-img">🏠</div>
+          <div class="preview-body">
+            <div class="preview-price" id="prev-price">Completá el precio</div>
+            <div class="preview-addr" id="prev-addr">📍 Completá dirección y barrio</div>
+            <div class="preview-tags" id="prev-tags">
+              <span class="preview-tag">VENTA</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px; font-size:0.8rem; color:var(--gray-600); line-height:1.6;">
+          <div style="font-weight:700; color:var(--navy); margin-bottom:8px;">📋 Checklist de publicación</div>
+          <div id="check-type"   style="color:var(--seller-green);">✓ Tipo de operación</div>
+          <div id="check-barrio" style="color:var(--gray-400);">○ Barrio y dirección</div>
+          <div id="check-sup"    style="color:var(--gray-400);">○ Superficie</div>
+          <div id="check-price"  style="color:var(--gray-400);">○ Precio</div>
+          <div id="check-desc"   style="color:var(--gray-400);">○ Descripción</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    const EMOJIS = { VENTA: '🏡', ALQUILER: '🔑', COMERCIAL: '🏢' };
+    let selectedAmenities = [];
+
+    function selectType(el) {
+      document.querySelectorAll('.type-opt').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('inp-type').value = el.dataset.type;
+      updatePreview();
+      updateStepIndicator(1);
+    }
+
+    function toggleAmenity(el) {
+      el.classList.toggle('selected');
+      const val = el.dataset.val;
+      if (el.classList.contains('selected')) {
+        selectedAmenities.push(val);
+      } else {
+        selectedAmenities = selectedAmenities.filter(a => a !== val);
+      }
+      updatePreview();
+    }
+
+    function updateCharCount(textarea) {
+      document.getElementById('char-count').textContent = textarea.value.length;
+      updateStepIndicator(4);
+    }
+
+    function updatePreview() {
+      const type         = document.getElementById('inp-type').value || 'VENTA';
+      const neighborhood = document.getElementById('inp-neighborhood').value;
+      const address      = document.getElementById('inp-address').value;
+      const rooms        = document.getElementById('inp-rooms').value;
+      const surface      = document.getElementById('inp-surface').value;
+      const priceUsd     = document.getElementById('inp-price-usd').value;
+      const priceArs     = document.getElementById('inp-price-ars').value;
+
+      // Img emoji
+      document.getElementById('prev-img').textContent = EMOJIS[type] || '🏠';
+
+      // Price
+      const priceText = priceUsd ? `USD ${parseInt(priceUsd).toLocaleString('es-AR')}` :
+                        priceArs ? `ARS ${parseInt(priceArs).toLocaleString('es-AR')}` : 'Completá el precio';
+      document.getElementById('prev-price').textContent = priceText;
+
+      // Address
+      const addrText = [address, neighborhood].filter(Boolean).join(' · ');
+      document.getElementById('prev-addr').textContent = addrText ? `📍 ${addrText}` : '📍 Completá dirección y barrio';
+
+      // Tags
+      const tags = [type];
+      if (rooms) tags.push(`${rooms} amb.`);
+      if (surface) tags.push(`${surface}m²`);
+      document.getElementById('prev-tags').innerHTML = tags.map(t => `<span class="preview-tag">${t}</span>`).join('');
+
+      // Checklist
+      setCheck('check-barrio', !!(neighborhood && address));
+      setCheck('check-sup', !!surface);
+      setCheck('check-price', !!(priceUsd || priceArs));
+      setCheck('check-desc', document.getElementById('inp-description').value.length > 20);
+    }
+
+    function setCheck(id, done) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const label = el.textContent.replace(/^[○✓] /, '');
+      el.style.color = done ? 'var(--seller-green)' : 'var(--gray-400)';
+      el.textContent = (done ? '✓ ' : '○ ') + label;
+    }
+
+    function updateStepIndicator(step) {
+      for (let i = 1; i <= 4; i++) {
+        const snum  = document.getElementById(`snum-${i}`);
+        const lbl   = document.getElementById(`slabel-${i}`);
+        const conn  = document.getElementById(`conn-${i}`);
+        if (!snum) continue;
+        if (i < step) {
+          snum.className = 'snum done'; lbl.className = 'slabel';
+          if (conn) conn.className = 'step-connector done';
+        } else if (i === step) {
+          snum.className = 'snum active'; lbl.className = 'slabel active';
+        } else {
+          snum.className = 'snum pending'; lbl.className = 'slabel';
+        }
+      }
+    }
+
+    // Live update preview on input
+    ['inp-neighborhood', 'inp-address', 'inp-rooms', 'inp-surface', 'inp-price-usd', 'inp-price-ars', 'inp-description'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updatePreview);
+    });
+
+    // Suggest price button
+    document.getElementById('suggest-price-btn').addEventListener('click', async () => {
+      const neighborhood = document.getElementById('inp-neighborhood').value;
+      const surface      = parseFloat(document.getElementById('inp-surface').value);
+      if (!neighborhood || !surface) {
+        showToast('Seleccioná barrio y superficie para obtener el precio sugerido', 'error');
+        return;
+      }
+      const btn = document.getElementById('suggest-price-btn');
+      btn.textContent = '🔄 Consultando mercado...';
+      btn.disabled = true;
+      try {
+        const data = await apiFetch('/api/valuations/estimate', {
+          method: 'POST',
+          body: JSON.stringify({ neighborhood, surfaceM2: surface })
+        });
+        const box = document.getElementById('price-suggestion');
+        document.getElementById('ps-value').textContent = `USD ${data.estimatedPrice.toLocaleString('es-AR')}`;
+        document.getElementById('ps-range').textContent = `Precio de lista recomendado: USD ${Math.round(data.estimatedPrice * 0.97).toLocaleString('es-AR')} – ${Math.round(data.estimatedPrice * 1.05).toLocaleString('es-AR')}`;
+        document.getElementById('ps-conf').textContent = `Confianza del modelo: ${(data.confidence * 100).toFixed(0)}% · Precio/m²: USD ${data.pricePerM2.toLocaleString('es-AR')}`;
+        box.style.display = 'block';
+        // Autocompletar precio sugerido
+        if (!document.getElementById('inp-price-usd').value) {
+          document.getElementById('inp-price-usd').value = data.estimatedPrice;
+          updatePreview();
+        }
+        showToast('Precio sugerido basado en comparables del mercado ✓');
+      } catch (err) {
+        showToast('No se pudo obtener la sugerencia de precio. Verificá tu plan.', 'error');
+      } finally {
+        btn.textContent = '🤖 Sugerir precio automático con IA';
+        btn.disabled = false;
+      }
+    });
+
+    // Publish button
+    document.getElementById('publish-btn').addEventListener('click', async () => {
+      const neighborhood  = document.getElementById('inp-neighborhood').value;
+      const address       = document.getElementById('inp-address').value;
+      const type          = document.getElementById('inp-type').value;
+      const surface       = parseFloat(document.getElementById('inp-surface').value);
+      const priceUsd      = parseFloat(document.getElementById('inp-price-usd').value) || null;
+      const priceArs      = parseFloat(document.getElementById('inp-price-ars').value) || null;
+      const description   = document.getElementById('inp-description').value;
+      const rooms         = parseInt(document.getElementById('inp-rooms').value) || null;
+      const bathrooms     = parseInt(document.getElementById('inp-bathrooms').value) || null;
+
+      if (!neighborhood || !address || !surface) {
+        showToast('Completá barrio, dirección y superficie (campos obligatorios)', 'error');
+        return;
+      }
+      if (!priceUsd && !priceArs) {
+        showToast('Ingresá al menos un precio (USD o ARS)', 'error');
+        return;
+      }
+      if (!description || description.length < 20) {
+        showToast('Escribí una descripción de al menos 20 caracteres', 'error');
+        return;
+      }
+
+      if (!isAuthenticated()) {
+        showToast('Necesitás ingresar a tu cuenta para publicar', 'error');
+        setTimeout(() => window.location.href = 'login.html?redirect=seller-publish.html', 1200);
+        return;
+      }
+
+      const btn = document.getElementById('publish-btn');
+      btn.textContent = '🔄 Publicando...';
+      btn.disabled = true;
+      document.getElementById('form-status').textContent = '⏳ Subiendo tu publicación...';
+
+      try {
+        // Construir título automático
+        const typeLabel = type === 'VENTA' ? 'Venta' : type === 'ALQUILER' ? 'Alquiler' : 'Comercial';
+        const autoTitle = `${typeLabel} en ${neighborhood} · ${surface}m²${address ? ' · ' + address : ''}`;
+        const payload = {
+          title:        autoTitle,
+          type,
+          neighborhood,
+          address,
+          surfaceM2:    surface,
+          description
+        };
+        if (rooms)     payload.rooms     = rooms;
+        if (bathrooms) payload.bathrooms = bathrooms;
+        if (priceUsd)  payload.priceUsd  = priceUsd;
+        if (priceArs)  payload.priceArs  = priceArs;
+
+        await apiFetch('/api/listings', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        showToast('¡Propiedad publicada con éxito! 🎉');
+        document.getElementById('form-status').textContent = '✅ ¡Publicado exitosamente!';
+        setTimeout(() => window.location.href = 'seller-dashboard.html', 1500);
+      } catch (err) {
+        showToast(err.message || 'Error al publicar. Intentá de nuevo.', 'error');
+        btn.textContent = '🚀 Publicar propiedad →';
+        btn.disabled = false;
+        document.getElementById('form-status').textContent = '⚠️ Error al publicar. Revisá los datos.';
+      }
+    });
+
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    if (hamburger) hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileNav.classList.toggle('open'); });
+
+    // Initialize
+    // Leer parámetros URL para pre-rellenar desde seller-valuation.html
+    (function readURLParams() {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('neighborhood')) document.getElementById('inp-neighborhood').value = p.get('neighborhood');
+      if (p.get('surface'))      document.getElementById('inp-surface').value      = p.get('surface');
+      if (p.get('price'))        document.getElementById('inp-price-usd').value    = p.get('price');
+    })();
+    updatePreview();
+  </script>
+</body>
+</html>
+

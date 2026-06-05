@@ -67,10 +67,15 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
-app.use('/', analyticsRoutes);
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'analytics', wsClients: io.engine.clientsCount }));
-app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
-app.use((err, _req, res, _next) => { logger.error(err instanceof Error ? err.stack : String(err)); res.status(500).json({ error: 'Error interno' }); });
+app.use('/', analyticsRoutes);
+app.use((_req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
+/** @type {import('express').ErrorRequestHandler} */
+const errorHandler = (err, _req, res, _next) => {
+  logger.error(err instanceof Error ? err.stack : String(err));
+  res.status(500).json({ error: 'Error interno' });
+};
+app.use(errorHandler);
 
 async function start() {
   await connectDB();

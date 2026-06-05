@@ -20,9 +20,6 @@
     .auth-subtitle { color: var(--gray-600); margin-bottom: 28px; font-size: 0.9rem; }
     .auth-footer { text-align: center; margin-top: 24px; font-size: 0.85rem; color: var(--gray-600); }
     .auth-footer a { color: var(--gold); font-weight: 600; }
-    .divider { text-align: center; color: var(--gray-400); font-size: 0.8rem; margin: 20px 0; position: relative; }
-    .divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: var(--gray-200); }
-    .divider::before { left: 0; } .divider::after { right: 0; }
   </style>
 </head>
 <body>
@@ -94,7 +91,9 @@
         localStorage.setItem('terrium_user', JSON.stringify(data.user));
 
         showToast(`¡Bienvenido, ${data.user.name || data.user.email}!`);
-        setTimeout(() => window.location.href = 'dashboard.html', 800);
+        // Redirigir a la página original si se pasó ?redirect=
+        const redirect = new URLSearchParams(window.location.search).get('redirect') || 'dashboard.html';
+        setTimeout(() => window.location.href = redirect, 800);
       } catch (err) {
         showToast(err.message || 'Credenciales incorrectas', 'error');
         btn.textContent = 'Ingresar';

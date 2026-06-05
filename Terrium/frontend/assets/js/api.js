@@ -67,4 +67,3 @@ const showToast = (message, type = 'success') => {
 
 window.apiFetch = apiFetch;
 window.showToast = showToast;
-

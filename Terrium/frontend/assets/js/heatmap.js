@@ -135,4 +135,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyPriceFilter(val);
   });
 });
-

@@ -47,4 +47,3 @@ const startConsumer = async (retries = 5) => {
 };
 
 module.exports = { startConsumer };
-

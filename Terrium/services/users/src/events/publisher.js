@@ -29,4 +29,3 @@ const publish = async (exchange, routingKey, payload) => {
 };
 
 module.exports = { connectRabbitMQ, publish };
-

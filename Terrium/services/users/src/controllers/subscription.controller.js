@@ -63,4 +63,3 @@ const upgrade = async (req, res) => {
 };
 
 module.exports = { getPlans, getMySubscription, upgrade };
-

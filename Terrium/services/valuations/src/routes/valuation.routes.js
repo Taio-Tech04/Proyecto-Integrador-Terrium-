@@ -4,4 +4,3 @@ router.get('/property/:id', getByProperty);
 router.get('/history/:neighborhood', getPriceHistory);
 router.post('/estimate', estimate);
 module.exports = router;
-

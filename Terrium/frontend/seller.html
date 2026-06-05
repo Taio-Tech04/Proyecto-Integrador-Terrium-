@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terrium Vendedor — Vendé al Precio Correcto</title>
+  <meta name="description" content="Terrium para vendedores: valuación gratuita, publicación rápida y panel de rendimiento para vender tu propiedad al mejor precio en CABA.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Terrium">
+  <meta property="og:title" content="Terrium Vendedor — Vendé al Precio Correcto">
+  <meta property="og:description" content="Terrium para vendedores: valuación gratuita, publicación rápida y panel de rendimiento para vender tu propiedad al mejor precio en CABA.">
+  <meta property="og:image" content="assets/img/og-terrium.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Terrium Vendedor — Vendé al Precio Correcto">
+  <meta name="twitter:description" content="Terrium para vendedores: valuación gratuita, publicación rápida y panel de rendimiento para vender tu propiedad al mejor precio en CABA.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    /* ── Mode switcher ────────────────────── */
+    .mode-switcher { background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 10px 5%; display: flex; justify-content: center; }
+    .mode-switcher-inner { display: inline-flex; background: rgba(0,0,0,0.25); border-radius: 50px; padding: 4px; gap: 2px; }
+    .mode-opt { padding: 7px 20px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.5); transition: var(--transition); letter-spacing: 0.5px; }
+    .mode-opt:hover { color: rgba(255,255,255,0.85); }
+    .mode-opt.active { background: var(--seller-green); color: var(--white); }
+    .mode-opt.investor-mode.active { background: var(--gold); color: var(--navy); }
+
+    /* ── Seller color vars ─────────────────── */
+    :root {
+      --seller-green: #1e8a4a;
+      --seller-green-light: #27ae60;
+      --seller-green-dark: #166d3b;
+      --seller-gradient: linear-gradient(135deg, #0D1B2A 0%, #0d2b1a 60%, #0a2010 100%);
+    }
+
+    /* ── Hero ─────────────────────────── */
+    .hero { background: var(--seller-gradient); min-height: 92vh; display: flex; flex-direction: column; align-items: stretch; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; width: 700px; height: 700px; background: radial-gradient(circle, rgba(46,160,67,0.08) 0%, transparent 70%); top: -150px; right: -150px; border-radius: 50%; pointer-events: none; }
+    .hero::after { content: ''; position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(46,160,67,0.05) 0%, transparent 70%); bottom: -80px; left: 10%; border-radius: 50%; pointer-events: none; }
+    .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto; width: 100%; position: relative; z-index: 1; padding: 60px 5%; flex: 1; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(46,160,67,0.15); border: 1px solid rgba(46,160,67,0.35); color: #5dda7e; padding: 8px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; animation: fadeInUp 0.6s ease; }
+    .hero h1 { color: var(--white); margin-bottom: 20px; animation: fadeInUp 0.6s ease 0.1s both; }
+    .hero h1 span { color: #5dda7e; }
+    .hero-p { color: rgba(255,255,255,0.72); font-size: 1.15rem; margin-bottom: 36px; line-height: 1.8; animation: fadeInUp 0.6s ease 0.2s both; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeInUp 0.6s ease 0.3s both; }
+    .btn-seller { background: var(--seller-green); color: var(--white); }
+    .btn-seller:hover { background: var(--seller-green-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(30,138,74,0.4); }
+    .btn-seller-outline { background: transparent; color: #5dda7e; border: 2px solid #5dda7e; }
+    .btn-seller-outline:hover { background: var(--seller-green); color: var(--white); transform: translateY(-2px); }
+    .hero-stats { display: flex; gap: 36px; margin-top: 52px; flex-wrap: wrap; animation: fadeInUp 0.6s ease 0.4s both; padding-top: 36px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .hero-stat .value { font-size: 1.9rem; font-weight: 800; color: #5dda7e; }
+    .hero-stat .label { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Hero visual */
+    .hero-visual { position: relative; animation: fadeIn 0.8s ease 0.3s both; }
+    .listing-preview-card { background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 24px; color: white; animation: float 6s ease-in-out infinite; }
+    .listing-preview-card .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .listing-preview-card .card-title { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+    .listing-preview-card .card-status { background: rgba(46,160,67,0.3); border: 1px solid rgba(46,160,67,0.5); color: #5dda7e; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .listing-preview-card .prop-img { height: 150px; background: linear-gradient(135deg, rgba(30,138,74,0.2), rgba(13,27,42,0.6)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 16px; }
+    .listing-preview-card .prop-price { font-size: 1.6rem; font-weight: 800; color: #5dda7e; }
+    .listing-preview-card .prop-addr { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-top: 4px; margin-bottom: 16px; }
+    .listing-stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .listing-stat-mini { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; text-align: center; }
+    .listing-stat-mini .ls-val { font-size: 1.1rem; font-weight: 800; color: var(--white); }
+    .listing-stat-mini .ls-lbl { font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    .float-badge { position: absolute; backdrop-filter: blur(8px); color: white; border-radius: 12px; padding: 10px 16px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .float-badge.badge-1 { top: 20px; right: -20px; background: rgba(46,160,67,0.9); animation: float 5s ease-in-out infinite; }
+    .float-badge.badge-2 { bottom: 40px; left: -20px; background: rgba(13,27,42,0.9); border: 1px solid rgba(46,160,67,0.4); animation: float 5s ease-in-out infinite 2s; }
+
+    /* Trust bar */
+    .trust-bar { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 20px 5%; }
+    .trust-bar-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 32px; flex-wrap: wrap; justify-content: center; }
+    .trust-label { font-size: 0.8rem; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    .trust-badges { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+    .trust-item { display: flex; align-items: center; gap: 8px; color: var(--gray-600); font-size: 0.9rem; font-weight: 600; }
+    .trust-item .ti-icon { width: 32px; height: 32px; background: var(--gray-100); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+    /* Features */
+    .features { background: var(--gray-50); }
+    .feature-card { padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); transition: var(--transition); background: var(--white); }
+    .feature-card:hover { border-color: var(--seller-green); transform: translateY(-6px); box-shadow: 0 12px 40px rgba(30,138,74,0.12); }
+    .feature-icon { width: 60px; height: 60px; background: linear-gradient(135deg, #0d2b1a, var(--seller-green)); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(30,138,74,0.3); }
+    .feature-card h3 { color: var(--navy); margin-bottom: 10px; }
+
+    /* How it works */
+    .how-it-works { background: var(--navy); }
+    .how-it-works .section-title h2 { color: var(--white); }
+    .how-it-works .section-title p { color: rgba(255,255,255,0.6); }
+    .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px; }
+    .step-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 32px 28px; transition: var(--transition); }
+    .step-card:hover { background: rgba(255,255,255,0.09); border-color: rgba(46,160,67,0.4); transform: translateY(-4px); }
+    .step-number { width: 52px; height: 52px; background: var(--seller-green); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; }
+    .step-card h3 { color: var(--white); margin-bottom: 10px; }
+    .step-card p { color: rgba(255,255,255,0.6); }
+
+    /* Stats strip */
+    .stats-strip { background: linear-gradient(135deg, var(--seller-green-dark) 0%, var(--seller-green) 50%, var(--seller-green-light) 100%); padding: 56px 5%; }
+    .stats-strip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; max-width: 900px; margin: 0 auto; text-align: center; }
+    .strip-stat .snum { font-size: 2.6rem; font-weight: 800; color: var(--white); line-height: 1; }
+    .strip-stat .sdesc { font-size: 0.82rem; color: rgba(255,255,255,0.7); margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+    /* Comparison section */
+    .comparison { background: var(--white); }
+    .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; max-width: 1000px; margin: 0 auto; }
+    .mode-compare-card { border-radius: var(--radius-lg); padding: 36px; }
+    .mode-compare-card.investor { background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: white; }
+    .mode-compare-card.seller { background: linear-gradient(135deg, #0d2b1a, var(--seller-green)); color: white; }
+    .mode-compare-card .mode-icon { font-size: 2.5rem; margin-bottom: 16px; }
+    .mode-compare-card h3 { color: white; margin-bottom: 16px; }
+    .mode-compare-card ul li { color: rgba(255,255,255,0.8); font-size: 0.9rem; padding: 6px 0; display: flex; align-items: center; gap: 8px; }
+    .mode-compare-card ul li::before { content: '→'; font-weight: 700; flex-shrink: 0; }
+    .mode-compare-card.investor ul li::before { color: var(--gold); }
+    .mode-compare-card.seller ul li::before { color: #5dda7e; }
+
+    /* Testimonials */
+    .testimonials { background: var(--gray-50); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .testimonial-card { background: var(--white); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow); border-top: 3px solid var(--seller-green); transition: var(--transition); }
+    .testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .testimonial-stars { color: var(--seller-green); font-size: 1rem; margin-bottom: 14px; letter-spacing: 2px; }
+    .testimonial-text { font-size: 0.95rem; color: var(--gray-800); line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--seller-green-dark), var(--seller-green)); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--white); font-weight: 700; flex-shrink: 0; }
+    .testimonial-name { font-weight: 700; color: var(--navy); font-size: 0.9rem; }
+    .testimonial-role { font-size: 0.78rem; color: var(--gray-400); }
+
+    /* CTA */
+    .cta-section { background: linear-gradient(135deg, var(--seller-green-dark) 0%, var(--seller-green) 60%, var(--seller-green-light) 100%); text-align: center; padding: 90px 5%; position: relative; overflow: hidden; }
+    .cta-section::before { content: ''; position: absolute; inset: 0; opacity: 0.04; background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 24px 24px; }
+    .cta-section > * { position: relative; z-index: 1; }
+    .cta-section h2 { color: var(--white); }
+    .cta-section p { color: rgba(255,255,255,0.8); max-width: 500px; margin: 16px auto 36px; font-size: 1.1rem; }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-white { background: var(--white); color: var(--seller-green); font-weight: 700; }
+    .btn-white:hover { background: var(--gray-100); transform: translateY(-2px); }
+    .btn-white-outline { background: transparent; color: var(--white); border: 2px solid rgba(255,255,255,0.6); }
+    .btn-white-outline:hover { background: rgba(255,255,255,0.15); }
+
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; padding: 60px 5% 40px; }
+      .hero-visual { display: none; }
+      .comparison-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div>
+    </div>
+    <div class="navbar-nav">
+      <a href="seller.html" class="active">Inicio</a>
+      <a href="seller-dashboard.html">Mis Publicaciones</a>
+      <a href="seller-publish.html">Publicar</a>
+      <a href="seller-valuation.html">Precio Justo</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="user-info" style="display:none; align-items:center; gap:8px;">
+        <span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span>
+        <span id="user-tier-badge" class="badge"></span>
+      </div>
+      <a href="index.html" class="btn btn-ghost btn-sm" title="Modo Inversor">📈 Modo Inversor</a>
+      <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <a href="register.html" class="btn btn-sm btn-seller">Publicar gratis</a>
+      <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+      <button class="hamburger-btn" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Nav -->
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="seller.html" class="active">🏠 Inicio Vendedor</a>
+    <a href="seller-dashboard.html">📋 Mis Publicaciones</a>
+    <a href="seller-publish.html">➕ Publicar Propiedad</a>
+    <a href="seller-valuation.html">💰 Precio Justo</a>
+    <a href="index.html">📈 Modo Inversor</a>
+    <div class="mobile-nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">Ingresar</a>
+      <a href="register.html" class="btn btn-sm btn-seller" style="flex:1;justify-content:center;">Publicar gratis</a>
+    </div>
+  </div>
+
+  <!-- Mode switcher bar -->
+  <div class="mode-switcher" style="background:rgba(13,27,42,0.95);">
+    <div class="mode-switcher-inner">
+      <a href="index.html" class="mode-opt investor-mode">📈 Modo Inversor</a>
+      <a href="seller.html" class="mode-opt active">🏷️ Modo Vendedor</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-badge">🏷️ Plataforma #1 para Vendedores de CABA</div>
+        <h1>Vendé al <span>precio correcto</span> con datos reales</h1>
+        <p class="hero-p">Terrium te da la valuación automática de tu propiedad, la expone ante miles de compradores activos y te muestra estadísticas de rendimiento en tiempo real. Sin comisiones ocultas.</p>
+        <div class="hero-actions">
+          <a href="seller-valuation.html" class="btn btn-seller btn-lg">💰 Valuá tu propiedad →</a>
+          <a href="seller-publish.html" class="btn btn-seller-outline btn-lg">Publicar ahora</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="value">+800</div><div class="label">Vendidas</div></div>
+          <div class="hero-stat"><div class="value">45 días</div><div class="label">Tiempo promedio</div></div>
+          <div class="hero-stat"><div class="value">97%</div><div class="label">Precio alcanzado</div></div>
+          <div class="hero-stat"><div class="value">+2K</div><div class="label">Compradores activos</div></div>
+        </div>
+      </div>
+
+      <!-- Hero visual: listing performance card -->
+      <div class="hero-visual">
+        <div style="position:relative;">
+          <div class="listing-preview-card">
+            <div class="card-header">
+              <span class="card-title">Tu publicación activa</span>
+              <span class="card-status">✅ ACTIVA</span>
+            </div>
+            <div class="prop-img">🏢</div>
+            <div class="prop-price">USD 138.000</div>
+            <div class="prop-addr">📍 Belgrano, CABA · 3 amb. · 72 m²</div>
+            <div class="listing-stats-row">
+              <div class="listing-stat-mini"><div class="ls-val">1.247</div><div class="ls-lbl">Vistas</div></div>
+              <div class="listing-stat-mini"><div class="ls-val">18</div><div class="ls-lbl">Contactos</div></div>
+              <div class="listing-stat-mini"><div class="ls-val">38</div><div class="ls-lbl">Días</div></div>
+            </div>
+          </div>
+          <div class="float-badge badge-1">📞 +3 consultas hoy</div>
+          <div class="float-badge badge-2">💰 Precio justo: USD 138K</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust bar -->
+  <div class="trust-bar">
+    <div class="trust-bar-inner">
+      <span class="trust-label">Confianza y respaldo</span>
+      <div class="trust-badges">
+        <div class="trust-item"><div class="ti-icon">📊</div>ZonaProp API</div>
+        <div class="trust-item"><div class="ti-icon">🗺️</div>CABA Open Data</div>
+        <div class="trust-item"><div class="ti-icon">🔒</div>SSL 256-bit</div>
+        <div class="trust-item"><div class="ti-icon">✅</div>AFIP Compliant</div>
+        <div class="trust-item"><div class="ti-icon">💳</div>MercadoPago</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <section class="section features">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill" style="background:rgba(30,138,74,0.1); color:var(--seller-green); border-color:rgba(30,138,74,0.25);">Herramientas del Vendedor</div>
+        <h2>Todo lo que necesitás para vender con inteligencia</h2>
+        <p>Herramientas diseñadas para que el vendedor tenga el control, los datos y la exposición que necesita para cerrar al mejor precio.</p>
+      </div>
+      <div class="grid-3">
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon">💰</div>
+          <h3>Valuación Automática Gratuita</h3>
+          <p>Conocé el valor real de mercado de tu propiedad basado en comparables reales del barrio. Sin intermediarios, en segundos.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon">📋</div>
+          <h3>Publicación en Minutos</h3>
+          <p>Publicá tu propiedad en menos de 5 minutos con todos los datos que los compradores necesitan. Llega a miles de usuarios activos.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-icon">📈</div>
+          <h3>Panel de Rendimiento</h3>
+          <p>Seguí en tiempo real cuántas personas ven tu publicación, cuántos te consultan y cómo se compara con el mercado.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon">⚖️</div>
+          <h3>Precio Competitivo</h3>
+          <p>Comparamos tu precio de lista con el promedio del barrio para que no pierdas compradores por estar por encima ni dejes plata sobre la mesa.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon">🔔</div>
+          <h3>Alertas de Interés</h3>
+          <p>Recibí notificaciones inmediatas por email cuando alguien se contacta o marca tu propiedad como favorita.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-icon">🤝</div>
+          <h3>Negociá con Datos</h3>
+          <p>Accedé a tendencias de precios, historial del barrio y comparables para sostener tu precio con argumentos cuando llegue la oferta.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stats-strip-grid">
+      <div class="strip-stat reveal"><div class="snum">+800</div><div class="sdesc">Propiedades vendidas</div></div>
+      <div class="strip-stat reveal reveal-delay-1"><div class="snum">45 días</div><div class="sdesc">Tiempo promedio de venta</div></div>
+      <div class="strip-stat reveal reveal-delay-2"><div class="snum">97%</div><div class="sdesc">Precio valuado obtenido</div></div>
+      <div class="strip-stat reveal reveal-delay-3"><div class="snum">USD 2.8B</div><div class="sdesc">Valor comercializado</div></div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <section class="section how-it-works">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill" style="color:#5dda7e; border-color:rgba(46,160,67,0.3);">Proceso simple</div>
+        <h2>¿Cómo vendés con Terrium?</h2>
+        <p>En 3 pasos estás publicado y recibiendo consultas de compradores reales.</p>
+      </div>
+      <div class="steps-container">
+        <div class="step-card reveal reveal-delay-1">
+          <div class="step-number">1</div>
+          <h3>Valuá tu propiedad gratis</h3>
+          <p>Ingresá barrio y superficie y obtenés en segundos una valuación basada en comparables reales del mercado. Conocés el precio justo antes de publicar.</p>
+        </div>
+        <div class="step-card reveal reveal-delay-2">
+          <div class="step-number">2</div>
+          <h3>Publicá en minutos</h3>
+          <p>Completá los datos de tu propiedad, cargá precio y descripción. Tu publicación se activa de inmediato y llega a miles de compradores activos en CABA.</p>
+        </div>
+        <div class="step-card reveal reveal-delay-3">
+          <div class="step-number">3</div>
+          <h3>Gestioná y cerrá la venta</h3>
+          <p>Seguí tus estadísticas en el panel, recibí consultas, negociá con datos del mercado y cerrá al mejor precio. Terrium te acompaña en todo el proceso.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Investor vs Seller comparison -->
+  <section class="section comparison">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">Dos modos, una plataforma</div>
+        <h2>Elegí tu rol en el mercado</h2>
+        <p>Terrium tiene herramientas específicas para inversores y para vendedores. Cambiá de modo cuando lo necesites.</p>
+      </div>
+      <div class="comparison-grid">
+        <div class="mode-compare-card investor reveal reveal-delay-1">
+          <div class="mode-icon">📈</div>
+          <h3>Modo Inversor</h3>
+          <ul>
+            <li>Mapa de calor de precios CABA</li>
+            <li>Calculadora ROI y período de repago</li>
+            <li>Ranking de barrios por rentabilidad</li>
+            <li>Score de inversión por zona</li>
+            <li>Tendencias históricas de mercado</li>
+            <li>Alertas de nuevas oportunidades</li>
+          </ul>
+          <a href="index.html" class="btn btn-outline" style="margin-top:20px; border-color:var(--gold); color:var(--gold);">Ir al modo inversor →</a>
+        </div>
+        <div class="mode-compare-card seller reveal reveal-delay-2">
+          <div class="mode-icon">🏷️</div>
+          <h3>Modo Vendedor</h3>
+          <ul>
+            <li>Valuación automática gratuita</li>
+            <li>Publicación rápida de propiedades</li>
+            <li>Panel de vistas y contactos</li>
+            <li>Comparación precio vs. mercado</li>
+            <li>Estrategia de precio de lista</li>
+            <li>Alertas de consultas en tiempo real</li>
+          </ul>
+          <a href="seller-publish.html" class="btn btn-white" style="margin-top:20px;">Publicar mi propiedad →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section testimonials">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill" style="background:rgba(30,138,74,0.1); color:var(--seller-green); border-color:rgba(30,138,74,0.25);">Testimonios</div>
+        <h2>Lo que dicen nuestros vendedores</h2>
+        <p>Más de 800 propietarios ya vendieron con Terrium al precio que querían, en el tiempo que esperaban.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal reveal-delay-1">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"La valuación automática me dio el precio exacto. Lo publiqué, tuve 20 consultas en la primera semana y cerré en 40 días al precio pedido. Nunca pensé que sería tan fácil."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">AG</div>
+            <div>
+              <div class="testimonial-name">Ana González</div>
+              <div class="testimonial-role">Vendedora · Palermo, CABA</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal reveal-delay-2">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Iba a vender USD 20.000 más barato de lo que valía mi departamento. La comparación con el mercado me salvó. Vendí en Belgrano en 55 días al 102% de la valuación."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">RF</div>
+            <div>
+              <div class="testimonial-name">Roberto Fernández</div>
+              <div class="testimonial-role">Propietario · Belgrano, CABA</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal reveal-delay-3">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Tenía 3 propiedades para vender. El panel de vendedor me permite ver las estadísticas de cada una. Ya cerré dos y la tercera está en proceso. Herramienta imprescindible."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">LM</div>
+            <div>
+              <div class="testimonial-name">Laura Martínez</div>
+              <div class="testimonial-role">Inversora y Vendedora · Recoleta, CABA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>¿Listo para vender al precio correcto?</h2>
+    <p>Empezá con una valuación gratuita y publicá tu propiedad ante miles de compradores activos en CABA.</p>
+    <div class="cta-actions">
+      <a href="seller-valuation.html" class="btn btn-white btn-lg">💰 Valuá mi propiedad →</a>
+      <a href="seller-publish.html" class="btn btn-white-outline btn-lg">Publicar ahora</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-text">TERRIUM</div>
+        <p>La plataforma de inteligencia inmobiliaria más completa de Argentina. Herramientas para inversores y vendedores.</p>
+        <div class="footer-social" style="margin-top:20px;">
+          <a href="#" title="Twitter">🐦</a>
+          <a href="#" title="LinkedIn">💼</a>
+          <a href="#" title="Instagram">📷</a>
+        </div>
+      </div>
+      <div><h4>Vendedores</h4><ul><li><a href="seller-dashboard.html">Mis Publicaciones</a></li><li><a href="seller-publish.html">Publicar propiedad</a></li><li><a href="seller-valuation.html">Precio Justo</a></li></ul></div>
+      <div><h4>Inversores</h4><ul><li><a href="dashboard.html">Dashboard</a></li><li><a href="listings.html">Propiedades</a></li><li><a href="calculator.html">Calculadora ROI</a></li><li><a href="heatmap.html">Mapa de Calor</a></li></ul></div>
+      <div><h4>Empresa</h4><ul><li><a href="pricing.html">Planes</a></li><li><a href="#">Sobre nosotros</a></li><li><a href="#">API Docs</a></li><li><a href="mailto:enterprise@terrium.ar">Contacto</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Terrium S.A.S. · Buenos Aires, Argentina</span>
+      <span><a href="#" style="color:var(--gray-400);">Términos</a> · <a href="#" style="color:var(--gray-400);">Privacidad</a></span>
+    </div>
+  </footer>
+
+  <div id="toast"></div>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileNav.classList.toggle('open');
+    });
+    document.addEventListener('click', (e) => {
+      if (!hamburger.contains(e.target) && !mobileNav.contains(e.target)) {
+        hamburger.classList.remove('open');
+        mobileNav.classList.remove('open');
+      }
+    });
+
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) { entry.target.classList.add('visible'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach((el) => io.observe(el));
+  </script>
+</body>
+</html>
+

@@ -5,6 +5,7 @@ const listingRoutes = require('./routes/listing.routes');
 const { connectDB } = require('./db/connection');
 const { connectRabbitMQ } = require('./events/publisher');
 const logger = require('./utils/logger');
+const registerHandlers = require('../../shared/utils/handlers');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -14,11 +15,7 @@ app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'listings' }));
 app.use('/', listingRoutes);
-app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
-app.use((err, _req, res, _next) => {
-  logger.error(err instanceof Error ? err.stack : String(err));
-  res.status(500).json({ error: 'Error interno' });
-});
+registerHandlers(app, logger);
 
 async function start() {
   await connectDB();
@@ -28,4 +25,3 @@ async function start() {
 }
 
 start().catch((err) => { logger.error(err); process.exit(1); });
-

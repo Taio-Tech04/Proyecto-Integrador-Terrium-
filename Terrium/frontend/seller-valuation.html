@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Precio Justo — Terrium Vendedor</title>
+  <meta name="description" content="Obtené el precio de mercado de tu propiedad en segundos. Valuación automática basada en comparables reales de CABA con estrategia de precio para vendedores.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Terrium">
+  <meta property="og:title" content="Precio Justo — Terrium Vendedor">
+  <meta property="og:description" content="Obtené el precio de mercado de tu propiedad en segundos. Valuación automática basada en comparables reales de CABA con estrategia de precio para vendedores.">
+  <meta property="og:image" content="assets/img/og-terrium.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Precio Justo — Terrium Vendedor">
+  <meta name="twitter:description" content="Obtené el precio de mercado de tu propiedad en segundos. Valuación automática basada en comparables reales de CABA con estrategia de precio para vendedores.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    :root {
+      --seller-green: #1e8a4a;
+      --seller-green-light: #27ae60;
+      --seller-green-dark: #166d3b;
+    }
+    body { background: var(--gray-100); }
+    .page-layout { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+    .page-title { color: var(--navy); margin-bottom: 6px; }
+    .page-subtitle { color: var(--gray-600); margin-bottom: 32px; }
+
+    /* Main grid */
+    .main-grid { display: grid; grid-template-columns: 380px 1fr; gap: 28px; align-items: start; }
+
+    /* Input panel */
+    .input-panel { background: var(--white); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow); position: sticky; top: 80px; }
+    .input-panel h3 { color: var(--navy); margin-bottom: 6px; }
+    .input-panel .sub { color: var(--gray-600); font-size: 0.85rem; margin-bottom: 24px; }
+    .form-control:focus { border-color: var(--seller-green); box-shadow: 0 0 0 3px rgba(30,138,74,0.12); }
+    .btn-seller { background: var(--seller-green); color: var(--white); }
+    .btn-seller:hover { background: var(--seller-green-light); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(30,138,74,0.35); }
+    .btn-seller-outline { background: transparent; color: var(--seller-green); border: 2px solid var(--seller-green); }
+    .btn-seller-outline:hover { background: var(--seller-green); color: white; }
+    .input-prefix { position: relative; }
+    .input-prefix span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-600); font-weight: 600; font-size: 0.9rem; }
+    .input-prefix input { padding-left: 44px; }
+    .form-hint { font-size: 0.75rem; color: var(--gray-400); margin-top: 4px; }
+
+    /* Results panel */
+    .results-panel { display: flex; flex-direction: column; gap: 20px; }
+
+    /* Valuation hero card */
+    .valuation-hero { background: linear-gradient(135deg, #0d2b1a, var(--seller-green)); border-radius: var(--radius-lg); padding: 32px; color: white; display: none; }
+    .valuation-hero .vh-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.6); margin-bottom: 8px; font-weight: 600; }
+    .valuation-hero .vh-price { font-size: 3rem; font-weight: 800; color: white; line-height: 1; margin-bottom: 6px; }
+    .valuation-hero .vh-sub { font-size: 1rem; color: rgba(255,255,255,0.7); margin-bottom: 20px; }
+    .valuation-hero .vh-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .vh-stat { background: rgba(255,255,255,0.1); border-radius: var(--radius); padding: 14px; text-align: center; }
+    .vh-stat .val { font-size: 1.2rem; font-weight: 800; color: white; }
+    .vh-stat .lbl { font-size: 0.72rem; color: rgba(255,255,255,0.6); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.8px; }
+    .confidence-bar { height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; margin-top: 16px; overflow: hidden; }
+    .confidence-fill { height: 100%; background: rgba(255,255,255,0.8); border-radius: 3px; transition: width 0.8s ease; }
+
+    /* Placeholder state */
+    .results-placeholder { background: var(--white); border-radius: var(--radius-lg); padding: 80px 32px; text-align: center; box-shadow: var(--shadow); }
+    .results-placeholder .ph-icon { font-size: 3.5rem; margin-bottom: 16px; }
+    .results-placeholder h3 { color: var(--navy); margin-bottom: 8px; }
+
+    /* Price strategy card */
+    .strategy-card { background: var(--white); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow); display: none; }
+    .strategy-card h3 { color: var(--navy); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-100); }
+    .strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .strategy-item { border-radius: var(--radius); padding: 16px; }
+    .strategy-item .si-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-600); margin-bottom: 6px; font-weight: 600; }
+    .strategy-item .si-value { font-size: 1.3rem; font-weight: 800; color: var(--navy); }
+    .strategy-item .si-note { font-size: 0.75rem; color: var(--gray-400); margin-top: 3px; }
+    .si-optimal  { background: rgba(30,138,74,0.07); border-left: 4px solid var(--seller-green); }
+    .si-max      { background: rgba(212,175,55,0.07); border-left: 4px solid var(--gold); }
+    .si-min      { background: rgba(220,53,69,0.07); border-left: 4px solid var(--red); }
+    .si-market   { background: rgba(13,27,42,0.05); border-left: 4px solid var(--navy); }
+
+    /* Recommendation box */
+    .rec-box { border-radius: var(--radius); padding: 16px 20px; font-size: 0.9rem; line-height: 1.7; }
+    .rec-sell  { background: rgba(30,138,74,0.08); border-left: 4px solid var(--seller-green); color: #0d4a25; }
+    .rec-wait  { background: rgba(212,175,55,0.08); border-left: 4px solid var(--gold); color: #7a5a00; }
+    .rec-low   { background: rgba(220,53,69,0.08); border-left: 4px solid var(--red); color: #7a1525; }
+
+    /* Chart card */
+    .chart-card { background: var(--white); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow); display: none; }
+    .chart-card h3 { color: var(--navy); margin-bottom: 20px; }
+
+    /* Market context */
+    .market-context { background: var(--white); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow); display: none; }
+    .market-context h3 { color: var(--navy); margin-bottom: 16px; }
+    .market-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .market-fact { background: var(--gray-50); border-radius: var(--radius); padding: 14px; text-align: center; }
+    .market-fact .mf-val { font-size: 1.4rem; font-weight: 800; color: var(--navy); }
+    .market-fact .mf-lbl { font-size: 0.72rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+    .trend-indicator { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius); font-size: 0.88rem; font-weight: 600; }
+    .trend-up-box { background: rgba(30,138,74,0.08); color: var(--seller-green); }
+    .trend-down-box { background: rgba(220,53,69,0.08); color: var(--red); }
+    .trend-stable-box { background: rgba(13,27,42,0.06); color: var(--navy); }
+
+    /* CTA publish */
+    .cta-publish { background: linear-gradient(135deg, var(--seller-green-dark), var(--seller-green)); border-radius: var(--radius-lg); padding: 28px; text-align: center; display: none; }
+    .cta-publish h3 { color: white; margin-bottom: 8px; }
+    .cta-publish p { color: rgba(255,255,255,0.8); margin-bottom: 20px; font-size: 0.9rem; }
+
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .input-panel { position: static; }
+      .strategy-grid { grid-template-columns: 1fr; }
+      .vh-stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand"><div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div></div>
+    <div class="navbar-nav">
+      <a href="seller.html">Inicio</a>
+      <a href="seller-dashboard.html">Mis Publicaciones</a>
+      <a href="seller-publish.html">Publicar</a>
+      <a href="seller-valuation.html" class="active">Precio Justo</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="user-info" style="display:none; align-items:center; gap:8px;"><span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span><span id="user-tier-badge" class="badge"></span></div>
+      <a href="index.html" class="btn btn-ghost btn-sm">📈 Modo Inversor</a>
+      <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+      <button class="hamburger-btn" id="hamburger" aria-label="Menú"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="seller.html">🏠 Inicio Vendedor</a>
+    <a href="seller-dashboard.html">📊 Mis Publicaciones</a>
+    <a href="seller-publish.html">➕ Publicar</a>
+    <a href="seller-valuation.html" class="active">💰 Precio Justo</a>
+    <a href="index.html">📈 Modo Inversor</a>
+  </div>
+
+  <div class="page-layout">
+    <h2 class="page-title">💰 Calculadora de Precio Justo</h2>
+    <p class="page-subtitle">Descubrí al instante cuánto vale tu propiedad según el mercado real de CABA. Fijá el precio correcto y vendé más rápido.</p>
+
+    <div class="main-grid">
+      <!-- Input Panel -->
+      <div class="input-panel">
+        <h3>📋 Datos de tu propiedad</h3>
+        <p class="sub">Completá los datos para obtener una valuación basada en comparables reales del barrio.</p>
+
+        <div class="form-group">
+          <label>Barrio <span style="color:var(--red);">*</span></label>
+          <select id="inp-neighborhood" class="form-control" required>
+            <option value="">Seleccionar barrio</option>
+            <option>Palermo</option><option>Belgrano</option><option>Recoleta</option>
+            <option>Puerto Madero</option><option>Villa Crespo</option><option>Caballito</option>
+            <option>San Telmo</option><option>Flores</option><option>Villa Devoto</option>
+            <option>Microcentro</option><option>Almagro</option><option>Núñez</option>
+            <option>Villa Urquiza</option><option>Saavedra</option><option>Colegiales</option>
+            <option>Boedo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Superficie total (m²) <span style="color:var(--red);">*</span></label>
+          <input type="number" id="inp-surface" class="form-control" placeholder="ej: 72" min="5" max="5000" required>
+          <div class="form-hint">Incluí superficies cubiertas y semicubiertas</div>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de propiedad</label>
+          <select id="inp-prop-type" class="form-control">
+            <option value="apartamento">Departamento</option>
+            <option value="ph">PH</option>
+            <option value="casa">Casa</option>
+            <option value="local">Local comercial</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Ambientes</label>
+          <select id="inp-rooms" class="form-control">
+            <option value="">Cualquier cantidad</option>
+            <option value="1">Monoambiente</option>
+            <option value="2">2 ambientes</option>
+            <option value="3">3 ambientes</option>
+            <option value="4">4+ ambientes</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Estado de la propiedad</label>
+          <select id="inp-condition" class="form-control">
+            <option value="1.0">Excelente — A estrenar / Reciclado total</option>
+            <option value="0.95" selected>Muy bueno — Sin reformar, bien conservado</option>
+            <option value="0.88">Bueno — Algunas reformas menores</option>
+            <option value="0.78">Regular — Requiere refacciones</option>
+            <option value="0.65">A refaccionar — Requiere obra importante</option>
+          </select>
+          <div class="form-hint">El estado impacta directamente en el valor de mercado</div>
+        </div>
+
+        <div class="form-group">
+          <label>Piso / Ubicación</label>
+          <select id="inp-floor" class="form-control">
+            <option value="1.0">Piso alto con vista (bonificación)</option>
+            <option value="0.97" selected>Piso medio</option>
+            <option value="0.94">Piso bajo o planta baja</option>
+            <option value="1.05">Último piso / Penthouse</option>
+          </select>
+        </div>
+
+        <button id="valuate-btn" class="btn btn-seller btn-full" style="margin-top:8px;">
+          💰 Obtener valuación de mercado →
+        </button>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="results-panel">
+        <!-- Placeholder -->
+        <div class="results-placeholder" id="placeholder">
+          <div class="ph-icon">🏠</div>
+          <h3>Tu valuación aparecerá aquí</h3>
+          <p>Completá los datos de tu propiedad y hacé clic en "Obtener valuación de mercado" para ver el precio justo basado en comparables reales de CABA.</p>
+        </div>
+
+        <!-- Valuation hero -->
+        <div class="valuation-hero" id="valuation-hero">
+          <div class="vh-label">Valuación Terrium — Precio de mercado estimado</div>
+          <div class="vh-price" id="vh-price">—</div>
+          <div class="vh-sub" id="vh-sub">—</div>
+          <div class="vh-stats">
+            <div class="vh-stat"><div class="val" id="vh-m2">—</div><div class="lbl">USD/m²</div></div>
+            <div class="vh-stat"><div class="val" id="vh-barrio">—</div><div class="lbl">Barrio</div></div>
+            <div class="vh-stat"><div class="val" id="vh-conf-val">—</div><div class="lbl">Confianza</div></div>
+          </div>
+          <div style="margin-top:16px; font-size:0.8rem; color:rgba(255,255,255,0.6);">Nivel de confianza del modelo</div>
+          <div class="confidence-bar"><div class="confidence-fill" id="confidence-fill" style="width:0%;"></div></div>
+        </div>
+
+        <!-- Price Strategy -->
+        <div class="strategy-card" id="strategy-card">
+          <h3>📊 Estrategia de Precio para Vendedores</h3>
+          <div class="strategy-grid">
+            <div class="strategy-item si-optimal">
+              <div class="si-label">💰 Precio ��ptimo de lista</div>
+              <div class="si-value" id="si-optimal">—</div>
+              <div class="si-note">Precio competitivo · Mayor cantidad de consultas</div>
+            </div>
+            <div class="strategy-item si-max">
+              <div class="si-label">⬆️ Precio máximo (mkt. alto)</div>
+              <div class="si-value" id="si-max">—</div>
+              <div class="si-note">Alto en el mercado · Menos consultas, más margen</div>
+            </div>
+            <div class="strategy-item si-min">
+              <div class="si-label">⚡ Venta rápida (7-30 días)</div>
+              <div class="si-value" id="si-min">—</div>
+              <div class="si-note">Precio para venta urgente · Más atractivo</div>
+            </div>
+            <div class="strategy-item si-market">
+              <div class="si-label">📍 Precio promedio del barrio</div>
+              <div class="si-value" id="si-market">��</div>
+              <div class="si-note">Benchmark del mercado local</div>
+            </div>
+          </div>
+          <div id="rec-box" class="rec-box" style="margin-top:4px;"></div>
+        </div>
+
+        <!-- Market Context -->
+        <div class="market-context" id="market-context">
+          <h3>🏙️ Contexto del mercado en <span id="mc-barrio">—</span></h3>
+          <div class="market-facts">
+            <div class="market-fact"><div class="mf-val" id="mc-avg">—</div><div class="mf-lbl">USD/m² promedio</div></div>
+            <div class="market-fact"><div class="mf-val" id="mc-min">—</div><div class="mf-lbl">Precio mínimo zona</div></div>
+            <div class="market-fact"><div class="mf-val" id="mc-max">—</div><div class="mf-lbl">Precio máximo zona</div></div>
+            <div class="market-fact"><div class="mf-val" id="mc-days">—</div><div class="mf-lbl">Días prom. venta</div></div>
+          </div>
+          <div class="trend-indicator" id="trend-box">
+            <span id="trend-icon">📊</span>
+            <span id="trend-text">Analizando tendencia del barrio...</span>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-card" id="chart-card">
+          <h3>📈 Precio vs. barrios comparables (USD/m²)</h3>
+          <div style="position:relative; height:480px; width:100%;">
+            <canvas id="compareChart"></canvas>
+          </div>
+        </div>
+
+        <!-- CTA Publish -->
+        <div class="cta-publish" id="cta-publish">
+          <h3>¿Listo para publicar al precio correcto?</h3>
+          <p>Tu valuación está lista. Publicá tu propiedad ahora y llegá a miles de compradores activos en CABA.</p>
+          <a href="seller-publish.html" class="btn" style="background:white;color:var(--seller-green);font-weight:700;" id="cta-publish-btn">🚀 Publicar mi propiedad →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <script src="assets/js/chart.min.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    const MARKET_DATA = {
+      'Puerto Madero': { avg: 5200, min: 4200, max: 6800, days: 75, trend: 'up', trendPct: 3.2 },
+      'Recoleta':      { avg: 3500, min: 2800, max: 4800, days: 55, trend: 'up', trendPct: 2.1 },
+      'Palermo':       { avg: 3200, min: 2400, max: 4200, days: 48, trend: 'up', trendPct: 4.5 },
+      'Belgrano':      { avg: 2900, min: 2200, max: 3800, days: 52, trend: 'stable', trendPct: 0.8 },
+      'Núñez':         { avg: 2700, min: 2100, max: 3500, days: 60, trend: 'up', trendPct: 1.9 },
+      'Colegiales':    { avg: 2600, min: 2000, max: 3400, days: 58, trend: 'up', trendPct: 2.8 },
+      'Villa Crespo':  { avg: 2400, min: 1900, max: 3200, days: 65, trend: 'up', trendPct: 3.1 },
+      'Almagro':       { avg: 2100, min: 1700, max: 2800, days: 70, trend: 'stable', trendPct: 0.5 },
+      'San Telmo':     { avg: 2600, min: 2000, max: 3500, days: 62, trend: 'up', trendPct: 2.2 },
+      'Caballito':     { avg: 2200, min: 1800, max: 3000, days: 68, trend: 'stable', trendPct: 1.2 },
+      'Microcentro':   { avg: 2800, min: 2200, max: 3600, days: 80, trend: 'down', trendPct: -1.5 },
+      'Boedo':         { avg: 1950, min: 1600, max: 2600, days: 72, trend: 'up', trendPct: 1.8 },
+      'Flores':        { avg: 1800, min: 1400, max: 2400, days: 78, trend: 'stable', trendPct: 0.3 },
+      'Villa Devoto':  { avg: 1900, min: 1500, max: 2500, days: 75, trend: 'up', trendPct: 1.4 },
+      'Villa Urquiza': { avg: 2000, min: 1600, max: 2700, days: 70, trend: 'up', trendPct: 2.0 },
+      'Saavedra':      { avg: 2100, min: 1700, max: 2800, days: 68, trend: 'stable', trendPct: 0.9 },
+    };
+
+    let compareChart;
+
+    document.getElementById('valuate-btn').addEventListener('click', async () => {
+      const neighborhood = document.getElementById('inp-neighborhood').value;
+      const surface      = parseFloat(document.getElementById('inp-surface').value);
+      const condition    = parseFloat(document.getElementById('inp-condition').value);
+      const floor        = parseFloat(document.getElementById('inp-floor').value);
+
+      if (!neighborhood || !surface) {
+        showToast('Seleccioná barrio y superficie para obtener la valuación', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('valuate-btn');
+      btn.textContent = '🔄 Consultando mercado...';
+      btn.disabled = true;
+
+      try {
+        const data = await apiFetch('/api/valuations/estimate', {
+          method: 'POST',
+          body: JSON.stringify({ neighborhood, surfaceM2: surface })
+        });
+        renderResults(data, neighborhood, surface, condition, floor);
+      } catch (err) {
+        // Fallback con datos locales del mercado
+        const mkt = MARKET_DATA[neighborhood] || { avg: 2500, min: 1800, max: 3200, days: 65, trend: 'stable', trendPct: 1.0 };
+        const fallback = {
+          estimatedPrice: Math.round(mkt.avg * surface * condition * floor),
+          pricePerM2: Math.round(mkt.avg * condition * floor),
+          confidence: 0.80
+        };
+        renderResults(fallback, neighborhood, surface, condition, floor);
+        showToast('Valuación basada en datos locales del mercado', 'success');
+      } finally {
+        btn.textContent = '💰 Obtener valuación de mercado →';
+        btn.disabled = false;
+      }
+    });
+
+    function renderResults(data, neighborhood, surface, condition, floor) {
+      document.getElementById('placeholder').style.display = 'none';
+
+      const basePrice    = data.estimatedPrice;
+      const pricePerM2   = data.pricePerM2;
+      const confidence   = data.confidence;
+      const mkt          = MARKET_DATA[neighborhood] || { avg: pricePerM2, min: Math.round(pricePerM2 * 0.75), max: Math.round(pricePerM2 * 1.35), days: 65, trend: 'stable', trendPct: 1.0 };
+
+      // Valuation hero
+      const vh = document.getElementById('valuation-hero');
+      vh.style.display = 'block';
+      document.getElementById('vh-price').textContent = `USD ${basePrice.toLocaleString('es-AR')}`;
+      document.getElementById('vh-sub').textContent = `${surface}m² · ${pricePerM2.toLocaleString('es-AR')} USD/m² · ${neighborhood}`;
+      document.getElementById('vh-m2').textContent = pricePerM2.toLocaleString('es-AR');
+      document.getElementById('vh-barrio').textContent = neighborhood;
+      document.getElementById('vh-conf-val').textContent = `${(confidence * 100).toFixed(0)}%`;
+      document.getElementById('confidence-fill').style.width = `${confidence * 100}%`;
+
+      // Strategy card
+      const optimal = Math.round(basePrice * 0.98);
+      const max     = Math.round(basePrice * 1.07);
+      const fast    = Math.round(basePrice * 0.91);
+      const mktTotal = Math.round(mkt.avg * surface);
+      document.getElementById('si-optimal').textContent = `USD ${optimal.toLocaleString('es-AR')}`;
+      document.getElementById('si-max').textContent     = `USD ${max.toLocaleString('es-AR')}`;
+      document.getElementById('si-min').textContent     = `USD ${fast.toLocaleString('es-AR')}`;
+      document.getElementById('si-market').textContent  = `USD ${mktTotal.toLocaleString('es-AR')}`;
+
+      // Recommendation
+      const recBox = document.getElementById('rec-box');
+      const diff = ((basePrice - mktTotal) / mktTotal) * 100;
+      if (diff > 8) {
+        recBox.className = 'rec-box rec-wait';
+        recBox.innerHTML = `👀 <strong>Análisis:</strong> Tu propiedad valuó un ${diff.toFixed(0)}% por encima del promedio del barrio en ${neighborhood}. Es posible gracias al estado o ubicación específica. Publicar al precio óptimo (USD ${optimal.toLocaleString('es-AR')}) maximizará las consultas.`;
+      } else if (diff < -8) {
+        recBox.className = 'rec-box rec-sell';
+        recBox.innerHTML = `✅ <strong>Oportunidad:</strong> Tu propiedad valuó un ${Math.abs(diff).toFixed(0)}% por debajo del promedio. Esto la convierte en una oferta muy atractiva en ${neighborhood}. Esperamos alta demanda y venta rápida.`;
+      } else {
+        recBox.className = 'rec-box rec-sell';
+        recBox.innerHTML = `✅ <strong>Precio justo de mercado:</strong> La valuación está alineada con el promedio de ${neighborhood}. Publicar al precio óptimo (USD ${optimal.toLocaleString('es-AR')}) te asegura buena exposición y margen de negociación del ~5%.`;
+      }
+      document.getElementById('strategy-card').style.display = 'block';
+
+      // Market context
+      document.getElementById('mc-barrio').textContent = neighborhood;
+      document.getElementById('mc-avg').textContent = `USD ${mkt.avg.toLocaleString('es-AR')}`;
+      document.getElementById('mc-min').textContent = `USD ${(mkt.min * surface).toLocaleString('es-AR')}`;
+      document.getElementById('mc-max').textContent = `USD ${(mkt.max * surface).toLocaleString('es-AR')}`;
+      document.getElementById('mc-days').textContent = `${mkt.days} días`;
+
+      const trendBox  = document.getElementById('trend-box');
+      const trendText = document.getElementById('trend-text');
+      const trendIcon = document.getElementById('trend-icon');
+      if (mkt.trend === 'up') {
+        trendBox.className = 'trend-indicator trend-up-box';
+        trendIcon.textContent = '📈';
+        trendText.textContent = `${neighborhood} está en tendencia alcista (+${mkt.trendPct}% últimos 3 meses). Buen momento para vender.`;
+      } else if (mkt.trend === 'down') {
+        trendBox.className = 'trend-indicator trend-down-box';
+        trendIcon.textContent = '📉';
+        trendText.textContent = `${neighborhood} muestra leve baja (${mkt.trendPct}%). Considerar publicar pronto para aprovechar precios actuales.`;
+      } else {
+        trendBox.className = 'trend-indicator trend-stable-box';
+        trendIcon.textContent = '➡️';
+        trendText.textContent = `${neighborhood} presenta precios estables. Mercado con buena demanda y liquidez normal.`;
+      }
+      document.getElementById('market-context').style.display = 'block';
+
+      // Comparison chart
+      const allBarrios = Object.keys(MARKET_DATA);
+      const labels = allBarrios;
+      const prices = allBarrios.map(b => MARKET_DATA[b].avg);
+      const myIdx  = allBarrios.indexOf(neighborhood);
+      const bgColors = allBarrios.map((b, i) =>
+        i === myIdx ? 'rgba(30,138,74,0.85)' : 'rgba(212,175,55,0.5)'
+      );
+      const borderColors = allBarrios.map((b, i) =>
+        i === myIdx ? '#1e8a4a' : '#D4AF37'
+      );
+
+      if (compareChart) compareChart.destroy();
+      document.getElementById('chart-card').style.display = 'block';
+      const ctx = document.getElementById('compareChart').getContext('2d');
+      compareChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Precio USD/m²',
+            data: prices,
+            backgroundColor: bgColors,
+            borderColor: borderColors,
+            borderWidth: 2,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => `USD ${ctx.parsed.x.toLocaleString('es-AR')}/m²` } }
+          },
+          scales: {
+            x: { beginAtZero: true, ticks: { callback: v => `$${(v/1000).toFixed(1)}k` } },
+            y: { ticks: { font: { size: 11 } } }
+          }
+        }
+      });
+
+      // CTA publish with pre-filled URL
+      const publishUrl = `seller-publish.html?neighborhood=${encodeURIComponent(neighborhood)}&surface=${surface}&price=${optimal}`;
+      document.getElementById('cta-publish-btn').href = publishUrl;
+      document.getElementById('cta-publish').style.display = 'block';
+
+      // Scroll to results
+      document.getElementById('valuation-hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    if (hamburger) hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileNav.classList.toggle('open'); });
+  </script>
+</body>
+</html>
+

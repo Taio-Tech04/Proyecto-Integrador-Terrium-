@@ -55,8 +55,21 @@
       <div id="user-info" style="display:none; align-items:center; gap:8px;"><span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span><span id="user-tier-badge" class="badge"></span></div>
       <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
       <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+      <button class="hamburger-btn" id="hamburger" aria-label="Menú"><span></span><span></span><span></span></button>
     </div>
   </nav>
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="index.html">🏠 Inicio</a>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="listings.html">🏘️ Propiedades</a>
+    <a href="calculator.html" class="active">🧮 Calc. ROI</a>
+    <a href="heatmap.html">🗺️ Mapa de Calor</a>
+    <a href="pricing.html">💳 Planes</a>
+    <div class="mobile-nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">Ingresar</a>
+      <a href="register.html" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">Registrarse</a>
+    </div>
+  </div>
 
   <div class="calc-layout">
     <h2 class="page-title">🧮 Calculadora de ROI Inmobiliario</h2>
@@ -183,7 +196,9 @@
     <!-- Gráfico de flujo de caja -->
     <div class="chart-section" id="chart-section" style="display:none;">
       <h3>📈 Proyección de flujo de caja (10 años)</h3>
-      <canvas id="cashflowChart" height="260"></canvas>
+      <div style="position:relative; height:260px; width:100%;">
+        <canvas id="cashflowChart"></canvas>
+      </div>
     </div>
   </div>
 
@@ -296,6 +311,11 @@
 
     document.getElementById('calc-btn').addEventListener('click', calculate);
 
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    if (hamburger) hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileNav.classList.toggle('open'); });
+
     document.getElementById('valuation-btn').addEventListener('click', async () => {
       const neighborhood = document.getElementById('inp-neighborhood').value;
       const surface      = parseFloat(document.getElementById('inp-surface').value);
@@ -311,11 +331,11 @@
           method: 'POST',
           body: JSON.stringify({ neighborhood, surfaceM2: surface })
         });
-        document.getElementById('valuation-val').textContent  = `USD ${data.estimatedValue.toLocaleString('es-AR')} · ${data.priceUsdM2.toLocaleString()} USD/m²`;
-        document.getElementById('valuation-conf').textContent = `${(data.confidenceScore * 100).toFixed(0)}%`;
+        document.getElementById('valuation-val').textContent  = `USD ${data.estimatedPrice.toLocaleString('es-AR')} · ${data.pricePerM2.toLocaleString('es-AR')} USD/m²`;
+        document.getElementById('valuation-conf').textContent = `${(data.confidence * 100).toFixed(0)}%`;
         document.getElementById('valuation-box').style.display = 'block';
         // Autocompletar precio
-        document.getElementById('inp-price').value = data.estimatedValue;
+        document.getElementById('inp-price').value = data.estimatedPrice;
       } catch (err) {
         showToast('No se pudo obtener valuación. Verificá tu plan.', 'error');
       } finally {

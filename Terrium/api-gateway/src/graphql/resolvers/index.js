@@ -8,11 +8,50 @@ const makeRequest = async (url, options = {}) => {
 
 // ─── Resolvers unificados en un solo objeto (requerido por Apollo Server v4) ───
 const resolvers = {
+  // ── Field-level resolvers para mapear snake_case (BD/REST) → camelCase (GraphQL) ──
+  Listing: {
+    priceUsd:   (p) => p.price_usd   ?? p.priceUsd,
+    priceArs:   (p) => p.price_ars   ?? p.priceArs   ?? null,
+    surfaceM2:  (p) => p.surface_m2  ?? p.surfaceM2,
+    ownerId:    (p) => p.owner_id    ?? p.ownerId    ?? null,
+    createdAt:  (p) => p.created_at  ?? p.createdAt,
+  },
+
+  Valuation: {
+    propertyId:     (p) => p.listing_id      ?? p.propertyId,
+    priceUsdM2:     (p) => p.price_per_m2    ?? p.priceUsdM2,
+    priceArsM2:     (p) => p.price_ars_m2    ?? p.priceArsM2    ?? null,
+    estimatedValue: (p) => p.estimated_price ?? p.estimatedValue,
+    confidenceScore:(p) => p.confidence      ?? p.confidenceScore,
+    calculatedAt:   (p) => p.created_at      ?? p.calculatedAt,
+  },
+
+  User: {
+    createdAt: (p) => p.created_at ?? p.createdAt,
+  },
+
+  MarketMetric: {
+    avgPriceM2:       (p) => p.avg_price_usd_m2  ?? p.avgPriceM2,
+    totalListings:    (p) => p.total_listings     ?? p.totalListings,
+    medianDaysListed: (p) => p.median_days_listed ?? p.medianDaysListed ?? null,
+  },
+
+  PriceHistory: {
+    avgPriceUsdM2: (p) => p.avg_price_usd_m2 ?? p.avgPriceUsdM2,
+    totalListings: (p) => p.total_listings    ?? p.totalListings,
+  },
+
+  InvestmentScore: {
+    yieldPct: (p) => p.yield_pct ?? p.yieldPct,
+  },
+
   Query: {
-    // Listings
-    listings: async (_root, { filter = {}, page = 1, limit = 20 }, { user: _user }) => {
+    // Listings — la API REST devuelve { data: [], total, page, limit }
+    listings: async (_root, { filter = {}, page = 1, limit = 20 }) => {
       const params = new URLSearchParams({ page, limit, ...filter }).toString();
-      return makeRequest(`${config.LISTINGS_URL}/?${params}`);
+      const response = await makeRequest(`${config.LISTINGS_URL}/?${params}`);
+      // La respuesta REST es { data: [...], total, page, limit }
+      return Array.isArray(response) ? response : (response.data || []);
     },
     listing: async (_root, { id }) => makeRequest(`${config.LISTINGS_URL}/${id}`),
 
@@ -70,12 +109,18 @@ const resolvers = {
       return true;
     },
 
-    // Valuations
+    // Valuations — primero obtenemos los datos del listing para poder llamar a /estimate
     requestValuation: async (_root, { propertyId }, { user }) => {
       if (!user) throw new Error('Autenticación requerida');
+      // Obtener detalles del listing para extraer neighborhood y surfaceM2
+      const listing = await makeRequest(`${config.LISTINGS_URL}/${propertyId}`);
       return makeRequest(`${config.VALUATIONS_URL}/estimate`, {
         method: 'POST',
-        data: { propertyId }
+        data: {
+          listingId:  propertyId,
+          neighborhood: listing.neighborhood,
+          surfaceM2:    listing.surface_m2 ?? listing.surfaceM2
+        }
       });
     },
 
@@ -102,4 +147,3 @@ const resolvers = {
 };
 
 module.exports = { resolvers };
-

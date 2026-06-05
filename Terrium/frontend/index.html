@@ -4,60 +4,132 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terrium — Real Estate Intelligence Platform</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <meta name="description" content="La plataforma de inteligencia inmobiliaria más completa de Argentina. Datos reales, análisis de mercado y valuaciones automáticas para CABA.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Terrium">
+  <meta property="og:title" content="Terrium — Real Estate Intelligence Platform">
+  <meta property="og:description" content="La plataforma de inteligencia inmobiliaria más completa de Argentina. Datos reales, análisis de mercado y valuaciones automáticas para CABA.">
+  <meta property="og:image" content="assets/img/og-terrium.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Terrium — Real Estate Intelligence Platform">
+  <meta name="twitter:description" content="La plataforma de inteligencia inmobiliaria más completa de Argentina. Datos reales, análisis de mercado y valuaciones automáticas para CABA.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="assets/css/main.css">
   <style>
-    /* Hero */
-    .hero { background: linear-gradient(135deg, var(--navy) 0%, #1a3a5c 60%, #0a2540 100%); min-height: 92vh; display: flex; align-items: center; padding: 0 5%; position: relative; overflow: hidden; }
-    .hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%); top: -100px; right: -100px; border-radius: 50%; }
-    .hero-content { max-width: 640px; z-index: 1; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.3); color: var(--gold); padding: 8px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
-    .hero h1 { color: var(--white); margin-bottom: 20px; }
+    /* ── Hero ─────────────────────────── */
+    .hero { background: linear-gradient(135deg, var(--navy) 0%, #1a3a5c 60%, #0a2540 100%); min-height: 92vh; display: flex; align-items: center; padding: 60px 5%; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; width: 700px; height: 700px; background: radial-gradient(circle, rgba(212,175,55,0.07) 0%, transparent 70%); top: -150px; right: -150px; border-radius: 50%; pointer-events: none; }
+    .hero::after { content: ''; position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%); bottom: -80px; left: 10%; border-radius: 50%; pointer-events: none; }
+    .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto; width: 100%; position: relative; z-index: 1; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.3); color: var(--gold); padding: 8px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; animation: fadeInUp 0.6s ease; }
+    .hero h1 { color: var(--white); margin-bottom: 20px; animation: fadeInUp 0.6s ease 0.1s both; }
     .hero h1 span { color: var(--gold); }
-    .hero p { color: rgba(255,255,255,0.7); font-size: 1.15rem; margin-bottom: 36px; line-height: 1.8; }
-    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
-    .hero-stats { display: flex; gap: 40px; margin-top: 60px; flex-wrap: wrap; }
-    .hero-stat { text-align: center; }
-    .hero-stat .value { font-size: 2rem; font-weight: 800; color: var(--gold); }
-    .hero-stat .label { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+    .hero-p { color: rgba(255,255,255,0.72); font-size: 1.15rem; margin-bottom: 36px; line-height: 1.8; animation: fadeInUp 0.6s ease 0.2s both; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeInUp 0.6s ease 0.3s both; }
+    .hero-stats { display: flex; gap: 36px; margin-top: 52px; flex-wrap: wrap; animation: fadeInUp 0.6s ease 0.4s both; padding-top: 36px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .hero-stat .value { font-size: 1.9rem; font-weight: 800; color: var(--gold); }
+    .hero-stat .label { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Hero visual */
+    .hero-visual { position: relative; animation: fadeIn 0.8s ease 0.3s both; }
+    .prop-card-preview { background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 24px; color: white; animation: float 6s ease-in-out infinite; }
+    .prop-card-preview .prop-img { height: 180px; background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(26,58,92,0.5)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; margin-bottom: 16px; }
+    .prop-card-preview .prop-price { font-size: 1.6rem; font-weight: 800; color: var(--gold); }
+    .prop-card-preview .prop-addr { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-top: 4px; }
+    .prop-card-preview .prop-tags { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .prop-card-preview .prop-tag { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 4px 12px; font-size: 0.78rem; color: rgba(255,255,255,0.8); }
+    .prop-card-preview .prop-roi { background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.3); border-radius: 10px; padding: 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .prop-card-preview .roi-label { font-size: 0.78rem; color: rgba(255,255,255,0.6); }
+    .prop-card-preview .roi-value { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+    .float-badge { position: absolute; backdrop-filter: blur(8px); color: white; border-radius: 12px; padding: 10px 16px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .float-badge.badge-1 { top: 20px; right: -20px; background: rgba(40,167,69,0.9); animation: float 5s ease-in-out infinite; }
+    .float-badge.badge-2 { bottom: 40px; left: -20px; background: rgba(26,58,92,0.9); border: 1px solid rgba(212,175,55,0.3); animation: float 5s ease-in-out infinite 2s; }
+
+    /* Trust bar */
+    .trust-bar { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 20px 5%; }
+    .trust-bar-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 32px; flex-wrap: wrap; justify-content: center; }
+    .trust-label { font-size: 0.8rem; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    .trust-badges { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+    .trust-item { display: flex; align-items: center; gap: 8px; color: var(--gray-600); font-size: 0.9rem; font-weight: 600; }
+    .trust-item .ti-icon { width: 32px; height: 32px; background: var(--gray-100); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
 
     /* Features */
-    .features { background: var(--white); }
-    .feature-card { padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); transition: var(--transition); }
-    .feature-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: var(--shadow-md); }
-    .feature-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 20px; }
+    .features { background: var(--gray-50); }
+    .feature-card { padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); transition: var(--transition); background: var(--white); }
+    .feature-card:hover { border-color: var(--gold); transform: translateY(-6px); box-shadow: 0 12px 40px rgba(212,175,55,0.15); }
+    .feature-icon { width: 60px; height: 60px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(13,27,42,0.25); }
     .feature-card h3 { color: var(--navy); margin-bottom: 10px; }
 
     /* How it works */
-    .how-it-works { background: var(--gray-100); }
-    .step { display: flex; gap: 24px; align-items: flex-start; }
-    .step-number { width: 48px; height: 48px; min-width: 48px; background: var(--gold); color: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; }
-    .step-content h3 { color: var(--navy); margin-bottom: 8px; }
+    .how-it-works { background: var(--navy); }
+    .how-it-works .section-title h2 { color: var(--white); }
+    .how-it-works .section-title p { color: rgba(255,255,255,0.6); }
+    .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px; }
+    .step-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 32px 28px; transition: var(--transition); }
+    .step-card:hover { background: rgba(255,255,255,0.09); border-color: rgba(212,175,55,0.4); transform: translateY(-4px); }
+    .step-number { width: 52px; height: 52px; background: var(--gold); color: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; }
+    .step-card h3 { color: var(--white); margin-bottom: 10px; }
+    .step-card p { color: rgba(255,255,255,0.6); }
+
+    /* Stats strip */
+    .stats-strip { background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 50%, var(--gold-light) 100%); padding: 56px 5%; }
+    .stats-strip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; max-width: 900px; margin: 0 auto; text-align: center; }
+    .strip-stat .snum { font-size: 2.6rem; font-weight: 800; color: var(--navy); line-height: 1; }
+    .strip-stat .sdesc { font-size: 0.82rem; color: rgba(13,27,42,0.65); margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+    /* Testimonials */
+    .testimonials { background: var(--gray-50); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .testimonial-card { background: var(--white); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow); border-top: 3px solid var(--gold); transition: var(--transition); }
+    .testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .testimonial-stars { color: var(--gold); font-size: 1rem; margin-bottom: 14px; letter-spacing: 2px; }
+    .testimonial-text { font-size: 0.95rem; color: var(--gray-800); line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--navy), var(--navy-light)); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--gold); font-weight: 700; flex-shrink: 0; }
+    .testimonial-name { font-weight: 700; color: var(--navy); font-size: 0.9rem; }
+    .testimonial-role { font-size: 0.78rem; color: var(--gray-400); }
 
     /* Pricing preview */
     .pricing-preview { background: var(--navy); }
     .pricing-preview .section-title h2 { color: var(--white); }
     .pricing-preview .section-title p { color: rgba(255,255,255,0.6); }
     .price-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 32px; transition: var(--transition); }
-    .price-card.featured { background: var(--gold); border-color: var(--gold); }
+    .price-card.featured { background: var(--gold); border-color: var(--gold); position: relative; }
+    .price-card.featured::before { content: '⭐ MÁS POPULAR'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--navy); color: var(--gold); padding: 4px 16px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; white-space: nowrap; }
     .price-card.featured * { color: var(--navy) !important; }
-    .price-card:hover { transform: translateY(-4px); }
-    .price-card .tier-name { color: rgba(255,255,255,0.5); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .price-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,0,0,0.2); }
+    .price-card .tier-name { color: rgba(255,255,255,0.5); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
     .price-card .price { font-size: 2.2rem; font-weight: 800; color: var(--white); }
     .price-card .price span { font-size: 0.9rem; font-weight: 400; color: rgba(255,255,255,0.5); }
     .price-card ul { margin: 20px 0; }
-    .price-card ul li { color: rgba(255,255,255,0.7); font-size: 0.9rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; }
+    .price-card ul li { color: rgba(255,255,255,0.7); font-size: 0.9rem; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; }
     .price-card ul li::before { content: '✓'; color: var(--gold); font-weight: 700; }
     .price-card.featured ul li { color: var(--navy); border-bottom-color: rgba(0,0,0,0.1); }
     .price-card.featured ul li::before { color: var(--navy); }
 
     /* CTA */
-    .cta-section { background: linear-gradient(135deg, var(--gold) 0%, #b8941e 100%); text-align: center; padding: 80px 5%; }
+    .cta-section { background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 60%, var(--gold-light) 100%); text-align: center; padding: 90px 5%; position: relative; overflow: hidden; }
+    .cta-section::before { content: ''; position: absolute; inset: 0; opacity: 0.04; background-image: radial-gradient(circle, #000 1px, transparent 1px); background-size: 24px 24px; }
+    .cta-section > * { position: relative; z-index: 1; }
     .cta-section h2 { color: var(--navy); }
-    .cta-section p { color: rgba(13,27,42,0.7); max-width: 500px; margin: 16px auto 36px; }
+    .cta-section p { color: rgba(13,27,42,0.7); max-width: 500px; margin: 16px auto 36px; font-size: 1.1rem; }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    /* Mode switcher */
+    .mode-switcher { background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 10px 5%; display: flex; justify-content: center; }
+    .mode-switcher-inner { display: inline-flex; background: rgba(0,0,0,0.3); border-radius: 50px; padding: 4px; gap: 2px; }
+    .mode-opt { padding: 7px 20px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.5); transition: all 0.25s ease; letter-spacing: 0.5px; }
+    .mode-opt:hover { color: rgba(255,255,255,0.85); }
+    .mode-opt.investor-mode.active { background: var(--gold); color: var(--navy); }
+    .mode-opt.seller-mode.active { background: #1e8a4a; color: var(--white); }
+
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .hero { min-height: auto; padding: 80px 5%; }
+    }
   </style>
 </head>
 <body>
@@ -80,64 +152,129 @@
         <span id="user-tier-badge" class="badge"></span>
       </div>
       <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <a href="seller.html" class="btn btn-ghost btn-sm" style="border-color:rgba(30,138,74,0.5);color:#5dda7e;">🏷️ Vender</a>
       <a href="register.html" class="btn btn-primary btn-sm">Comenzar gratis</a>
       <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+      <button class="hamburger-btn" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
 
+  <!-- Mobile Nav -->
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="index.html" class="active">🏠 Inicio</a>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="listings.html">🏘️ Propiedades</a>
+    <a href="calculator.html">🧮 Calc. ROI</a>
+    <a href="heatmap.html">🗺️ Mapa de Calor</a>
+    <a href="pricing.html">💳 Planes</a>
+    <div class="mobile-nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">Ingresar</a>
+      <a href="register.html" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">Registrarse</a>
+    </div>
+  </div>
+
+  <!-- Mode Switcher -->
+  <div class="mode-switcher">
+    <div class="mode-switcher-inner">
+      <a href="index.html" class="mode-opt investor-mode active">📈 Modo Inversor</a>
+      <a href="seller.html" class="mode-opt seller-mode">🏷️ Modo Vendedor</a>
+    </div>
+  </div>
+
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-content">
-      <div class="hero-badge">🏙️ Plataforma #1 de Inteligencia Inmobiliaria Argentina</div>
-      <h1>Invertí en el <span>inmueble correcto</span> con datos reales</h1>
-      <p>Terrium combina análisis de mercado, valuaciones automáticas y datos geoespaciales para que tomes decisiones de inversión inmobiliaria con confianza en CABA.</p>
-      <div class="hero-actions">
-        <a href="register.html" class="btn btn-primary btn-lg">Empezar gratis →</a>
-        <a href="dashboard.html" class="btn btn-outline btn-lg">Ver el mercado</a>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-badge">🏙️ Plataforma #1 de Inteligencia Inmobiliaria Argentina</div>
+        <h1>Invertí en el <span>inmueble correcto</span> con datos reales</h1>
+        <p class="hero-p">Terrium combina análisis de mercado, valuaciones automáticas y datos geoespaciales para que tomes decisiones de inversión inmobiliaria con confianza en CABA.</p>
+        <div class="hero-actions">
+          <a href="register.html" class="btn btn-primary btn-lg">Empezar gratis →</a>
+          <a href="dashboard.html" class="btn btn-outline btn-lg">Ver el mercado</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="value">+12K</div><div class="label">Propiedades</div></div>
+          <div class="hero-stat"><div class="value">48</div><div class="label">Barrios CABA</div></div>
+          <div class="hero-stat"><div class="value">+3K</div><div class="label">Inversores</div></div>
+          <div class="hero-stat"><div class="value">99%</div><div class="label">Uptime</div></div>
+        </div>
       </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><div class="value">+12K</div><div class="label">Propiedades</div></div>
-        <div class="hero-stat"><div class="value">48</div><div class="label">Barrios CABA</div></div>
-        <div class="hero-stat"><div class="value">+3K</div><div class="label">Inversores</div></div>
-        <div class="hero-stat"><div class="value">99%</div><div class="label">Uptime</div></div>
+
+      <!-- Hero visual card preview -->
+      <div class="hero-visual">
+        <div style="position:relative;">
+          <div class="prop-card-preview">
+            <div class="prop-img">🏢</div>
+            <div class="prop-price">USD 145.000</div>
+            <div class="prop-addr">📍 Palermo Soho, CABA</div>
+            <div class="prop-tags">
+              <span class="prop-tag">🛏 3 amb.</span>
+              <span class="prop-tag">📐 62 m²</span>
+              <span class="prop-tag">VENTA</span>
+            </div>
+            <div class="prop-roi">
+              <span class="roi-label">ROI estimado</span>
+              <span class="roi-value">6.8% / año</span>
+            </div>
+          </div>
+          <div class="float-badge badge-1">📈 +8.3% este mes</div>
+          <div class="float-badge badge-2">⭐ Score: 94/100</div>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- Trust bar -->
+  <div class="trust-bar">
+    <div class="trust-bar-inner">
+      <span class="trust-label">Respaldado por</span>
+      <div class="trust-badges">
+        <div class="trust-item"><div class="ti-icon">🏦</div>Datos BCRA</div>
+        <div class="trust-item"><div class="ti-icon">📊</div>ZonaProp API</div>
+        <div class="trust-item"><div class="ti-icon">🗺️</div>CABA Open Data</div>
+        <div class="trust-item"><div class="ti-icon">🔒</div>SSL 256-bit</div>
+        <div class="trust-item"><div class="ti-icon">✅</div>AFIP Compliant</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Features -->
   <section class="section features">
     <div class="container">
-      <div class="section-title">
+      <div class="section-title reveal">
+        <div class="pill">Funcionalidades</div>
         <h2>Todo lo que necesitás para invertir con inteligencia</h2>
         <p>Herramientas profesionales, antes reservadas para grandes inversores, ahora al alcance de todos.</p>
       </div>
       <div class="grid-3">
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-delay-1">
           <div class="feature-icon">📊</div>
           <h3>Información de Mercado</h3>
           <p>Datos actualizados de precios por m², volumen de transacciones y tendencias históricas por barrio de CABA.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-delay-2">
           <div class="feature-icon">🗺️</div>
           <h3>Mapa de Calor CABA</h3>
           <p>Visualizá en tiempo real las zonas con mayor movimiento inmobiliario y potencial de valorización.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-delay-3">
           <div class="feature-icon">🧮</div>
           <h3>Calculadora ROI</h3>
           <p>Calculá el retorno de inversión esperado, rendimiento neto y período de repago para cualquier propiedad.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-delay-1">
           <div class="feature-icon">💎</div>
           <h3>Valuación Automática</h3>
           <p>Algoritmo de valuación basado en comparables reales del mercado para estimar el valor justo de cualquier propiedad.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-delay-2">
           <div class="feature-icon">⭐</div>
           <h3>Score de Inversión</h3>
           <p>Ranking de barrios según rentabilidad, tendencia de precios y demanda. Tomá decisiones basadas en datos.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal reveal-delay-3">
           <div class="feature-icon">🔔</div>
           <h3>Alertas Inteligentes</h3>
           <p>Recibí notificaciones cuando una propiedad baje de precio o aparezca una nueva oportunidad en tu barrio objetivo.</p>
@@ -146,17 +283,40 @@
     </div>
   </section>
 
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stats-strip-grid">
+      <div class="strip-stat reveal"><div class="snum">+12.000</div><div class="sdesc">Propiedades listadas</div></div>
+      <div class="strip-stat reveal reveal-delay-1"><div class="snum">48</div><div class="sdesc">Barrios analizados</div></div>
+      <div class="strip-stat reveal reveal-delay-2"><div class="snum">+3.000</div><div class="sdesc">Inversores activos</div></div>
+      <div class="strip-stat reveal reveal-delay-3"><div class="snum">USD 2.8B</div><div class="sdesc">Valor analizado</div></div>
+    </div>
+  </div>
+
   <!-- How it works -->
   <section class="section how-it-works">
     <div class="container">
-      <div class="section-title">
+      <div class="section-title reveal">
+        <div class="pill" style="color:var(--gold-light); border-color:rgba(212,175,55,0.3);">Proceso simple</div>
         <h2>¿Cómo funciona?</h2>
         <p>En 3 pasos estás analizando el mercado como un profesional.</p>
       </div>
-      <div style="display:flex; flex-direction:column; gap:32px; max-width:600px; margin:0 auto;">
-        <div class="step"><div class="step-number">1</div><div class="step-content"><h3>Creá tu cuenta gratis</h3><p>Registrate en segundos. Sin tarjeta de crédito. El plan FREE ya incluye acceso al mercado general.</p></div></div>
-        <div class="step"><div class="step-number">2</div><div class="step-content"><h3>Explorá el mercado</h3><p>Buscá propiedades, analizá tendencias de precios y usá la calculadora ROI para evaluar oportunidades.</p></div></div>
-        <div class="step"><div class="step-number">3</div><div class="step-content"><h3>Upgrádeate para acceso total</h3><p>Desbloqueá el mapa de calor, valuaciones avanzadas y analytics profesionales con nuestros planes premium.</p></div></div>
+      <div class="steps-container">
+        <div class="step-card reveal reveal-delay-1">
+          <div class="step-number">1</div>
+          <h3>Creá tu cuenta gratis</h3>
+          <p>Registrate en segundos. Sin tarjeta de crédito. El plan FREE ya incluye acceso al mercado general y calculadora ROI básica.</p>
+        </div>
+        <div class="step-card reveal reveal-delay-2">
+          <div class="step-number">2</div>
+          <h3>Explorá el mercado</h3>
+          <p>Buscá propiedades, analizá tendencias de precios y usá la calculadora ROI para evaluar oportunidades de inversión.</p>
+        </div>
+        <div class="step-card reveal reveal-delay-3">
+          <div class="step-number">3</div>
+          <h3>Invertí con confianza</h3>
+          <p>Desbloqueá el mapa de calor, valuaciones avanzadas y analytics profesionales. Decisiones 100% basadas en datos reales.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -164,12 +324,13 @@
   <!-- Pricing preview -->
   <section class="section pricing-preview">
     <div class="container">
-      <div class="section-title">
+      <div class="section-title reveal">
+        <div class="pill" style="color:var(--gold-light); border-color:rgba(212,175,55,0.3);">Precios transparentes</div>
         <h2>Planes para cada tipo de inversor</h2>
-        <p>Comenzá gratis y escalá según tus necesidades.</p>
+        <p>Comenzá gratis y escalá según tus necesidades. Sin compromisos.</p>
       </div>
       <div class="grid-4">
-        <div class="price-card">
+        <div class="price-card reveal reveal-delay-1">
           <div class="tier-name">Free</div>
           <div class="price">$0 <span>/mes</span></div>
           <ul>
@@ -179,8 +340,8 @@
           </ul>
           <a href="register.html" class="btn btn-outline btn-full">Comenzar gratis</a>
         </div>
-        <div class="price-card featured">
-          <div class="tier-name">Inversor</div>
+        <div class="price-card featured reveal reveal-delay-2">
+          <div class="tier-name">Basic</div>
           <div class="price">$4.999 <span>/mes</span></div>
           <ul>
             <li>Historial de precios</li>
@@ -189,7 +350,7 @@
           </ul>
           <a href="pricing.html" class="btn btn-secondary btn-full">Elegir plan</a>
         </div>
-        <div class="price-card">
+        <div class="price-card reveal reveal-delay-3">
           <div class="tier-name">Pro</div>
           <div class="price">$14.999 <span>/mes</span></div>
           <ul>
@@ -200,7 +361,7 @@
           </ul>
           <a href="pricing.html" class="btn btn-outline btn-full">Elegir plan</a>
         </div>
-        <div class="price-card">
+        <div class="price-card reveal reveal-delay-4">
           <div class="tier-name">Enterprise</div>
           <div class="price">Custom</div>
           <ul>
@@ -215,11 +376,60 @@
     </div>
   </section>
 
+  <!-- Testimonials -->
+  <section class="section testimonials">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">Testimonios</div>
+        <h2>Lo que dicen nuestros inversores</h2>
+        <p>Más de 3.000 inversores ya confían en Terrium para sus decisiones en el mercado inmobiliaria de CABA.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal reveal-delay-1">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Terrium me ayudó a encontrar una propiedad en Palermo con 7.2% de ROI que yo solo nunca hubiera detectado. Los datos del mercado son impresionantemente precisos."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MR</div>
+            <div>
+              <div class="testimonial-name">Martín Rodríguez</div>
+              <div class="testimonial-role">Inversor independiente · Buenos Aires</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal reveal-delay-2">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"El mapa de calor es una herramienta invaluable. En 10 minutos puedo ver qué zonas están en alza. Ahorro horas de investigación cada semana."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">SL</div>
+            <div>
+              <div class="testimonial-name">Sofía López</div>
+              <div class="testimonial-role">Agente inmobiliaria · CABA</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal reveal-delay-3">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Usamos Terrium Enterprise para toda nuestra cartera de más de 50 propiedades. El historial de precios y las valuaciones automáticas son de otro nivel."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">FG</div>
+            <div>
+              <div class="testimonial-name">Federico García</div>
+              <div class="testimonial-role">Director · Grupo FG Real Estate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="cta-section">
     <h2>¿Listo para invertir con datos?</h2>
-    <p>Sumate a más de 3.000 inversores que ya usan Terrium para tomar mejores decisiones.</p>
-    <a href="register.html" class="btn btn-secondary btn-lg">Crear cuenta gratuita →</a>
+    <p>Sumate a más de 3.000 inversores que ya usan Terrium para tomar mejores decisiones en CABA.</p>
+    <div class="cta-actions">
+      <a href="register.html" class="btn btn-secondary btn-lg">Crear cuenta gratuita →</a>
+      <a href="dashboard.html" class="btn btn-ghost btn-lg" style="border-color:rgba(13,27,42,0.25); color:var(--navy);">Ver el dashboard</a>
+    </div>
   </section>
 
   <!-- Footer -->
@@ -228,20 +438,48 @@
       <div class="footer-brand">
         <div class="logo-text">TERRIUM</div>
         <p>La plataforma de inteligencia inmobiliaria más completa de Argentina. Datos reales, decisiones inteligentes.</p>
+        <div class="footer-social" style="margin-top:20px;">
+          <a href="#" title="Twitter">🐦</a>
+          <a href="#" title="LinkedIn">💼</a>
+          <a href="#" title="Instagram">📷</a>
+        </div>
       </div>
       <div><h4>Plataforma</h4><ul><li><a href="dashboard.html">Dashboard</a></li><li><a href="listings.html">Propiedades</a></li><li><a href="calculator.html">Calculadora ROI</a></li><li><a href="heatmap.html">Mapa de Calor</a></li></ul></div>
-      <div><h4>Planes</h4><ul><li><a href="pricing.html">Ver todos los planes</a></li><li><a href="pricing.html#inversor">Inversor</a></li><li><a href="pricing.html#pro">Pro</a></li><li><a href="mailto:enterprise@terrium.ar">Enterprise</a></li></ul></div>
+      <div><h4>Planes</h4><ul><li><a href="pricing.html">Ver todos los planes</a></li><li><a href="pricing.html">Inversor</a></li><li><a href="pricing.html">Pro</a></li><li><a href="mailto:enterprise@terrium.ar">Enterprise</a></li></ul></div>
       <div><h4>Empresa</h4><ul><li><a href="#">Sobre nosotros</a></li><li><a href="#">Blog</a></li><li><a href="#">API Docs</a></li><li><a href="#">Contacto</a></li></ul></div>
     </div>
     <div class="footer-bottom">
       <span>© 2025 Terrium S.A.S. · Buenos Aires, Argentina</span>
-      <span>Términos · Privacidad</span>
+      <span><a href="#" style="color:var(--gray-400);">Términos</a> · <a href="#" style="color:var(--gray-400);">Privacidad</a></span>
     </div>
   </footer>
 
   <div id="toast"></div>
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
+  <script>
+    // Mobile hamburger menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileNav.classList.toggle('open');
+    });
+    document.addEventListener('click', (e) => {
+      if (!hamburger.contains(e.target) && !mobileNav.contains(e.target)) {
+        hamburger.classList.remove('open');
+        mobileNav.classList.remove('open');
+      }
+    });
+
+    // Scroll-reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) { entry.target.classList.add('visible'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach((el) => io.observe(el));
+  </script>
 </body>
 </html>
-

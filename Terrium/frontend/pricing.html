@@ -4,14 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Planes y Precios — Terrium</title>
+  <meta name="description" content="Elegí el plan de Terrium que mejor se adapta a tus necesidades. Desde análisis gratuito hasta inteligencia avanzada para inversores y vendedores profesionales.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Terrium">
+  <meta property="og:title" content="Planes y Precios — Terrium">
+  <meta property="og:description" content="Elegí el plan de Terrium que mejor se adapta a tus necesidades. Desde análisis gratuito hasta inteligencia avanzada para inversores y vendedores profesionales.">
+  <meta property="og:image" content="assets/img/og-terrium.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Planes y Precios — Terrium">
+  <meta name="twitter:description" content="Elegí el plan de Terrium que mejor se adapta a tus necesidades. Desde análisis gratuito hasta inteligencia avanzada para inversores y vendedores profesionales.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="assets/css/main.css">
   <style>
     body { background: var(--gray-100); }
-    .pricing-hero { background: linear-gradient(135deg, var(--navy), var(--navy-light)); padding: 64px 5%; text-align: center; }
-    .pricing-hero h1 { color: var(--white); margin-bottom: 12px; }
+    /* Pricing hero mejorado */
+    .pricing-hero { background: linear-gradient(135deg, var(--navy) 0%, #1a3a5c 60%, #0a2540 100%); padding: 80px 5%; text-align: center; position: relative; overflow: hidden; }
+    .pricing-hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(212,175,55,0.07) 0%, transparent 70%); top: -200px; right: -100px; border-radius: 50%; }
+    .pricing-hero .hero-pill { display: inline-block; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.3); color: var(--gold); font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 6px 16px; border-radius: 50px; margin-bottom: 20px; }
+    .pricing-hero h1 { color: var(--white); margin-bottom: 16px; font-size: clamp(1.8rem, 4vw, 3rem); }
     .pricing-hero p { color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto; font-size: 1.1rem; }
     .pricing-section { padding: 60px 5%; max-width: 1200px; margin: 0 auto; }
     .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
@@ -67,10 +79,24 @@
       <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
       <a href="register.html" class="btn btn-primary btn-sm" id="register-btn">Comenzar gratis</a>
       <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+      <button class="hamburger-btn" id="hamburger" aria-label="Menú"><span></span><span></span><span></span></button>
     </div>
   </nav>
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="index.html">🏠 Inicio</a>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="listings.html">🏘️ Propiedades</a>
+    <a href="calculator.html">🧮 Calc. ROI</a>
+    <a href="heatmap.html">🗺️ Mapa de Calor</a>
+    <a href="pricing.html" class="active">💳 Planes</a>
+    <div class="mobile-nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">Ingresar</a>
+      <a href="register.html" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">Registrarse</a>
+    </div>
+  </div>
 
   <div class="pricing-hero">
+    <div class="hero-pill">💎 Sin compromisos · Cancelá cuando quieras</div>
     <h1>Planes para cada tipo de inversor</h1>
     <p>Comenzá gratis y escalá según tus necesidades. Sin compromisos, cancelá cuando quieras.</p>
   </div>
@@ -119,10 +145,10 @@
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
   <script>
-    const PLAN_ICONS = { FREE: '🆓', INVERSOR: '📈', PRO: '💎', ENTERPRISE: '🏢' };
+    const PLAN_ICONS = { FREE: '🆓', BASIC: '📈', PRO: '💎', ENTERPRISE: '🏢' };
     const PLAN_DESC  = {
       FREE:       'Ideal para comenzar a explorar el mercado inmobiliario.',
-      INVERSOR:   'Para inversores activos que quieren datos avanzados.',
+      BASIC:      'Para inversores activos que quieren datos avanzados.',
       PRO:        'Para profesionales del sector con acceso completo.',
       ENTERPRISE: 'Soluciones personalizadas para empresas y fondos.'
     };
@@ -137,7 +163,7 @@
         grid.innerHTML = plans.map((plan) => {
           const isCurrent  = plan.tier === currentTier;
           const isEnterprise = plan.tier === 'ENTERPRISE';
-          const isFeatured = plan.tier === 'INVERSOR';
+          const isFeatured = plan.tier === 'BASIC';
           const priceText  = plan.priceArs === 0 && isEnterprise ? 'A consultar' :
                              plan.priceArs === 0 ? '<span class="amount">$0</span><span class="period">/mes</span>' :
                              `<span class="currency">ARS</span><span class="amount">${plan.priceArs.toLocaleString('es-AR')}</span><span class="period">/mes</span>`;
@@ -224,6 +250,11 @@
     });
 
     document.addEventListener('DOMContentLoaded', loadPlans);
+
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    if (hamburger) hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileNav.classList.toggle('open'); });
   </script>
 </body>
 </html>

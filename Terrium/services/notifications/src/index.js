@@ -5,6 +5,7 @@ const notificationRoutes = require('./routes/notification.routes');
 const { connectDB } = require('./db/connection');
 const { startConsumer } = require('./events/subscriber');
 const logger = require('./utils/logger');
+const registerHandlers = require('../../shared/utils/handlers');
 
 const app = express();
 const PORT = process.env.PORT || 3004;
@@ -13,8 +14,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'notifications' }));
 app.use('/', notificationRoutes);
-app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
-app.use((err, _req, res, _next) => { logger.error(err instanceof Error ? err.stack : String(err)); res.status(500).json({ error: 'Error interno' }); });
+registerHandlers(app, logger);
 
 async function start() {
   await connectDB();
@@ -23,4 +23,3 @@ async function start() {
   app.listen(PORT, () => logger.info(`🔔 Notifications Service corriendo en puerto ${PORT}`));
 }
 start().catch((err) => { logger.error(err); process.exit(1); });
-

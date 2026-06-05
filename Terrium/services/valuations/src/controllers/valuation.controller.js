@@ -66,4 +66,3 @@ const estimate = async (req, res) => {
 };
 
 module.exports = { getByProperty, getPriceHistory, estimate };
-

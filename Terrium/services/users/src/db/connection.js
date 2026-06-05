@@ -53,4 +53,3 @@ const runMigrations = async () => {
 };
 
 module.exports = { pool, connectDB, query: (text, params) => pool.query(text, params) };
-

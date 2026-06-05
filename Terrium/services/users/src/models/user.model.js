@@ -27,4 +27,3 @@ const updateTier = async (id, tier) => {
 };
 
 module.exports = { findByEmail, findById, create, updateTier };
-

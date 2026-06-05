@@ -1,8 +1,9 @@
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
+FROM node:26-alpine
+WORKDIR /app/service
+COPY notifications/package*.json ./
 RUN npm ci --only=production
-COPY . .
+COPY notifications/ .
+COPY shared/ /app/shared/
 EXPOSE 3004
 CMD ["node", "src/index.js"]
 

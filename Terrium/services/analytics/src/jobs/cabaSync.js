@@ -2,20 +2,7 @@ const axios = require('axios');
 const cron = require('node-cron');
 const { query } = require('../db/connection');
 const logger = require('../utils/logger');
-
-const NEIGHBORHOOD_MAP = {
-  'palermo': 'Palermo', 'belgrano': 'Belgrano', 'recoleta': 'Recoleta',
-  'puerto madero': 'Puerto Madero', 'villa crespo': 'Villa Crespo',
-  'caballito': 'Caballito', 'san telmo': 'San Telmo', 'flores': 'Flores',
-  'villa devoto': 'Villa Devoto', 'microcentro': 'Microcentro',
-  'almagro': 'Almagro', 'nunez': 'Núñez', 'núñez': 'Núñez'
-};
-
-const BASE_PRICES = {
-  'Palermo': 3200, 'Belgrano': 2900, 'Recoleta': 3500, 'Puerto Madero': 5200,
-  'Villa Crespo': 2100, 'Caballito': 1900, 'San Telmo': 2200, 'Flores': 1500,
-  'Villa Devoto': 1600, 'Microcentro': 1800, 'Almagro': 1700, 'Núñez': 2600
-};
+const { NEIGHBORHOOD_MAP, BASE_PRICES } = require('../utils/constants');
 
 function normalizeNeighborhood(name) {
   if (!name) return null;
