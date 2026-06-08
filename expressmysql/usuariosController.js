@@ -47,6 +47,9 @@ router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { nombre, email } = req.body;
+        if (!nombre || !email) {
+            return res.status(400).json({ error: 'Los campos nombre y email son requeridos' });
+        }
         const [result] = await pool.query(
             'UPDATE usuarios SET nombre = ?, email = ? WHERE id = ?',
             [nombre, email, id]

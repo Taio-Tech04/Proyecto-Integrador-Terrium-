@@ -35,9 +35,11 @@ router.post('/', async (req, res) => {
         if (!nombre || !email || !password) {
             return res.status(400).json({ error: 'Los campos nombre, email y password son requeridos' });
         }
+        const bcrypt = require('bcryptjs');
+        const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await pool.query(
             'INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)',
-            [nombre, email, password]
+            [nombre, email, hashedPassword]
         );
         res.status(201).json({ id: result.insertId, nombre, email });
     } catch (err) {
@@ -51,9 +53,14 @@ router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { nombre, email, password } = req.body;
+        if (!nombre || !email || !password) {
+            return res.status(400).json({ error: 'Los campos nombre, email y password son requeridos' });
+        }
+        const bcrypt = require('bcryptjs');
+        const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await pool.query(
             'UPDATE usuarios SET nombre = ?, email = ?, password = ? WHERE id = ?',
-            [nombre, email, password, id]
+            [nombre, email, hashedPassword, id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
