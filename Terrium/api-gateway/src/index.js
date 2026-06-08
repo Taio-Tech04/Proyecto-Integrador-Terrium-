@@ -10,6 +10,7 @@ const morgan = require('morgan');
 const { createProxyMiddleware, fixRequestBody } = require('http-proxy-middleware');
 const { Server: SocketServer } = require('socket.io');
 const { io: ioClient } = require('socket.io-client');
+const swaggerUi = require('swagger-ui-express');
 
 const config = require('./config');
 const logger = require('./utils/logger');
@@ -18,8 +19,14 @@ const rateLimiter = require('./middleware/rateLimit');
 const { typeDefs } = require('./graphql/typeDefs');
 const { resolvers } = require('./graphql/resolvers');
 const healthRouter = require('./routes/health');
+const favoritesRouter = require('./routes/favorites');
+const swaggerSpec = require('./swagger');
+const { connectMongo } = require('./db/mongo');
 
 async function bootstrap() {
+  // Conectar MongoDB en segundo plano (no bloquea el arranque)
+  connectMongo();
+
   const app = express();
   const server = http.createServer(app);
 
@@ -47,6 +54,13 @@ async function bootstrap() {
   app.use('/api/', rateLimiter);
   app.use('/health', healthRouter);
 
+  // Swagger UI — documentación interactiva de la API REST
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'Terrium API Docs',
+    swaggerOptions: { persistAuthorization: true }
+  }));
+  app.get('/api-docs.json', (_req, res) => res.json(swaggerSpec));
+
   // Proxy REST
   const proxyOptions = (target) => ({
     target,
@@ -67,6 +81,7 @@ async function bootstrap() {
     createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/auth/' } }));
 
   // Rutas protegidas
+  app.use('/api/favorites', favoritesRouter);
   app.use('/api/subscriptions', authMiddleware,
     createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/subscriptions/' } }));
   app.use('/api/listings', authMiddleware,
@@ -94,7 +109,7 @@ async function bootstrap() {
     }
   }));
 
-  app.get('/', (req, res) => res.json({ name: 'Terrium API Gateway', version: '1.0.0', docs: '/graphql', health: '/health' }));
+  app.get('/', (req, res) => res.json({ name: 'Terrium API Gateway', version: '1.0.0', docs: '/api-docs', graphql: '/graphql', health: '/health' }));
 
   // 404 handler
   app.use((_req, res) => {
@@ -111,6 +126,7 @@ async function bootstrap() {
 
   server.listen(config.PORT, () => {
     logger.info(`API Gateway: http://localhost:${config.PORT}`);
+    logger.info(`Swagger UI:  http://localhost:${config.PORT}/api-docs`);
     logger.info(`GraphQL:     http://localhost:${config.PORT}/graphql`);
     logger.info(`WebSocket:   ws://localhost:${config.PORT}/socket.io`);
   });

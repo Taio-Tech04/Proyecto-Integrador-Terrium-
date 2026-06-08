@@ -31,12 +31,16 @@ const runMigrations = async () => {
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
       name VARCHAR(100) NOT NULL,
       email VARCHAR(150) UNIQUE NOT NULL,
-      password_hash VARCHAR(255) NOT NULL,
+      password_hash VARCHAR(255),
+      google_id VARCHAR(100),
       tier VARCHAR(20) DEFAULT 'FREE' CHECK (tier IN ('FREE','BASIC','PRO','ENTERPRISE')),
       is_active BOOLEAN DEFAULT TRUE,
       created_at TIMESTAMPTZ DEFAULT NOW(),
       updated_at TIMESTAMPTZ DEFAULT NOW()
     );
+
+    -- Agregar google_id a tablas existentes (idempotente)
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(100);
 
     CREATE TABLE IF NOT EXISTS subscriptions (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

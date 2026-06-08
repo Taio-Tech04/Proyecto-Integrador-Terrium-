@@ -9,11 +9,6 @@
  * desarrollo local.
  */
 
-// ── Configuración ─────────────────────────────────────────────────────────────
-// En producción estas variables las provee el servidor (ej. variables de entorno
-// inyectadas por nginx o un build step). Para desarrollo, podés reemplazarlas
-// temporalmente aquí, NUNCA commitear claves reales.
-// La ANON key se obtiene en: https://supabase.com/dashboard → tu proyecto → Settings → API
 const SUPABASE_URL  = window.__SUPABASE_URL__  || 'https://tvinjfhjsqoiptduozaa.supabase.co';
 const SUPABASE_ANON = window.__SUPABASE_ANON__ || 'REEMPLAZAR_CON_ANON_KEY_DE_SETTINGS_API';
 

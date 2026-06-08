@@ -19,9 +19,12 @@
     "helmet": "^7.1.0",
     "http-proxy-middleware": "^3.0.0",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.6.3",
     "morgan": "^1.10.0",
     "socket.io": "^4.7.4",
     "socket.io-client": "^4.7.4",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
     "winston": "^3.11.0"
   },
   "devDependencies": {
@@ -29,4 +32,3 @@
     "nodemon": "^3.0.1"
   }
 }
-

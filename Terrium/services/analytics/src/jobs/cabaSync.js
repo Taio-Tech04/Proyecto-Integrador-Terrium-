@@ -3,6 +3,7 @@ const cron = require('node-cron');
 const { query } = require('../db/connection');
 const logger = require('../utils/logger');
 const { NEIGHBORHOOD_MAP, BASE_PRICES } = require('../utils/constants');
+const { tryScrapeSupplement } = require('./scraper');
 
 function normalizeNeighborhood(name) {
   if (!name) return null;
@@ -73,8 +74,24 @@ async function syncCABAData() {
     metrics = processRecords(records);
     logger.info(`API CABA: ${metrics.length} barrios procesados`);
   } catch (err) {
-    logger.warn(`API CABA no disponible: ${err.message} — usando datos de referencia`);
-    metrics = generateFallbackData();
+    logger.warn(`API CABA no disponible: ${err.message} — intentando scraper como fuente secundaria`);
+
+    // Fuente secundaria: web scraping del portal público de estadísticas de CABA
+    const scraped = await tryScrapeSupplement();
+    if (scraped && scraped.length > 0) {
+      const now = new Date();
+      metrics = scraped.map(r => ({
+        neighborhood: normalizeNeighborhood(r.neighborhood) || r.neighborhood,
+        avg_price_usd_m2: r.avg_price_usd_m2,
+        total_listings: 0,
+        month: now.getMonth() + 1,
+        year: now.getFullYear()
+      })).filter(r => r.neighborhood);
+      logger.info(`Scraper: ${metrics.length} barrios obtenidos como fuente secundaria`);
+    } else {
+      logger.warn('Scraper también falló — usando datos de referencia como último recurso');
+      metrics = generateFallbackData();
+    }
   }
   const n = await upsertMetrics(metrics);
   logger.info(`${n} métricas actualizadas en DB`);

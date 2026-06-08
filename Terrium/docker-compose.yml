@@ -1,17 +1,3 @@
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  TERRIUM — docker-compose
-#
-#  MODO SUPABASE (producción / staging):
-#    Completá el archivo .env con tus credenciales de Supabase y levantá sin
-#    el perfil "local":
-#      docker compose --env-file .env up
-#
-#  MODO LOCAL (desarrollo sin internet):
-#    Usá el perfil "local" para levantar PostgreSQL en Docker:
-#      docker compose --env-file .env --profile local up
-# ─────────────────────────────────────────────────────────────────────────────
-
 networks:
   terrium-net:
     driver: bridge
@@ -20,6 +6,7 @@ volumes:
   pg_data:
   redis_data:
   rabbitmq_data:
+  mongo_data:
 
 services:
   # ─── BASE DE DATOS LOCAL (solo con --profile local) ──────────────────────
@@ -82,6 +69,28 @@ services:
       timeout: 10s
       retries: 5
 
+  # ─── BASE DE DATOS NoSQL (MongoDB) ───────────────────────────────────────────
+  # Usada por el API Gateway para almacenar favoritos de propiedades.
+  # Modelo documental: ideal para listas de favoritos por usuario (sin JOINs).
+  mongodb:
+    image: mongo:7-jammy
+    container_name: terrium-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: terrium
+      MONGO_INITDB_ROOT_PASSWORD: terrium_secret
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - terrium-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ─── MICROSERVICIOS ───────────────────────────────────────────────────────────
   users:
     build:
@@ -94,6 +103,12 @@ services:
       AMQP_URL: ${AMQP_URL:-amqp://terrium:terrium_secret@rabbitmq:5672}
       JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      # Google OAuth 2.0 — configurar en Google Cloud Console
+      # https://console.cloud.google.com/apis/credentials
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:4000/api/auth/google/callback}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
       PORT: 3005
       NODE_ENV: ${NODE_ENV:-development}
     depends_on:
@@ -226,6 +241,7 @@ services:
       USERS_URL: ${USERS_URL:-http://users:3005}
       JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      MONGO_URL: ${MONGO_URL:-mongodb://terrium:terrium_secret@mongodb:27017/terrium_favorites?authSource=admin}
       PORT: 4000
       NODE_ENV: ${NODE_ENV:-development}
     depends_on:
@@ -234,6 +250,7 @@ services:
       - valuations
       - analytics
       - notifications
+      - mongodb
     ports:
       - "4000:4000"
     networks:

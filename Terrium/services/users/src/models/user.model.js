@@ -10,10 +10,10 @@ const findById = async (id) => {
   return rows[0] || null;
 };
 
-const create = async ({ name, email, passwordHash }) => {
+const create = async ({ name, email, passwordHash, googleId = null }) => {
   const { rows } = await query(
-    'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, tier, created_at',
-    [name, email, passwordHash]
+    'INSERT INTO users (name, email, password_hash, google_id) VALUES ($1, $2, $3, $4) RETURNING id, name, email, tier, created_at',
+    [name, email, passwordHash, googleId]
   );
   return rows[0];
 };
@@ -26,4 +26,10 @@ const updateTier = async (id, tier) => {
   return rows[0];
 };
 
-module.exports = { findByEmail, findById, create, updateTier };
+// Vincula una cuenta existente con su ID de Google (para usuarios que ya tenían cuenta con email/password)
+const linkGoogleId = async (id, googleId) => {
+  await query('UPDATE users SET google_id = $1, updated_at = NOW() WHERE id = $2', [googleId, id]);
+};
+
+module.exports = { findByEmail, findById, create, updateTier, linkGoogleId };
+

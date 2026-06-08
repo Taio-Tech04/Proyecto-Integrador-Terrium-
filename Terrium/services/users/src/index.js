@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
+const passport = require('passport');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const subscriptionRoutes = require('./routes/subscription.routes');
@@ -8,13 +9,18 @@ const { connectDB } = require('./db/connection');
 const { connectRabbitMQ } = require('./events/publisher');
 const logger = require('./utils/logger');
 const registerHandlers = require('../../shared/utils/handlers');
+const { configureGoogleOAuth } = require('./config/googleOAuth');
 
 const app = express();
 const PORT = process.env.PORT || 3005;
 
+// Inicializar estrategia Google OAuth (solo si las credenciales están configuradas)
+configureGoogleOAuth();
+
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
 
 // Health check — antes de rutas para garantizar que siempre sea accesible
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'users' }));

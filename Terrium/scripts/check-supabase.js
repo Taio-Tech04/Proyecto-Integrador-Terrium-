@@ -4,7 +4,7 @@
  */
 const { Pool } = require('../services/users/node_modules/pg');
 
-const DB = 'postgresql://postgres.tvinjfhjsqoiptduozaa:TerriumPlataform@aws-0-sa-east-1.pooler.supabase.com:6543/postgres';
+const DB = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString: DB, ssl: { rejectUnauthorized: false } });
 
 async function run() {
