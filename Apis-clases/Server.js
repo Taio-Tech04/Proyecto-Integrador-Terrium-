@@ -4,24 +4,9 @@ const productosController=require("./productosController");
 app.use(express.json());
 app.use("/productos", productosController);
 
-// req significa
 app.get('/', (req, res) => {
     res.send('Hello World!=D')
 });
-
-app.get("/productos", (req, res) => {
-    res.json([
-        {id: 1, nombre: "Laptop", precio: 1500},
-        {id: 2, nombre: "Celular", precio: 500}
-    ]);
-});
-
-//Parametros por PATH PARAM
-app.get('/productos/:id', (req, res) => {
-    const id= req.params.id;
-    console.log("Valor del Paramentro ID: " +id);
-    res.json({mensaje: "Producto encontrado", id })
-})
 
 //Parametros por QUERY PARAM
 app.get("/buscar", (req, res) => {
