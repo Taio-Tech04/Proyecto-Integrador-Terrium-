@@ -55,8 +55,17 @@ const getInvestmentScore = async (req, res) => {
 
 const getNeighborhoodRanking = async (req, res) => {
   try {
-    const { rows } = await query('SELECT * FROM investment_scores ORDER BY score DESC LIMIT 20');
-    res.json(rows);
+    const page  = parseInt(req.query.page)  || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+    const offset = (page - 1) * limit;
+
+    const { rows } = await query(
+      'SELECT * FROM investment_scores ORDER BY score DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
+    const { rows: countRows } = await query('SELECT COUNT(*) FROM investment_scores');
+
+    res.json({ data: rows, total: parseInt(countRows[0].count), page, limit });
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener ranking' });
   }
