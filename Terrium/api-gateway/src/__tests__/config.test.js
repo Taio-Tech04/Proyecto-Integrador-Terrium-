@@ -21,4 +21,41 @@ describe('Configuración del API Gateway', () => {
       expect(config[key]).toMatch(/^https?:\/\/.+/);
     });
   });
+
+  describe('ALLOWED_ORIGINS', () => {
+    it('es un array', () => {
+      expect(Array.isArray(config.ALLOWED_ORIGINS)).toBe(true);
+    });
+
+    it('contiene al menos un origen', () => {
+      expect(config.ALLOWED_ORIGINS.length).toBeGreaterThan(0);
+    });
+
+    it('cada origen tiene formato http/https válido', () => {
+      config.ALLOWED_ORIGINS.forEach((origin) => {
+        expect(origin).toMatch(/^https?:\/\/.+/);
+      });
+    });
+
+    it('parsea ALLOWED_ORIGINS desde variable de entorno con comas', () => {
+      const original = process.env.ALLOWED_ORIGINS;
+      process.env.ALLOWED_ORIGINS = 'https://terrium.app,https://www.terrium.app';
+      jest.resetModules();
+      const freshConfig = require('../config');
+      expect(freshConfig.ALLOWED_ORIGINS).toEqual([
+        'https://terrium.app',
+        'https://www.terrium.app',
+      ]);
+      process.env.ALLOWED_ORIGINS = original;
+    });
+
+    it('trimea espacios en los orígenes parseados', () => {
+      const original = process.env.ALLOWED_ORIGINS;
+      process.env.ALLOWED_ORIGINS = ' https://a.com , https://b.com ';
+      jest.resetModules();
+      const freshConfig = require('../config');
+      expect(freshConfig.ALLOWED_ORIGINS).toEqual(['https://a.com', 'https://b.com']);
+      process.env.ALLOWED_ORIGINS = original;
+    });
+  });
 });

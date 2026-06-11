@@ -96,6 +96,7 @@ services:
     build:
       context: ./services
       dockerfile: users/Dockerfile
+    image: ghcr.io/taio-tech04/terrium-users:latest
     container_name: terrium-users
     restart: unless-stopped
     environment:
@@ -127,6 +128,7 @@ services:
     build:
       context: ./services
       dockerfile: listings/Dockerfile
+    image: ghcr.io/taio-tech04/terrium-listings:latest
     container_name: terrium-listings
     restart: unless-stopped
     environment:
@@ -154,6 +156,7 @@ services:
     build:
       context: ./services
       dockerfile: valuations/Dockerfile
+    image: ghcr.io/taio-tech04/terrium-valuations:latest
     container_name: terrium-valuations
     restart: unless-stopped
     environment:
@@ -178,6 +181,7 @@ services:
     build:
       context: ./services
       dockerfile: analytics/Dockerfile
+    image: ghcr.io/taio-tech04/terrium-analytics:latest
     container_name: terrium-analytics
     restart: unless-stopped
     environment:
@@ -202,6 +206,7 @@ services:
     build:
       context: ./services
       dockerfile: notifications/Dockerfile
+    image: ghcr.io/taio-tech04/terrium-notifications:latest
     container_name: terrium-notifications
     restart: unless-stopped
     environment:
@@ -231,6 +236,7 @@ services:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
+    image: ghcr.io/taio-tech04/terrium-api-gateway:latest
     container_name: terrium-gateway
     restart: unless-stopped
     environment:
@@ -261,6 +267,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: ghcr.io/taio-tech04/terrium-frontend:latest
     container_name: terrium-frontend
     restart: unless-stopped
     depends_on:

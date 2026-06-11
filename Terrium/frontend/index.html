@@ -195,8 +195,8 @@
           <a href="dashboard.html" class="btn btn-outline btn-lg">Ver el mercado</a>
         </div>
         <div class="hero-stats">
-          <div class="hero-stat"><div class="value">+12K</div><div class="label">Propiedades</div></div>
-          <div class="hero-stat"><div class="value">48</div><div class="label">Barrios CABA</div></div>
+          <div class="hero-stat"><div class="value" id="stat-listings">+12K</div><div class="label">Propiedades</div></div>
+          <div class="hero-stat"><div class="value" id="stat-neighborhoods">48</div><div class="label">Barrios CABA</div></div>
           <div class="hero-stat"><div class="value">+3K</div><div class="label">Inversores</div></div>
           <div class="hero-stat"><div class="value">99%</div><div class="label">Uptime</div></div>
         </div>
@@ -286,8 +286,8 @@
   <!-- Stats strip -->
   <div class="stats-strip">
     <div class="stats-strip-grid">
-      <div class="strip-stat reveal"><div class="snum">+12.000</div><div class="sdesc">Propiedades listadas</div></div>
-      <div class="strip-stat reveal reveal-delay-1"><div class="snum">48</div><div class="sdesc">Barrios analizados</div></div>
+      <div class="strip-stat reveal"><div class="snum" id="strip-listings">+12.000</div><div class="sdesc">Propiedades listadas</div></div>
+      <div class="strip-stat reveal reveal-delay-1"><div class="snum" id="strip-neighborhoods">48</div><div class="sdesc">Barrios analizados</div></div>
       <div class="strip-stat reveal reveal-delay-2"><div class="snum">+3.000</div><div class="sdesc">Inversores activos</div></div>
       <div class="strip-stat reveal reveal-delay-3"><div class="snum">USD 2.8B</div><div class="sdesc">Valor analizado</div></div>
     </div>
@@ -480,6 +480,33 @@
       });
     }, { threshold: 0.12 });
     revealEls.forEach((el) => io.observe(el));
+
+    // Stats en vivo desde la API
+    (async function loadLiveStats() {
+      try {
+        const res = await fetch('/api/analytics/overview');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.totalListings) {
+          const n = parseInt(data.totalListings);
+          const heroFmt  = n >= 1000 ? `+${Math.round(n / 1000)}K`        : `+${n}`;
+          const stripFmt = n >= 1000 ? `+${n.toLocaleString('es-AR')}` : `+${n}`;
+          const heroEl  = document.getElementById('stat-listings');
+          const stripEl = document.getElementById('strip-listings');
+          if (heroEl)  heroEl.textContent  = heroFmt;
+          if (stripEl) stripEl.textContent = stripFmt;
+        }
+
+        if (data.neighborhoodsCount) {
+          const n = parseInt(data.neighborhoodsCount);
+          const heroEl  = document.getElementById('stat-neighborhoods');
+          const stripEl = document.getElementById('strip-neighborhoods');
+          if (heroEl)  heroEl.textContent  = n;
+          if (stripEl) stripEl.textContent = n;
+        }
+      } catch (_e) { /* mantiene los valores de fallback del HTML */ }
+    })();
   </script>
 </body>
 </html>
