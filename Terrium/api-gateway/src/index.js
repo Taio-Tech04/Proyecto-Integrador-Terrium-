@@ -32,7 +32,7 @@ async function bootstrap() {
 
   // Socket.io — proxy de eventos hacia el servicio Analytics
   const io = new SocketServer(server, {
-    cors: { origin: '*', methods: ['GET', 'POST'] },
+    cors: { origin: config.ALLOWED_ORIGINS, methods: ['GET', 'POST'] },
     transports: ['websocket', 'polling']
   });
 
@@ -47,7 +47,12 @@ async function bootstrap() {
   // Middleware
   app.set('trust proxy', 1); // Nginx es el proxy en frente
   app.use(helmet({ contentSecurityPolicy: false }));
-  app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] }));
+  app.use(cors({
+    origin: config.ALLOWED_ORIGINS,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  }));
   app.use(morgan('dev'));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
@@ -98,7 +103,7 @@ async function bootstrap() {
   // GraphQL
   const apolloServer = new ApolloServer({ typeDefs, resolvers });
   await apolloServer.start();
-  app.use('/graphql', cors(), express.json(), expressMiddleware(apolloServer, {
+  app.use('/graphql', cors({ origin: config.ALLOWED_ORIGINS, credentials: true }), express.json(), expressMiddleware(apolloServer, {
     context: async ({ req }) => {
       const token = req.headers.authorization?.replace('Bearer ', '');
       let user = null;

@@ -15,10 +15,13 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3003;
 
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+  : ['http://localhost:3000', 'http://localhost:4000'];
 
 // Socket.io
 const io = new Server(server, {
-  cors: { origin: '*', methods: ['GET', 'POST'] },
+  cors: { origin: ALLOWED_ORIGINS, methods: ['GET', 'POST'] },
   transports: ['websocket', 'polling'],
   pingTimeout: 30000,
   pingInterval: 10000
@@ -63,7 +66,7 @@ async function broadcastHeatmap() {
 cron.schedule('*/30 * * * * *', broadcastHeatmap);
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }));
 app.use(morgan('dev'));
 app.use(express.json());
 

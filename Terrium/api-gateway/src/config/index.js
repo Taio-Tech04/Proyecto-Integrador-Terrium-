@@ -1,3 +1,7 @@
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+  : ['http://localhost:3000', 'http://localhost:4000'];
+
 module.exports = {
   PORT: process.env.PORT || 4000,
   JWT_SECRET: process.env.JWT_SECRET || 'change_me_in_production',
@@ -6,5 +10,6 @@ module.exports = {
   ANALYTICS_URL: process.env.ANALYTICS_URL || 'http://localhost:3003',
   NOTIFICATIONS_URL: process.env.NOTIFICATIONS_URL || 'http://localhost:3004',
   USERS_URL: process.env.USERS_URL || 'http://localhost:3005',
-  NODE_ENV: process.env.NODE_ENV || 'development'
+  NODE_ENV: process.env.NODE_ENV || 'development',
+  ALLOWED_ORIGINS,
 };
