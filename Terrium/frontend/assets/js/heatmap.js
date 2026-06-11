@@ -102,7 +102,7 @@ function connectWebSocket() {
   }
 }
 
-// ── Control de tier (lock para FREE/INVERSOR) ────────────────────────────────
+// ── Control de tier (lock para FREE/BASIC) ───────────────────────────────────
 function checkTierAccess() {
   const tier = getUserTier();
   const lockOverlay = document.getElementById('tier-lock');

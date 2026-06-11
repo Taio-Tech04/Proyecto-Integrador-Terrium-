@@ -87,7 +87,7 @@ La aplicación estará disponible en:
 | Tier        | Precio ARS/mes | Herramientas                                           |
 |-------------|----------------|--------------------------------------------------------|
 | FREE        | Gratis         | Búsqueda básica, datos generales del mercado           |
-| INVERSOR    | $4.999         | + Historial de precios, valuaciones, alertas           |
+| BASIC       | $4.999         | + Historial de precios, valuaciones, alertas           |
 | PRO         | $14.999        | + Mapa de calor, analytics avanzados, API access       |
 | ENTERPRISE  | A convenir     | + Acceso completo, soporte prioritario, white-label    |
 
