@@ -1,3 +1,5 @@
+name: terrium
+
 networks:
   terrium-net:
     driver: bridge
@@ -9,25 +11,24 @@ volumes:
   mongo_data:
 
 services:
-  # ─── BASE DE DATOS LOCAL (solo con --profile local) ──────────────────────
+  # Infraestructura local
   postgres:
     image: postgres:16-alpine
     container_name: terrium-postgres
     restart: unless-stopped
-    profiles: [local]
     environment:
-      POSTGRES_USER: terrium
-      POSTGRES_PASSWORD: terrium_secret
-      POSTGRES_DB: terrium_main
+      POSTGRES_USER: ${POSTGRES_USER:-terrium}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-terrium_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-terrium_main}
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     networks:
       - terrium-net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U terrium"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-terrium} -d ${POSTGRES_DB:-terrium_main}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -40,7 +41,7 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     networks:
       - terrium-net
     healthcheck:
@@ -54,13 +55,13 @@ services:
     container_name: terrium-rabbitmq
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: terrium
-      RABBITMQ_DEFAULT_PASS: terrium_secret
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-terrium}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-terrium_secret}
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
     networks:
       - terrium-net
     healthcheck:
@@ -69,20 +70,17 @@ services:
       timeout: 10s
       retries: 5
 
-  # ─── BASE DE DATOS NoSQL (MongoDB) ───────────────────────────────────────────
-  # Usada por el API Gateway para almacenar favoritos de propiedades.
-  # Modelo documental: ideal para listas de favoritos por usuario (sin JOINs).
   mongodb:
     image: mongo:7-jammy
     container_name: terrium-mongodb
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: terrium
-      MONGO_INITDB_ROOT_PASSWORD: terrium_secret
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-terrium}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-terrium_secret}
     volumes:
       - mongo_data:/data/db
     ports:
-      - "27017:27017"
+      - "${MONGO_PORT:-27017}:27017"
     networks:
       - terrium-net
     healthcheck:
@@ -91,21 +89,19 @@ services:
       timeout: 5s
       retries: 5
 
-  # ─── MICROSERVICIOS ───────────────────────────────────────────────────────────
+  # Microservicios
   users:
     build:
       context: ./services
       dockerfile: users/Dockerfile
-    image: ghcr.io/taio-tech04/terrium-users:latest
+    image: ghcr.io/taio-tech04/terrium-users:${TERRIUM_IMAGE_TAG:-latest}
     container_name: terrium-users
     restart: unless-stopped
     environment:
       DATABASE_URL: ${USERS_DATABASE_URL:-postgresql://terrium:terrium_secret@postgres:5432/terrium_users}
       AMQP_URL: ${AMQP_URL:-amqp://terrium:terrium_secret@rabbitmq:5672}
-      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
+      JWT_SECRET: ${JWT_SECRET:-change_me_min_32_chars_for_development}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      # Google OAuth 2.0 — configurar en Google Cloud Console
-      # https://console.cloud.google.com/apis/credentials
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:4000/api/auth/google/callback}
@@ -115,20 +111,24 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-        required: false
       rabbitmq:
         condition: service_healthy
-        required: false
     ports:
-      - "3005:3005"
+      - "${USERS_PORT:-3005}:3005"
     networks:
       - terrium-net
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(\"http://localhost:3005/health\").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   listings:
     build:
       context: ./services
       dockerfile: listings/Dockerfile
-    image: ghcr.io/taio-tech04/terrium-listings:latest
+    image: ghcr.io/taio-tech04/terrium-listings:${TERRIUM_IMAGE_TAG:-latest}
     container_name: terrium-listings
     restart: unless-stopped
     environment:
@@ -140,23 +140,26 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-        required: false
       rabbitmq:
         condition: service_healthy
-        required: false
       redis:
         condition: service_healthy
-        required: false
     ports:
-      - "3001:3001"
+      - "${LISTINGS_PORT:-3001}:3001"
     networks:
       - terrium-net
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(\"http://localhost:3001/health\").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   valuations:
     build:
       context: ./services
       dockerfile: valuations/Dockerfile
-    image: ghcr.io/taio-tech04/terrium-valuations:latest
+    image: ghcr.io/taio-tech04/terrium-valuations:${TERRIUM_IMAGE_TAG:-latest}
     container_name: terrium-valuations
     restart: unless-stopped
     environment:
@@ -168,20 +171,24 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-        required: false
       rabbitmq:
         condition: service_healthy
-        required: false
     ports:
-      - "3002:3002"
+      - "${VALUATIONS_PORT:-3002}:3002"
     networks:
       - terrium-net
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(\"http://localhost:3002/health\").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   analytics:
     build:
       context: ./services
       dockerfile: analytics/Dockerfile
-    image: ghcr.io/taio-tech04/terrium-analytics:latest
+    image: ghcr.io/taio-tech04/terrium-analytics:${TERRIUM_IMAGE_TAG:-latest}
     container_name: terrium-analytics
     restart: unless-stopped
     environment:
@@ -193,20 +200,26 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-        required: false
       rabbitmq:
         condition: service_healthy
-        required: false
+      redis:
+        condition: service_healthy
     ports:
-      - "3003:3003"
+      - "${ANALYTICS_PORT:-3003}:3003"
     networks:
       - terrium-net
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(\"http://localhost:3003/health\").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   notifications:
     build:
       context: ./services
       dockerfile: notifications/Dockerfile
-    image: ghcr.io/taio-tech04/terrium-notifications:latest
+    image: ghcr.io/taio-tech04/terrium-notifications:${TERRIUM_IMAGE_TAG:-latest}
     container_name: terrium-notifications
     restart: unless-stopped
     environment:
@@ -222,21 +235,25 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-        required: false
       rabbitmq:
         condition: service_healthy
-        required: false
     ports:
-      - "3004:3004"
+      - "${NOTIFICATIONS_PORT:-3004}:3004"
     networks:
       - terrium-net
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(\"http://localhost:3004/health\").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
-  # ─── API GATEWAY ─────────────────────────────────────────────────────────────
+  # API Gateway
   api-gateway:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
-    image: ghcr.io/taio-tech04/terrium-api-gateway:latest
+    image: ghcr.io/taio-tech04/terrium-api-gateway:${TERRIUM_IMAGE_TAG:-latest}
     container_name: terrium-gateway
     restart: unless-stopped
     environment:
@@ -245,50 +262,64 @@ services:
       ANALYTICS_URL: ${ANALYTICS_URL:-http://analytics:3003}
       NOTIFICATIONS_URL: ${NOTIFICATIONS_URL:-http://notifications:3004}
       USERS_URL: ${USERS_URL:-http://users:3005}
-      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
+      JWT_SECRET: ${JWT_SECRET:-change_me_min_32_chars_for_development}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       MONGO_URL: ${MONGO_URL:-mongodb://terrium:terrium_secret@mongodb:27017/terrium_favorites?authSource=admin}
       PORT: 4000
       NODE_ENV: ${NODE_ENV:-development}
     depends_on:
-      - users
-      - listings
-      - valuations
-      - analytics
-      - notifications
-      - mongodb
+      users:
+        condition: service_healthy
+      listings:
+        condition: service_healthy
+      valuations:
+        condition: service_healthy
+      analytics:
+        condition: service_healthy
+      notifications:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
     ports:
-      - "4000:4000"
+      - "${GATEWAY_PORT:-4000}:4000"
     networks:
       - terrium-net
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(\"http://localhost:4000/health\").then(r=>process.exit(r.status < 400 ? 0 : 1)).catch(()=>process.exit(1))'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
-  # ─── FRONTEND ─────────────────────────────────────────────────────────────────
+  # Frontend
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: ghcr.io/taio-tech04/terrium-frontend:latest
+    image: ghcr.io/taio-tech04/terrium-frontend:${TERRIUM_IMAGE_TAG:-latest}
     container_name: terrium-frontend
     restart: unless-stopped
     depends_on:
-      - api-gateway
+      api-gateway:
+        condition: service_healthy
     ports:
-      - "80:80"
+      - "${FRONTEND_PORT:-80}:80"
     networks:
       - terrium-net
 
-  # ─── HERRAMIENTAS DE ADMIN ────────────────────────────────────────────────────
+  # Herramientas de administracion
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:8.14
     container_name: terrium-pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@terrium.ar
-      PGADMIN_DEFAULT_PASSWORD: admin_secret
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@terrium.ar}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin_secret}
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT:-5050}:80"
     networks:
       - terrium-net
     profiles:
       - tools
-

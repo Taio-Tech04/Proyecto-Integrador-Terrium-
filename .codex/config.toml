@@ -1,0 +1,10 @@
+[mcp_servers.supabase]
+command = "npx"
+args = [
+    "-y",
+    "@supabase/mcp-server-supabase@latest",
+    "--supabase-url",
+    "https://tvinjfhjsqoiptduozaa.supabase.co",
+    "--supabase-service-role-key",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2aW5qZmhqc3FvaXB0ZHVvemFhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzY1NzEyMiwiZXhwIjoyMDkzMjMzMTIyfQ.krWAfHUsPL94MnC7sMJblbIVrxfgNDLYERBYoT2wm5I",
+]
