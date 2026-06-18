@@ -16,6 +16,8 @@ services:
     image: postgres:16-alpine
     container_name: terrium-postgres
     restart: unless-stopped
+    profiles:
+      - local
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-terrium}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-terrium_secret}
@@ -111,6 +113,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
     ports:
@@ -140,6 +143,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
       redis:
@@ -171,6 +175,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
     ports:
@@ -200,6 +205,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
       redis:
@@ -235,6 +241,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
     ports:
