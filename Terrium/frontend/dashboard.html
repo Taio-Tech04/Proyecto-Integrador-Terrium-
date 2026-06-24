@@ -39,6 +39,13 @@
     .page-header h2 { color: var(--navy); margin-bottom: 4px; }
     .page-header-meta { font-size: 0.82rem; color: var(--gray-400); }
 
+    /* Badge de origen de los datos */
+    .ds-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle; }
+    .ds-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .ds-badge.ds-official  { background: rgba(40,167,69,0.12);  color: #1e7e34; }
+    .ds-badge.ds-secondary { background: rgba(253,126,20,0.12); color: #c45e02; }
+    .ds-badge.ds-reference { background: rgba(220,53,69,0.12);  color: #c82333; }
+
     /* Stats */
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 24px; }
 
@@ -106,7 +113,7 @@
       <div class="page-header">
         <div>
           <h2>Dashboard del Mercado</h2>
-          <p class="page-header-meta">Datos actualizados de CABA · <span id="last-update">Cargando...</span></p>
+          <p class="page-header-meta">Datos actualizados de CABA · <span id="last-update">Cargando...</span> <span id="data-source-badge" class="ds-badge" style="display:none;" title=""></span></p>
         </div>
         <select id="months-filter" class="form-control" style="width:auto;" aria-label="Filtrar por período de tiempo">
           <option value="3">Últimos 3 meses</option>

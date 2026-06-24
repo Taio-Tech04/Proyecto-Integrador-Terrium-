@@ -17,6 +17,25 @@ const NEIGHBORHOOD_COLORS = [
 
 let trendsChart, scoreChart;
 
+// Mapeo de origen de datos → presentación del badge
+const DATA_SOURCE_BADGE = {
+  caba_api:  { cls: 'ds-official',  label: 'Datos oficiales · GCBA', title: 'Datos provenientes de la API oficial del Gobierno de la Ciudad de Buenos Aires.' },
+  scraper:   { cls: 'ds-secondary', label: 'Fuente secundaria',       title: 'Datos obtenidos por scraping del portal público de estadísticas (fuente secundaria).' },
+  reference: { cls: 'ds-reference', label: 'Datos de referencia',      title: 'Valores estimados de referencia, NO datos reales de mercado.' },
+  fallback:  { cls: 'ds-reference', label: 'Datos de referencia',      title: 'Datos sintéticos generados porque las fuentes oficiales no estuvieron disponibles. NO son datos reales de mercado.' }
+};
+
+function renderDataSourceBadge(source) {
+  const badge = document.getElementById('data-source-badge');
+  if (!badge) return;
+  const cfg = DATA_SOURCE_BADGE[source];
+  if (!cfg) { badge.style.display = 'none'; return; }
+  badge.className = `ds-badge ${cfg.cls}`;
+  badge.textContent = cfg.label;
+  badge.title = cfg.title;
+  badge.style.display = 'inline-flex';
+}
+
 // ── Cargar Overview ──────────────────────────────────────────────────────────
 async function loadOverview() {
   try {
@@ -26,6 +45,7 @@ async function loadOverview() {
     document.getElementById('neighborhoods').textContent   = data.neighborhoodsCount || '—';
     const bestYield = data.topNeighborhoods?.[0]?.['yield_pct'];
     document.getElementById('best-yield').textContent     = fmtPct(bestYield);
+    renderDataSourceBadge(data.dataSource);
   } catch (err) {
     console.warn('Overview no disponible:', err.message);
   }

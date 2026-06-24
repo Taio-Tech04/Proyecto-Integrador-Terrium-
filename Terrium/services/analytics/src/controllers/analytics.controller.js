@@ -84,10 +84,23 @@ const getMarketOverview = async (req, res) => {
     const { rows: topNeighborhoods } = await query(
       'SELECT neighborhood, score, yield_pct, trend FROM investment_scores ORDER BY score DESC LIMIT 5'
     );
+
+    // Origen de los datos del mes en curso. Si hay varios, mostramos el menos
+    // confiable (prioridad fallback > reference > scraper > caba_api) para no
+    // dar una impresión de mayor fiabilidad de la real.
+    const { rows: sourceRows } = await query(`
+      SELECT DISTINCT data_source FROM market_metrics
+      WHERE year = EXTRACT(YEAR FROM NOW()) AND month = EXTRACT(MONTH FROM NOW())
+    `);
+    const present = sourceRows.map((r) => r.data_source);
+    const priority = ['fallback', 'reference', 'scraper', 'caba_api'];
+    const dataSource = priority.find((p) => present.includes(p)) || present[0] || 'unknown';
+
     res.json({
       avgPriceUsdM2: metrics[0]?.avg_price_usd_m2 || 0,
       totalListings: metrics[0]?.total_listings || 0,
       neighborhoodsCount: metrics[0]?.neighborhoods_count || 0,
+      dataSource,
       topNeighborhoods
     });
   } catch (err) {
