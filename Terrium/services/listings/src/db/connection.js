@@ -60,6 +60,7 @@ const runMigrations = async () => {
   await pool.query(`ALTER TABLE listings ALTER COLUMN title DROP NOT NULL`).catch(() => {});
   await pool.query(`ALTER TABLE listings DROP CONSTRAINT IF EXISTS listings_type_check`).catch(() => {});
   await pool.query(`ALTER TABLE listings ADD COLUMN IF NOT EXISTS address VARCHAR(200)`).catch(() => {});
+  await pool.query(`ALTER TABLE listings ADD COLUMN IF NOT EXISTS bathrooms INT DEFAULT 0`).catch(() => {});
 
   // Migrar datos existentes con tipos de propiedad (DEPARTAMENTO/CASA...) a tipo de operación VENTA
   await pool.query(`

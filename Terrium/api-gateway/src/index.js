@@ -66,6 +66,15 @@ async function bootstrap() {
   }));
   app.get('/api-docs.json', (_req, res) => res.json(swaggerSpec));
 
+  // Exige que el usuario autenticado tenga uno de los tiers indicados.
+  // Debe usarse después de authMiddleware (que setea req.user).
+  const requireTier = (...tiers) => (req, res, next) => {
+    if (!tiers.includes(req.user?.tier)) {
+      return res.status(403).json({ error: `Se requiere plan ${tiers.join(' o ')} para acceder a esta función` });
+    }
+    next();
+  };
+
   // Proxy REST
   const proxyOptions = (target) => ({
     target,
@@ -99,6 +108,10 @@ async function bootstrap() {
     createProxyMiddleware({ ...proxyOptions(config.LISTINGS_URL), pathRewrite: { '^/': '/' } }));
   app.use('/api/valuations', authMiddleware,
     createProxyMiddleware({ ...proxyOptions(config.VALUATIONS_URL), pathRewrite: { '^/': '/' } }));
+  // El mapa de calor es una función de plan PRO/ENTERPRISE (igual que el resolver GraphQL).
+  // Debe ir ANTES del proxy general de /api/analytics para imponer el gate también por REST.
+  app.use('/api/analytics/heatmap', authMiddleware, requireTier('PRO', 'ENTERPRISE'),
+    createProxyMiddleware({ ...proxyOptions(config.ANALYTICS_URL), pathRewrite: { '^/': '/heatmap' } }));
   app.use('/api/analytics', authMiddleware,
     createProxyMiddleware({ ...proxyOptions(config.ANALYTICS_URL), pathRewrite: { '^/': '/' } }));
   app.use('/api/notifications', authMiddleware,

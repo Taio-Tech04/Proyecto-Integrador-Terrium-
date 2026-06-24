@@ -90,9 +90,9 @@ const create = async (req, res) => {
 
     const ownerId = req.headers['x-user-id'] || null;
     const { rows } = await query(
-      `INSERT INTO listings (title, description, price_usd, price_ars, surface_m2, rooms, type, neighborhood, address, lat, lng, owner_id)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
-      [title, value.description, priceUsd, priceArs, surfaceM2, value.rooms || 0, propType, value.neighborhood, address, value.lat, value.lng, ownerId]
+      `INSERT INTO listings (title, description, price_usd, price_ars, surface_m2, rooms, bathrooms, type, neighborhood, address, lat, lng, owner_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+      [title, value.description, priceUsd, priceArs, surfaceM2, value.rooms || 0, value.bathrooms || 0, propType, value.neighborhood, address, value.lat, value.lng, ownerId]
     );
     await publish('listings', 'listing.created', rows[0]);
     res.status(201).json(rows[0]);
