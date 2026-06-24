@@ -154,7 +154,9 @@ async function loadRanking() {
   const tbody   = document.getElementById('ranking-body');
 
   try {
-    const rows = await apiFetch('/api/analytics/ranking');
+    // El endpoint devuelve { data: [...], total, page, limit }; soportamos también un array plano.
+    const res  = await apiFetch('/api/analytics/ranking');
+    const rows = Array.isArray(res) ? res : (res?.data || []);
 
     // Score bar chart
     const scoreCanvas = document.getElementById('scoreChart');
