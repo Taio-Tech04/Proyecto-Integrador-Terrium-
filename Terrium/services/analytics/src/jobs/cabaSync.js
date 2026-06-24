@@ -51,15 +51,16 @@ function processRecords(records) {
   }));
 }
 
-async function upsertMetrics(metrics) {
+// source: 'caba_api' (oficial) | 'scraper' (secundaria) | 'fallback' (sintética)
+async function upsertMetrics(metrics, source) {
   let count = 0;
   for (const m of metrics) {
     await query(
-      `INSERT INTO market_metrics (neighborhood, avg_price_usd_m2, total_listings, month, year)
-       VALUES ($1,$2,$3,$4,$5)
+      `INSERT INTO market_metrics (neighborhood, avg_price_usd_m2, total_listings, month, year, data_source)
+       VALUES ($1,$2,$3,$4,$5,$6)
        ON CONFLICT (neighborhood, month, year)
-       DO UPDATE SET avg_price_usd_m2=$2, total_listings=$3, updated_at=NOW()`,
-      [m.neighborhood, m.avg_price_usd_m2, m.total_listings, m.month, m.year]
+       DO UPDATE SET avg_price_usd_m2=$2, total_listings=$3, data_source=$6, updated_at=NOW()`,
+      [m.neighborhood, m.avg_price_usd_m2, m.total_listings, m.month, m.year, source]
     ).catch((e) => logger.warn(`Upsert ${m.neighborhood}: ${e.message}`));
     count++;
   }
@@ -69,6 +70,7 @@ async function upsertMetrics(metrics) {
 async function syncCABAData() {
   logger.info('Sync CABA iniciado...');
   let metrics;
+  let source = 'caba_api';
   try {
     const records = await fetchFromCABAAPI();
     metrics = processRecords(records);
@@ -79,6 +81,7 @@ async function syncCABAData() {
     // Fuente secundaria: web scraping del portal público de estadísticas de CABA
     const scraped = await tryScrapeSupplement();
     if (scraped && scraped.length > 0) {
+      source = 'scraper';
       const now = new Date();
       metrics = scraped.map(r => ({
         neighborhood: normalizeNeighborhood(r.neighborhood) || r.neighborhood,
@@ -89,12 +92,13 @@ async function syncCABAData() {
       })).filter(r => r.neighborhood);
       logger.info(`Scraper: ${metrics.length} barrios obtenidos como fuente secundaria`);
     } else {
-      logger.warn('Scraper también falló — usando datos de referencia como último recurso');
+      source = 'fallback';
+      logger.warn('⚠️  Scraper también falló — generando DATOS SINTÉTICOS de referencia (data_source=fallback). NO son datos reales de mercado.');
       metrics = generateFallbackData();
     }
   }
-  const n = await upsertMetrics(metrics);
-  logger.info(`${n} métricas actualizadas en DB`);
+  const n = await upsertMetrics(metrics, source);
+  logger.info(`${n} métricas actualizadas en DB (origen: ${source})`);
 }
 
 function startSyncJob() {

@@ -14,6 +14,19 @@ const { configureGoogleOAuth } = require('./config/googleOAuth');
 const app = express();
 const PORT = process.env.PORT || 3005;
 
+// El servicio de usuarios firma los JWT, así que exige un secreto válido en producción.
+// En dev/test se permite arrancar sin él para no bloquear el desarrollo local.
+function assertJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  const isProd = (process.env.NODE_ENV || 'development') === 'production';
+  if (isProd && (!secret || secret === 'change_me_in_production' || secret.length < 32)) {
+    throw new Error(
+      'JWT_SECRET no está configurado o es demasiado corto (mín. 32 caracteres) — requerido en producción.'
+    );
+  }
+}
+assertJwtSecret();
+
 // Inicializar estrategia Google OAuth (solo si las credenciales están configuradas)
 configureGoogleOAuth();
 

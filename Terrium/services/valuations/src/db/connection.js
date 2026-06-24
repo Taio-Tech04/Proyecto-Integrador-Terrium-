@@ -11,14 +11,20 @@ const pool = new Pool({
   max: 10,
 });
 
+const INITIAL_RETRY_MS = 5000;
+const MAX_RETRY_MS = 60000;
+let retryDelayMs = INITIAL_RETRY_MS;
+
 const connectDB = async () => {
   try {
     await pool.query('SELECT 1');
     logger.info('✅ Conectado a PostgreSQL (valuations)');
+    retryDelayMs = INITIAL_RETRY_MS; // reset backoff tras conexión exitosa
     await runMigrations();
   } catch (err) {
-    logger.warn(`Reintentando conexión a PostgreSQL (valuations)... [${err.code}] ${err.message}`);
-    setTimeout(connectDB, 5000);
+    logger.warn(`Reintentando conexión a PostgreSQL (valuations)... [${err.code}] ${err.message} — en ${retryDelayMs / 1000}s`);
+    setTimeout(connectDB, retryDelayMs);
+    retryDelayMs = Math.min(retryDelayMs * 2, MAX_RETRY_MS); // backoff exponencial con tope
   }
 };
 

@@ -11,10 +11,15 @@ const pool = new Pool({
   max: 10,
 });
 
+const INITIAL_RETRY_MS = 5000;
+const MAX_RETRY_MS = 60000;
+let retryDelayMs = INITIAL_RETRY_MS;
+
 const connectDB = async () => {
   try {
     await pool.query('SELECT 1');
     logger.info('✅ Conectado a PostgreSQL (notifications)');
+    retryDelayMs = INITIAL_RETRY_MS; // reset backoff tras conexión exitosa
     await pool.query(`
       CREATE TABLE IF NOT EXISTS notifications (
         id SERIAL PRIMARY KEY,
@@ -28,8 +33,9 @@ const connectDB = async () => {
       );
     `);
   } catch (err) {
-    logger.warn('Reintentando conexión (notifications)...');
-    setTimeout(connectDB, 5000);
+    logger.warn(`Reintentando conexión (notifications) en ${retryDelayMs / 1000}s...`);
+    setTimeout(connectDB, retryDelayMs);
+    retryDelayMs = Math.min(retryDelayMs * 2, MAX_RETRY_MS); // backoff exponencial con tope
   }
 };
 module.exports = { pool, connectDB, query: (text, params) => pool.query(text, params) };

@@ -11,14 +11,20 @@ const pool = new Pool({
   max: 10,
 });
 
+const INITIAL_RETRY_MS = 5000;
+const MAX_RETRY_MS = 60000;
+let retryDelayMs = INITIAL_RETRY_MS;
+
 const connectDB = async () => {
   try {
     await pool.query('SELECT 1');
     logger.info('✅ Conectado a PostgreSQL (analytics)');
+    retryDelayMs = INITIAL_RETRY_MS; // reset backoff tras conexión exitosa
     await runMigrations();
   } catch (err) {
-    logger.warn('Reintentando conexión PostgreSQL (analytics)...');
-    setTimeout(connectDB, 5000);
+    logger.warn(`Reintentando conexión PostgreSQL (analytics) en ${retryDelayMs / 1000}s...`);
+    setTimeout(connectDB, retryDelayMs);
+    retryDelayMs = Math.min(retryDelayMs * 2, MAX_RETRY_MS); // backoff exponencial con tope
   }
 };
 
@@ -33,9 +39,13 @@ const runMigrations = async () => {
       median_days_listed DECIMAL(8,2) DEFAULT 0,
       month INT NOT NULL,
       year INT NOT NULL,
+      data_source VARCHAR(20) DEFAULT 'reference',
       updated_at TIMESTAMPTZ DEFAULT NOW(),
       UNIQUE(neighborhood, month, year)
     );
+
+    -- Idempotente: agrega la columna a tablas ya existentes para marcar el origen del dato
+    ALTER TABLE market_metrics ADD COLUMN IF NOT EXISTS data_source VARCHAR(20) DEFAULT 'reference';
 
     CREATE TABLE IF NOT EXISTS investment_scores (
       id SERIAL PRIMARY KEY,
