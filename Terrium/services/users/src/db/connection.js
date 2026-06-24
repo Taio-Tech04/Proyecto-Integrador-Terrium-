@@ -30,36 +30,23 @@ const connectDB = async () => {
 };
 
 const runMigrations = async () => {
-  await pool.query(`
-    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+  // El servicio usa el esquema canónico (español): usuario / suscripcion / plan_suscripcion,
+  // que ya existen en la base. No creamos las tablas inglesas (users/subscriptions).
+  // Única migración no destructiva: columna google_id en `usuario` para OAuth.
+  await pool.query(`ALTER TABLE usuario ADD COLUMN IF NOT EXISTS google_id VARCHAR(100)`).catch((e) => {
+    logger.warn(`No se pudo asegurar usuario.google_id: ${e.message}`);
+  });
 
-    CREATE TABLE IF NOT EXISTS users (
-      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-      name VARCHAR(100) NOT NULL,
-      email VARCHAR(150) UNIQUE NOT NULL,
-      password_hash VARCHAR(255),
-      google_id VARCHAR(100),
-      tier VARCHAR(20) DEFAULT 'FREE' CHECK (tier IN ('FREE','BASIC','PRO','ENTERPRISE')),
-      is_active BOOLEAN DEFAULT TRUE,
-      created_at TIMESTAMPTZ DEFAULT NOW(),
-      updated_at TIMESTAMPTZ DEFAULT NOW()
-    );
-
-    -- Agregar google_id a tablas existentes (idempotente)
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(100);
-
-    CREATE TABLE IF NOT EXISTS subscriptions (
-      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      plan VARCHAR(20) NOT NULL CHECK (plan IN ('FREE','BASIC','PRO','ENTERPRISE')),
-      price_ars DECIMAL(10,2),
-      started_at TIMESTAMPTZ DEFAULT NOW(),
-      expires_at TIMESTAMPTZ,
-      status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','CANCELLED','EXPIRED','PENDING')),
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    );
-  `);
-  logger.info('✅ Migraciones de users ejecutadas');
+  // Sanity check: confirmar que las tablas esperadas existen
+  const { rows } = await pool.query(
+    `SELECT count(*)::int AS n FROM information_schema.tables
+     WHERE table_schema = 'public' AND table_name IN ('usuario','suscripcion','plan_suscripcion')`
+  );
+  if (rows[0].n < 3) {
+    logger.warn(`Esquema español incompleto: solo ${rows[0].n}/3 tablas (usuario/suscripcion/plan_suscripcion)`);
+  } else {
+    logger.info('✅ Esquema español verificado (usuario/suscripcion/plan_suscripcion)');
+  }
 };
 
 module.exports = { pool, connectDB, query: (text, params) => pool.query(text, params) };
