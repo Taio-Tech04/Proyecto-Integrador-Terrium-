@@ -82,6 +82,12 @@ async function bootstrap() {
   // Rutas públicas
   app.get('/api/subscriptions/plans',
     createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/api/subscriptions': '/subscriptions' } }));
+  // /api/auth/me necesita token verificado: el authMiddleware inyecta x-user-id,
+  // que es el header que el servicio de users usa para resolver el perfil.
+  // Debe registrarse ANTES del proxy público de /api/auth para tener prioridad.
+  app.use('/api/auth/me', authMiddleware,
+    createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/auth/me' } }));
+  // Resto de /api/auth (register, login, google/*) es público
   app.use('/api/auth',
     createProxyMiddleware({ ...proxyOptions(config.USERS_URL), pathRewrite: { '^/': '/auth/' } }));
 

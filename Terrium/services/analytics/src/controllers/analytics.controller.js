@@ -73,24 +73,26 @@ const getNeighborhoodRanking = async (req, res) => {
 
 const getMarketOverview = async (req, res) => {
   try {
+    // Usamos el ÚLTIMO mes disponible (no el mes calendario actual): la data de
+    // mercado suele venir con rezago, así no mostramos ceros cuando falta el mes en curso.
+    const latestPeriod = '(year * 12 + month) = (SELECT MAX(year * 12 + month) FROM market_metrics)';
     const { rows: metrics } = await query(`
       SELECT
         AVG(avg_price_usd_m2)::int AS avg_price_usd_m2,
         SUM(total_listings) AS total_listings,
         COUNT(DISTINCT neighborhood) AS neighborhoods_count
       FROM market_metrics
-      WHERE year = EXTRACT(YEAR FROM NOW()) AND month = EXTRACT(MONTH FROM NOW())
+      WHERE ${latestPeriod}
     `);
     const { rows: topNeighborhoods } = await query(
       'SELECT neighborhood, score, yield_pct, trend FROM investment_scores ORDER BY score DESC LIMIT 5'
     );
 
-    // Origen de los datos del mes en curso. Si hay varios, mostramos el menos
+    // Origen de los datos del último mes. Si hay varios, mostramos el menos
     // confiable (prioridad fallback > reference > scraper > caba_api) para no
     // dar una impresión de mayor fiabilidad de la real.
     const { rows: sourceRows } = await query(`
-      SELECT DISTINCT data_source FROM market_metrics
-      WHERE year = EXTRACT(YEAR FROM NOW()) AND month = EXTRACT(MONTH FROM NOW())
+      SELECT DISTINCT data_source FROM market_metrics WHERE ${latestPeriod}
     `);
     const present = sourceRows.map((r) => r.data_source);
     const priority = ['fallback', 'reference', 'scraper', 'caba_api'];

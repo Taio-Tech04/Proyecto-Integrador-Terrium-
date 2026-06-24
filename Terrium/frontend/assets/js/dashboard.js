@@ -15,6 +15,29 @@ const NEIGHBORHOOD_COLORS = [
   '#6f42c1','#20c997','#dc3545','#17a2b8','#ff6384','#36a2eb','#ffce56'
 ];
 
+// ── Normalizadores (la data puede venir de Supabase o del seed local) ──────────
+// Tendencia: acepta inglés (UP/STABLE/DOWN) y español (ALZA/ESTABLE/BAJA)
+const TREND_MAP = { UP: 'ALZA', STABLE: 'ESTABLE', DOWN: 'BAJA', ALZA: 'ALZA', ESTABLE: 'ESTABLE', BAJA: 'BAJA' };
+const normalizeTrend = (t) => TREND_MAP[String(t || '').toUpperCase()] || 'ESTABLE';
+
+// Score: el seed usa escala 0-10; Supabase usa 0-100. Normalizamos a 0-10.
+const normalizeScore = (raw) => {
+  const n = parseFloat(raw) || 0;
+  return n > 10 ? n / 10 : n;
+};
+
+// Recomendación: si la fila no la trae (Supabase no tiene la columna), la generamos.
+const buildRecommendation = (row) => {
+  if (row.recommendation) return row.recommendation;
+  if (row.details) return row.details;
+  const s = normalizeScore(row.score);
+  const t = normalizeTrend(row.trend);
+  if (s >= 8.5 && t === 'ALZA') return 'Excelente oportunidad: alta demanda y fuerte potencial de valorización.';
+  if (s >= 7.5) return 'Buena zona para invertir, con perspectivas positivas.';
+  if (s >= 6.5) return 'Zona en desarrollo, a considerar a mediano plazo.';
+  return 'Mercado maduro: mayor estabilidad, menor potencial de valorización.';
+};
+
 let trendsChart, scoreChart;
 
 // Mapeo de origen de datos → presentación del badge
@@ -143,15 +166,9 @@ async function loadRanking() {
         labels: rows.slice(0, 8).map((r) => r.neighborhood),
         datasets: [{
           label: 'Score',
-          data: rows.slice(0, 8).map((r) => parseFloat(r.score)),
-          backgroundColor: rows.slice(0, 8).map((r) => {
-            const t = r.trend || 'ESTABLE';
-            return TREND_COLORS[t]?.bg || 'rgba(212,175,55,0.4)';
-          }),
-          borderColor: rows.slice(0, 8).map((r) => {
-            const t = r.trend || 'ESTABLE';
-            return TREND_COLORS[t]?.border || '#D4AF37';
-          }),
+          data: rows.slice(0, 8).map((r) => normalizeScore(r.score)),
+          backgroundColor: rows.slice(0, 8).map((r) => TREND_COLORS[normalizeTrend(r.trend)].bg),
+          borderColor: rows.slice(0, 8).map((r) => TREND_COLORS[normalizeTrend(r.trend)].border),
           borderWidth: 2,
           borderRadius: 6
         }]
@@ -169,22 +186,25 @@ async function loadRanking() {
     });
     } // fin if (scoreCanvas)
 
+    const TREND_LABEL = { ALZA: 'ALZA', ESTABLE: 'ESTABLE', BAJA: 'BAJA' };
     tbody.innerHTML = rows.map((r, i) => {
-      const trendClass = r.trend === 'ALZA' ? 'trend-up' : r.trend === 'BAJA' ? 'trend-down' : 'trend-stable';
-      const trendIcon  = r.trend === 'ALZA' ? '↑' : r.trend === 'BAJA' ? '↓' : '→';
-      const scorePct   = Math.round((parseFloat(r.score) / 10) * 100);
+      const trend      = normalizeTrend(r.trend);
+      const score      = normalizeScore(r.score);
+      const trendClass = trend === 'ALZA' ? 'trend-up' : trend === 'BAJA' ? 'trend-down' : 'trend-stable';
+      const trendIcon  = trend === 'ALZA' ? '↑' : trend === 'BAJA' ? '↓' : '→';
+      const scorePct   = Math.round((score / 10) * 100);
       return `<tr>
         <td><strong>#${i+1}</strong></td>
         <td><strong>${r.neighborhood}</strong></td>
         <td>
           <div class="score-cell">
-            <span class="score-value">${parseFloat(r.score).toFixed(1)}</span>
+            <span class="score-value">${score.toFixed(1)}</span>
             <div class="score-bar"><div class="score-bar-fill" data-pct="${scorePct}"></div></div>
           </div>
         </td>
         <td>${fmtPct(r.yield_pct)}</td>
-        <td><span class="${trendClass}">${trendIcon} ${r.trend}</span></td>
-        <td class="recommendation-cell">${r.recommendation || '—'}</td>
+        <td><span class="${trendClass}">${trendIcon} ${TREND_LABEL[trend]}</span></td>
+        <td class="recommendation-cell">${buildRecommendation(r)}</td>
       </tr>`;
     }).join('');
 
