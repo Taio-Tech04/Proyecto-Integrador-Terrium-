@@ -20,18 +20,17 @@ const connectDB = async () => {
     await pool.query('SELECT 1');
     logger.info('✅ Conectado a PostgreSQL (notifications)');
     retryDelayMs = INITIAL_RETRY_MS; // reset backoff tras conexión exitosa
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS notifications (
-        id SERIAL PRIMARY KEY,
-        user_id VARCHAR(100),
-        type VARCHAR(50) NOT NULL,
-        subject VARCHAR(200),
-        body TEXT,
-        status VARCHAR(20) DEFAULT 'PENDIENTE',
-        sent_at TIMESTAMPTZ,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-    `);
+    // El servicio usa el esquema canónico `notificacion` (FK a `usuario`), que ya
+    // existe. No creamos la tabla inglesa duplicada (notifications).
+    const { rows } = await pool.query(
+      `SELECT count(*)::int AS n FROM information_schema.tables
+       WHERE table_schema = 'public' AND table_name IN ('notificacion','usuario')`
+    );
+    if (rows[0].n < 2) {
+      logger.warn(`Esquema español incompleto: solo ${rows[0].n}/2 tablas (notificacion/usuario)`);
+    } else {
+      logger.info('✅ Esquema español verificado (notificacion/usuario)');
+    }
   } catch (err) {
     logger.warn(`Reintentando conexión (notifications) en ${retryDelayMs / 1000}s...`);
     setTimeout(connectDB, retryDelayMs);

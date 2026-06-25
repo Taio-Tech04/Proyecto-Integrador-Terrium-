@@ -5,6 +5,8 @@ const path = require('path');
 const { query } = require('../db/connection');
 const logger = require('../utils/logger');
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.mailtrap.io',
   port: parseInt(process.env.SMTP_PORT) || 2525,
@@ -25,9 +27,11 @@ const sendEmail = async (to, subject, templateName, context) => {
       to, subject, html
     });
 
+    // user_id es FK uuid a usuario: si el evento no trae un UUID válido, persistimos null
+    const userId = UUID_RE.test(context.userId || '') ? context.userId : null;
     await query(
-      `INSERT INTO notifications (user_id, type, subject, body, status, sent_at) VALUES ($1, $2, $3, $4, 'ENVIADO', NOW())`,
-      [context.userId || null, templateName, subject, html]
+      `INSERT INTO notificacion (user_id, type, subject, body, status, sent_at) VALUES ($1, $2, $3, $4, 'ENVIADO', NOW())`,
+      [userId, templateName, subject, html]
     );
     logger.info(`📧 Email enviado a ${to}: ${subject}`);
   } catch (err) {
