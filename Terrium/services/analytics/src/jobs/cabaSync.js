@@ -52,15 +52,22 @@ function processRecords(records) {
 }
 
 // source: 'caba_api' (oficial) | 'scraper' (secundaria) | 'fallback' (sintética)
+// Escribe en el esquema canónico `datos_mercado` (FK a `zona`, period_month como fecha).
+// Los barrios sin zona registrada se omiten (no hay FK destino).
 async function upsertMetrics(metrics, source) {
   let count = 0;
   for (const m of metrics) {
+    const { rows } = await query('SELECT zone_id FROM zona WHERE name ILIKE $1 LIMIT 1', [m.neighborhood]);
+    if (!rows.length) {
+      logger.warn(`Sin zona para "${m.neighborhood}" — métrica omitida`);
+      continue;
+    }
     await query(
-      `INSERT INTO market_metrics (neighborhood, avg_price_usd_m2, total_listings, month, year, data_source)
-       VALUES ($1,$2,$3,$4,$5,$6)
-       ON CONFLICT (neighborhood, month, year)
-       DO UPDATE SET avg_price_usd_m2=$2, total_listings=$3, data_source=$6, updated_at=NOW()`,
-      [m.neighborhood, m.avg_price_usd_m2, m.total_listings, m.month, m.year, source]
+      `INSERT INTO datos_mercado (zone_id, period_month, avg_price_m2, total_listings, data_source)
+       VALUES ($1, make_date($2,$3,1), $4, $5, $6)
+       ON CONFLICT (zone_id, period_month)
+       DO UPDATE SET avg_price_m2=$4, total_listings=$5, data_source=$6`,
+      [rows[0].zone_id, m.year, m.month, m.avg_price_usd_m2, m.total_listings, source]
     ).catch((e) => logger.warn(`Upsert ${m.neighborhood}: ${e.message}`));
     count++;
   }
@@ -112,7 +119,7 @@ function startSyncJob() {
   }
   setTimeout(async () => {
     try {
-      const { rows } = await query('SELECT COUNT(*) FROM market_metrics');
+      const { rows } = await query('SELECT COUNT(*) FROM datos_mercado');
       if (parseInt(rows[0].count) === 0) await syncCABAData();
     } catch (_) {}
   }, 8000);

@@ -39,8 +39,10 @@ async function broadcastHeatmap() {
   try {
     if (io.engine.clientsCount === 0) return;
     const { rows } = await query(
-      `SELECT DISTINCT ON (neighborhood) neighborhood, avg_price_usd_m2
-       FROM market_metrics ORDER BY neighborhood, year DESC, month DESC`
+      `SELECT DISTINCT ON (z.name) z.name AS neighborhood, dm.avg_price_m2 AS avg_price_usd_m2
+         FROM datos_mercado dm
+         JOIN zona z ON z.zone_id = dm.zone_id
+        ORDER BY z.name, dm.period_month DESC`
     );
     const points = [];
     rows.forEach((r) => {

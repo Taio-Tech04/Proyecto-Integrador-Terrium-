@@ -2,14 +2,25 @@ const { query } = require('../db/connection');
 const logger = require('../utils/logger');
 const { CABA_COORDS, NEIGHBORHOOD_MAP } = require('../utils/constants');
 
+// El servicio usa el esquema canónico: `datos_mercado` (+ `zona`) para precios de
+// mercado y `score_inversion` (+ `zona`) para scores. Estas queries leen las tablas
+// español pero exponen el shape legacy que ya consumen el frontend y los resolvers
+// (neighborhood, avg_price_usd_m2, score, yield_pct, trend, ...), para no propagar el
+// cambio de esquema fuera del servicio.
+
 const getMarketTrends = async (req, res) => {
   try {
     const months = parseInt(req.query.months) || 6;
     const { rows } = await query(
-      `SELECT neighborhood, avg_price_usd_m2, total_listings, month, year
-       FROM market_metrics
-       WHERE (year * 12 + month) >= (EXTRACT(YEAR FROM NOW())::int * 12 + EXTRACT(MONTH FROM NOW())::int - $1)
-       ORDER BY neighborhood, year ASC, month ASC`,
+      `SELECT z.name AS neighborhood,
+              dm.avg_price_m2 AS avg_price_usd_m2,
+              dm.total_listings,
+              EXTRACT(MONTH FROM dm.period_month)::int AS month,
+              EXTRACT(YEAR  FROM dm.period_month)::int AS year
+         FROM datos_mercado dm
+         JOIN zona z ON z.zone_id = dm.zone_id
+        WHERE dm.period_month >= (date_trunc('month', NOW()) - make_interval(months => $1))
+        ORDER BY z.name, dm.period_month ASC`,
       [months]
     );
     res.json(rows);
@@ -22,8 +33,10 @@ const getMarketTrends = async (req, res) => {
 const getHeatmap = async (req, res) => {
   try {
     const { rows } = await query(
-      `SELECT DISTINCT ON (neighborhood) neighborhood, avg_price_usd_m2
-       FROM market_metrics ORDER BY neighborhood, year DESC, month DESC`
+      `SELECT DISTINCT ON (z.name) z.name AS neighborhood, dm.avg_price_m2 AS avg_price_usd_m2
+         FROM datos_mercado dm
+         JOIN zona z ON z.zone_id = dm.zone_id
+        ORDER BY z.name, dm.period_month DESC`
     );
     const expanded = [];
     rows.forEach((r) => {
@@ -43,9 +56,15 @@ const getHeatmap = async (req, res) => {
   }
 };
 
+// Score de inversión (con zona joineada) → shape legacy
+const SELECT_SCORE = `
+  SELECT z.name AS neighborhood, s.score, s.yield_pct, s.trend, s.details, s.updated_at
+    FROM score_inversion s
+    JOIN zona z ON z.zone_id = s.zone_id`;
+
 const getInvestmentScore = async (req, res) => {
   try {
-    const { rows } = await query('SELECT * FROM investment_scores WHERE neighborhood ILIKE $1', [`%${req.params.neighborhood}%`]);
+    const { rows } = await query(`${SELECT_SCORE} WHERE z.name ILIKE $1`, [`%${req.params.neighborhood}%`]);
     if (!rows.length) return res.status(404).json({ error: 'Barrio no encontrado' });
     res.json(rows[0]);
   } catch (err) {
@@ -60,10 +79,10 @@ const getNeighborhoodRanking = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const { rows } = await query(
-      'SELECT * FROM investment_scores ORDER BY score DESC LIMIT $1 OFFSET $2',
+      `${SELECT_SCORE} ORDER BY s.score DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
-    const { rows: countRows } = await query('SELECT COUNT(*) FROM investment_scores');
+    const { rows: countRows } = await query('SELECT COUNT(*) FROM score_inversion');
 
     res.json({ data: rows, total: parseInt(countRows[0].count), page, limit });
   } catch (err) {
@@ -73,26 +92,28 @@ const getNeighborhoodRanking = async (req, res) => {
 
 const getMarketOverview = async (req, res) => {
   try {
-    // Usamos el ÚLTIMO mes disponible (no el mes calendario actual): la data de
+    // Usamos el ÚLTIMO período disponible (no el mes calendario actual): la data de
     // mercado suele venir con rezago, así no mostramos ceros cuando falta el mes en curso.
-    const latestPeriod = '(year * 12 + month) = (SELECT MAX(year * 12 + month) FROM market_metrics)';
+    const latestPeriod = 'dm.period_month = (SELECT MAX(period_month) FROM datos_mercado)';
     const { rows: metrics } = await query(`
       SELECT
-        AVG(avg_price_usd_m2)::int AS avg_price_usd_m2,
-        SUM(total_listings) AS total_listings,
-        COUNT(DISTINCT neighborhood) AS neighborhoods_count
-      FROM market_metrics
+        AVG(dm.avg_price_m2)::int AS avg_price_usd_m2,
+        SUM(dm.total_listings) AS total_listings,
+        COUNT(DISTINCT dm.zone_id) AS neighborhoods_count
+      FROM datos_mercado dm
       WHERE ${latestPeriod}
     `);
     const { rows: topNeighborhoods } = await query(
-      'SELECT neighborhood, score, yield_pct, trend FROM investment_scores ORDER BY score DESC LIMIT 5'
+      `SELECT z.name AS neighborhood, s.score, s.yield_pct, s.trend
+         FROM score_inversion s JOIN zona z ON z.zone_id = s.zone_id
+        ORDER BY s.score DESC LIMIT 5`
     );
 
-    // Origen de los datos del último mes. Si hay varios, mostramos el menos
+    // Origen de los datos del último período. Si hay varios, mostramos el menos
     // confiable (prioridad fallback > reference > scraper > caba_api) para no
     // dar una impresión de mayor fiabilidad de la real.
     const { rows: sourceRows } = await query(`
-      SELECT DISTINCT data_source FROM market_metrics WHERE ${latestPeriod}
+      SELECT DISTINCT dm.data_source FROM datos_mercado dm WHERE ${latestPeriod}
     `);
     const present = sourceRows.map((r) => r.data_source);
     const priority = ['fallback', 'reference', 'scraper', 'caba_api'];
