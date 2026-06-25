@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía del Inversor Debutante — Dónde invertir en CABA a 10 años | Terrium</title>
+  <meta name="description" content="Guía para inversores debutantes: aprendé los fundamentos del ladrillo en CABA y descubrí en qué barrios y con qué estrategia conviene invertir en los próximos 10 años, con datos reales del mercado 2026.">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Terrium">
+  <meta property="og:title" content="Guía del Inversor Debutante — Dónde invertir en CABA a 10 años">
+  <meta property="og:description" content="Fundamentos del ladrillo + mapa a 10 años de los barrios de CABA con mejor potencial, basado en datos reales del mercado 2026.">
+  <meta property="og:image" content="assets/img/og-terrium.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    /* ── Mode switcher ── */
+    .mode-switcher { background: rgba(13,27,42,0.95); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 10px 5%; display: flex; justify-content: center; }
+    .mode-switcher-inner { display: inline-flex; background: rgba(0,0,0,0.25); border-radius: 50px; padding: 4px; gap: 2px; }
+    .mode-opt { padding: 7px 20px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.5); transition: var(--transition); letter-spacing: 0.5px; }
+    .mode-opt:hover { color: rgba(255,255,255,0.85); }
+    .mode-opt.active { background: var(--gold); color: var(--navy); }
+
+    /* ── Hero ── */
+    .guide-hero { background: linear-gradient(135deg, #0D1B2A 0%, #14263b 55%, #1a3a5c 100%); position: relative; overflow: hidden; padding: 72px 5% 64px; }
+    .guide-hero::before { content: ''; position: absolute; width: 620px; height: 620px; background: radial-gradient(circle, rgba(212,175,55,0.10) 0%, transparent 70%); top: -180px; right: -120px; border-radius: 50%; pointer-events: none; }
+    .guide-hero-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; text-align: center; }
+    .guide-hero .pill { display: inline-block; background: rgba(212,175,55,0.14); color: var(--gold-light); border: 1px solid rgba(212,175,55,0.3); font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 7px 16px; border-radius: 50px; margin-bottom: 22px; }
+    .guide-hero h1 { color: var(--white); margin-bottom: 18px; }
+    .guide-hero h1 span { color: var(--gold); }
+    .guide-hero p { color: rgba(255,255,255,0.74); font-size: 1.15rem; max-width: 680px; margin: 0 auto 30px; }
+    .guide-hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero-mini-stats { display: flex; gap: 36px; justify-content: center; flex-wrap: wrap; margin-top: 48px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .hero-mini-stats .hm-val { font-size: 1.7rem; font-weight: 800; color: var(--gold); }
+    .hero-mini-stats .hm-lbl { font-size: 0.74rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+    /* ── Disclaimer ── */
+    .disclaimer-bar { background: #fff8e1; border-bottom: 1px solid #f0e0a8; color: #7a5d00; padding: 12px 5%; font-size: 0.86rem; text-align: center; }
+    .disclaimer-bar strong { color: #5c4600; }
+
+    /* ── In-page nav (anchor chips) ── */
+    .toc { position: sticky; top: 64px; z-index: 90; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--gray-200); padding: 12px 5%; }
+    .toc-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: 8px; overflow-x: auto; }
+    .toc a { white-space: nowrap; font-size: 0.82rem; font-weight: 600; color: var(--gray-600); padding: 6px 14px; border-radius: 50px; border: 1px solid var(--gray-200); transition: var(--transition); }
+    .toc a:hover { color: var(--navy); border-color: var(--gold); background: rgba(212,175,55,0.08); }
+
+    /* ── Steps / ruta ── */
+    .route-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .route-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 26px; position: relative; transition: var(--transition); }
+    .route-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .route-num { width: 42px; height: 42px; background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.05rem; margin-bottom: 16px; }
+    .route-card h3 { color: var(--navy); font-size: 1.05rem; margin-bottom: 8px; }
+    .route-card p { font-size: 0.9rem; }
+
+    /* ── Concept cards ── */
+    .concept-card { background: var(--white); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); border-top: 3px solid var(--gold); transition: var(--transition); }
+    .concept-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .concept-card .c-icon { font-size: 1.6rem; margin-bottom: 12px; }
+    .concept-card h3 { color: var(--navy); font-size: 1rem; margin-bottom: 8px; }
+    .concept-card p { font-size: 0.88rem; }
+    .concept-card .c-formula { margin-top: 12px; background: var(--gray-50); border: 1px dashed var(--gray-200); border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; color: var(--navy); font-weight: 600; }
+
+    /* ── Tier cards (mapa a 10 años) ── */
+    .tier-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 22px; border: 1px solid var(--gray-200); }
+    .tier-head { padding: 22px 26px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .tier-card.t1 .tier-head { background: linear-gradient(135deg, var(--navy), var(--navy-light)); }
+    .tier-card.t2 .tier-head { background: linear-gradient(135deg, #1d4d3a, #2e7d52); }
+    .tier-card.t3 .tier-head { background: linear-gradient(135deg, #8a6d1e, var(--gold-dark)); }
+    .tier-card.t4 .tier-head { background: linear-gradient(135deg, #7a3b1e, #b5521e); }
+    .tier-head .tier-emoji { font-size: 1.8rem; }
+    .tier-head h3 { color: var(--white); font-size: 1.15rem; margin: 0; }
+    .tier-head .tier-sub { color: rgba(255,255,255,0.75); font-size: 0.82rem; margin-top: 2px; }
+    .tier-badge { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+    .tier-chip { background: rgba(255,255,255,0.16); color: var(--white); font-size: 0.72rem; font-weight: 700; padding: 4px 11px; border-radius: 50px; }
+    .tier-body { padding: 22px 26px; }
+    .tier-hoods { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .hood-pill { background: var(--gray-100); color: var(--navy); font-size: 0.82rem; font-weight: 600; padding: 5px 13px; border-radius: 8px; }
+    .tier-body p { font-size: 0.92rem; margin-bottom: 12px; }
+    .tier-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 6px; }
+    .tier-meta div { background: var(--gray-50); border-radius: 10px; padding: 12px 14px; }
+    .tier-meta .tm-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-400); font-weight: 700; }
+    .tier-meta .tm-val { font-size: 0.95rem; color: var(--navy); font-weight: 700; margin-top: 2px; }
+
+    /* ── Driver cards ── */
+    .driver-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-lg); padding: 26px; transition: var(--transition); }
+    .driver-card:hover { background: rgba(255,255,255,0.09); border-color: rgba(212,175,55,0.4); transform: translateY(-4px); }
+    .driver-card .d-icon { font-size: 1.7rem; margin-bottom: 14px; }
+    .driver-card h3 { color: var(--white); font-size: 1.05rem; margin-bottom: 8px; }
+    .driver-card p { color: rgba(255,255,255,0.65); font-size: 0.9rem; }
+    .driver-card .d-impact { margin-top: 12px; font-size: 0.8rem; color: var(--gold-light); font-weight: 700; }
+
+    /* ── Strategy table ── */
+    .strategy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px; }
+    .strategy-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 26px; transition: var(--transition); }
+    .strategy-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .strategy-card h3 { color: var(--navy); font-size: 1.05rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .strategy-card .s-tag { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 50px; display: inline-block; margin-bottom: 12px; }
+    .s-tag.risk-low { background: #e8f5e9; color: #2e7d32; }
+    .s-tag.risk-mid { background: #fff3cd; color: #856404; }
+    .s-tag.risk-high { background: #fdecea; color: #c62828; }
+    .strategy-card p { font-size: 0.88rem; margin-bottom: 12px; }
+    .strategy-card ul li { font-size: 0.85rem; color: var(--gray-600); padding: 3px 0 3px 18px; position: relative; }
+    .strategy-card ul li::before { content: '✓'; position: absolute; left: 0; color: var(--gold-dark); font-weight: 700; }
+
+    /* ── Mistakes / checklist ── */
+    .mistake-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .mistake-item { background: var(--white); border-left: 4px solid var(--red); border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow); }
+    .mistake-item h4 { color: var(--navy); font-size: 0.95rem; margin-bottom: 4px; }
+    .mistake-item p { font-size: 0.85rem; }
+    .checklist { max-width: 760px; margin: 0 auto; background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 12px 8px; }
+    .check-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--gray-100); }
+    .check-row:last-child { border-bottom: none; }
+    .check-row .ck-box { width: 22px; height: 22px; border: 2px solid var(--gold); border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--gold-dark); font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: var(--transition); user-select: none; }
+    .check-row .ck-box.checked { background: var(--gold); color: var(--navy); }
+    .check-row .ck-txt strong { color: var(--navy); display: block; font-size: 0.92rem; }
+    .check-row .ck-txt span { font-size: 0.84rem; color: var(--gray-600); }
+
+    /* ── Glossary ── */
+    .glossary { max-width: 820px; margin: 0 auto; }
+    .glossary details { background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+    .glossary summary { padding: 16px 20px; font-weight: 700; color: var(--navy); cursor: pointer; font-size: 0.95rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    .glossary summary::after { content: '+'; color: var(--gold-dark); font-size: 1.3rem; font-weight: 700; }
+    .glossary details[open] summary::after { content: '−'; }
+    .glossary details > p { padding: 0 20px 18px; font-size: 0.9rem; }
+
+    /* ── Final CTA ── */
+    .guide-cta { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); text-align: center; padding: 80px 5%; position: relative; overflow: hidden; }
+    .guide-cta::before { content: ''; position: absolute; inset: 0; opacity: 0.05; background-image: radial-gradient(circle, var(--gold) 1px, transparent 1px); background-size: 26px 26px; }
+    .guide-cta > * { position: relative; z-index: 1; }
+    .guide-cta h2 { color: var(--white); }
+    .guide-cta p { color: rgba(255,255,255,0.78); max-width: 540px; margin: 14px auto 32px; font-size: 1.1rem; }
+
+    .section-dark { background: var(--navy); }
+    .section-dark .section-title h2 { color: var(--white); }
+    .section-dark .section-title p { color: rgba(255,255,255,0.6); }
+    .lead-callout { max-width: 820px; margin: 0 auto 8px; background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.25); border-radius: var(--radius-lg); padding: 24px 28px; }
+    .lead-callout p { color: var(--gray-800); font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <!-- Navbar (modo inversor) -->
+  <nav class="navbar">
+    <div class="navbar-brand"><div><span class="logo-text">TERRIUM</span><span class="logo-sub">Real Estate Intelligence</span></div></div>
+    <div class="navbar-nav">
+      <a href="index.html">Inicio</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="listings.html">Propiedades</a>
+      <a href="calculator.html">Calc. ROI</a>
+      <a href="heatmap.html">Mapa de Calor</a>
+      <a href="investor-guide.html" class="active">Guía</a>
+      <a href="pricing.html">Planes</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="user-info" style="display:none; align-items:center; gap:8px;"><span class="user-name" style="color:var(--gray-400); font-size:0.85rem;"></span><span id="user-tier-badge" class="badge"></span></div>
+      <a href="login.html" id="login-btn" class="btn btn-ghost btn-sm">Ingresar</a>
+      <button id="logout-btn" class="btn btn-ghost btn-sm" style="display:none;">Salir</button>
+    </div>
+  </nav>
+
+  <!-- Mode switcher -->
+  <div class="mode-switcher">
+    <div class="mode-switcher-inner">
+      <a href="index.html" class="mode-opt active">📈 Modo Inversor</a>
+      <a href="seller.html" class="mode-opt">🏷️ Modo Vendedor</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="guide-hero">
+    <div class="guide-hero-inner">
+      <div class="pill">📚 Guía para inversores debutantes</div>
+      <h1>Dónde invertir en CABA en los <span>próximos 10 años</span></h1>
+      <p>Si nunca invertiste en ladrillo, esta guía te lleva de cero a tu primera decisión informada: los conceptos clave, los barrios con más potencial y la estrategia según tu perfil — con datos reales del mercado porteño 2026.</p>
+      <div class="guide-hero-actions">
+        <a href="#mapa" class="btn btn-primary btn-lg">🗺️ Ver el mapa a 10 años</a>
+        <a href="calculator.html" class="btn btn-outline btn-lg">🧮 Calcular mi ROI</a>
+      </div>
+      <div class="hero-mini-stats">
+        <div><div class="hm-val">US$2.459</div><div class="hm-lbl">m² promedio CABA</div></div>
+        <div><div class="hm-val">5,83%</div><div class="hm-lbl">Renta bruta anual*</div></div>
+        <div><div class="hm-val">+70%</div><div class="hm-lbl">Obra nueva en 9 barrios</div></div>
+        <div><div class="hm-val">10 años</div><div class="hm-lbl">Horizonte de la tesis</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer-bar">
+    ⚠️ <strong>Esto es contenido educativo, no asesoramiento financiero.</strong> El mercado inmobiliario tiene riesgos y los rendimientos pasados no garantizan resultados futuros. Consultá a un profesional antes de invertir.
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-inner">
+      <a href="#porque">Por qué ladrillo</a>
+      <a href="#ruta">Tu ruta paso a paso</a>
+      <a href="#fundamentos">Fundamentos</a>
+      <a href="#mapa">Mapa a 10 años</a>
+      <a href="#drivers">Qué mueve el valor</a>
+      <a href="#estrategias">Estrategias</a>
+      <a href="#errores">Errores comunes</a>
+      <a href="#checklist">Checklist</a>
+      <a href="#glosario">Glosario</a>
+    </div>
+  </div>
+
+  <!-- Por qué -->
+  <section class="section" id="porque">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">Punto de partida</div>
+        <h2>¿Por qué invertir en ladrillo en CABA?</h2>
+        <p>En un país con alta inflación y un peso volátil, el inmueble cumple un rol que pocos activos cumplen en Argentina.</p>
+      </div>
+      <div class="lead-callout reveal">
+        <p>El ladrillo porteño históricamente funciona como <strong>reserva de valor en dólares</strong>: se compra, se alquila y se vende en USD, lo que lo aísla de la inflación en pesos. Además genera <strong>renta mensual</strong> (alquiler) y tiene potencial de <strong>revalorización</strong> (que el m² suba con el tiempo). La contracara: es poco líquido (vender lleva semanas o meses), requiere capital alto y tiene costos de entrada. La clave para un debutante es entender que se invierte <strong>a mediano y largo plazo</strong>, no para hacer una diferencia rápida.</p>
+      </div>
+      <div class="grid-3" style="margin-top:32px;">
+        <div class="concept-card reveal reveal-delay-1"><div class="c-icon">🛡️</div><h3>Reserva de valor en USD</h3><p>Comprás, alquilás y vendés en dólares. Tu capital no se licúa con la inflación del peso.</p></div>
+        <div class="concept-card reveal reveal-delay-2"><div class="c-icon">💵</div><h3>Renta mensual</h3><p>El alquiler genera flujo todos los meses. En 2026 la renta bruta llegó a 5,83% anual, máximo en más de una década.</p></div>
+        <div class="concept-card reveal reveal-delay-3"><div class="c-icon">📈</div><h3>Revalorización</h3><p>El m² puede subir con el tiempo. Algunos barrios subieron 8-20% en USD entre 2025 y 2026.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ruta -->
+  <section class="section" id="ruta" style="background:var(--gray-50);">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">Paso a paso</div>
+        <h2>Tu ruta como inversor debutante</h2>
+        <p>De la teoría a tu primera propiedad, sin saltarte ningún paso.</p>
+      </div>
+      <div class="route-grid">
+        <div class="route-card reveal reveal-delay-1"><div class="route-num">1</div><h3>Definí tu objetivo</h3><p>¿Buscás renta mensual, revalorización a largo plazo, o resguardar capital? Eso define qué barrio y qué tipo de propiedad te conviene.</p></div>
+        <div class="route-card reveal reveal-delay-2"><div class="route-num">2</div><h3>Conocé tu capital real</h3><p>Sumá el precio + escribano + impuestos + posibles refacciones. Como referencia, los costos de compra rondan el 6-8% extra sobre el valor.</p></div>
+        <div class="route-card reveal reveal-delay-3"><div class="route-num">3</div><h3>Entendé los números</h3><p>Aprendé a leer USD/m², rentabilidad bruta y neta, y ROI. La sección de <a href="#fundamentos" style="color:var(--gold-dark);font-weight:700;">Fundamentos</a> te los explica en simple.</p></div>
+        <div class="route-card reveal reveal-delay-1"><div class="route-num">4</div><h3>Elegí zona y estrategia</h3><p>Cruzá tu objetivo con el <a href="#mapa" style="color:var(--gold-dark);font-weight:700;">mapa a 10 años</a> y las <a href="#estrategias" style="color:var(--gold-dark);font-weight:700;">estrategias</a>. No es lo mismo Puerto Madero que Saavedra.</p></div>
+        <div class="route-card reveal reveal-delay-2"><div class="route-num">5</div><h3>Analizá comparables</h3><p>Usá el <a href="dashboard.html" style="color:var(--gold-dark);font-weight:700;">Dashboard</a> y la <a href="calculator.html" style="color:var(--gold-dark);font-weight:700;">Calculadora ROI</a> para validar que el precio y el rendimiento cierran antes de ofertar.</p></div>
+        <div class="route-card reveal reveal-delay-3"><div class="route-num">6</div><h3>Comprá y gestioná</h3><p>Verificá títulos, escriturá con un escribano de confianza y definí cómo vas a alquilar. Reinvertí la renta para potenciar el interés compuesto.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fundamentos -->
+  <section class="section" id="fundamentos">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">Conceptos clave</div>
+        <h2>Los 6 fundamentos que tenés que dominar</h2>
+        <p>Si entendés estos números, ya estás por encima del 90% de los compradores primerizos.</p>
+      </div>
+      <div class="grid-3">
+        <div class="concept-card reveal reveal-delay-1"><div class="c-icon">📐</div><h3>Precio por m² (USD/m²)</h3><p>La unidad de medida del mercado. Te permite comparar propiedades de distinto tamaño y detectar si algo está caro o barato para su barrio.</p><div class="c-formula">USD/m² = Precio total ÷ m² totales</div></div>
+        <div class="concept-card reveal reveal-delay-2"><div class="c-icon">💰</div><h3>Rentabilidad bruta</h3><p>Cuánto rinde el alquiler frente al precio, antes de gastos. Es el primer filtro rápido de toda inversión de renta.</p><div class="c-formula">(Alquiler anual ÷ Precio) × 100</div></div>
+        <div class="concept-card reveal reveal-delay-3"><div class="c-icon">🧾</div><h3>Rentabilidad neta</h3><p>La que de verdad importa: descontá expensas, ABL, vacancia y mantenimiento. Suele ser 1-2 puntos menor que la bruta.</p><div class="c-formula">(Renta neta anual ÷ Inversión total) × 100</div></div>
+        <div class="concept-card reveal reveal-delay-1"><div class="c-icon">⏳</div><h3>ROI y período de repago</h3><p>El retorno total (renta + revalorización) y en cuántos años recuperás lo invertido. A 5,8% bruto, el repago vía alquiler ronda 17 años.</p><div class="c-formula">Repago ≈ 100 ÷ rentabilidad %</div></div>
+        <div class="concept-card reveal reveal-delay-2"><div class="c-icon">🏦</div><h3>Costos de compra</h3><p>No solo pagás la propiedad: sumá escribano, sellos, comisión e impuestos. Presupuestá un 6-8% extra sobre el precio.</p><div class="c-formula">Inversión = Precio + ~7% costos</div></div>
+        <div class="concept-card reveal reveal-delay-3"><div class="c-icon">💧</div><h3>Liquidez y horizonte</h3><p>Un inmueble no se vende de un día para el otro. Invertí plata que no vayas a necesitar en el corto plazo: el horizonte ideal es 5-10 años.</p><div class="c-formula">Horizonte recomendado: 5-10 años</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mapa a 10 años -->
+  <section class="section" id="mapa" style="background:var(--gray-50);">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">El corazón de la guía</div>
+        <h2>Mapa a 10 años: dónde invertir en CABA</h2>
+        <p>Cuatro perfiles de barrio según el equilibrio entre seguridad, precio de entrada y potencial de revalorización. Datos del mercado 2026.</p>
+      </div>
+
+      <!-- Tier 1 -->
+      <div class="tier-card t1 reveal">
+        <div class="tier-head">
+          <span class="tier-emoji">🏛️</span>
+          <div><h3>Consolidados premium — Reserva de valor</h3><div class="tier-sub">Para resguardar capital con bajo riesgo</div></div>
+          <div class="tier-badge"><span class="tier-chip">Riesgo bajo</span><span class="tier-chip">Revalorización lenta</span></div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-hoods"><span class="hood-pill">Puerto Madero</span><span class="hood-pill">Palermo</span><span class="hood-pill">Belgrano</span><span class="hood-pill">Recoleta</span><span class="hood-pill">Barrio Parque</span></div>
+          <p>Los barrios más demandados y líquidos. El m² es caro (USD 2.500-4.000, y hasta 5.000-8.000 en Puerto Madero y Barrio Parque), pero son los más fáciles de alquilar y revender. Ideales para un debutante con capital que prioriza <strong>seguridad sobre rendimiento</strong>: protegen el valor y casi nunca pierden demanda.</p>
+          <div class="tier-meta">
+            <div><div class="tm-lbl">Precio m²</div><div class="tm-val">USD 2.500-8.000</div></div>
+            <div><div class="tm-lbl">Perfil</div><div class="tm-val">Conservador</div></div>
+            <div><div class="tm-lbl">Mejor para</div><div class="tm-val">Resguardo + liquidez</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 2 -->
+      <div class="tier-card t2 reveal">
+        <div class="tier-head">
+          <span class="tier-emoji">🚀</span>
+          <div><h3>Corredor norte en expansión — Mejor precio/potencial</h3><div class="tier-sub">El equilibrio que buscan la mayoría de los inversores</div></div>
+          <div class="tier-badge"><span class="tier-chip">Riesgo medio-bajo</span><span class="tier-chip">Alta demanda</span></div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-hoods"><span class="hood-pill">Núñez</span><span class="hood-pill">Saavedra</span><span class="hood-pill">Villa Urquiza</span><span class="hood-pill">Colegiales</span></div>
+          <p>El corredor que concentra <strong>40-45% de la actividad</strong> y cerca del <strong>70% de la obra nueva 2026</strong>. Combinan los tres factores que revalorizan: normativa que permite densificar, infraestructura y demanda validada. Saavedra lideró la suba interanual en venta (+11,4% USD). Para un debutante es el "punto dulce": precio aún razonable, mucha obra nueva (oportunidad de pozo) y demanda creciente.</p>
+          <div class="tier-meta">
+            <div><div class="tm-lbl">Variación destacada</div><div class="tm-val">Saavedra +11,4% i.a.</div></div>
+            <div><div class="tm-lbl">Perfil</div><div class="tm-val">Equilibrado</div></div>
+            <div><div class="tm-lbl">Mejor para</div><div class="tm-val">Pozo + renta + valorización</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 3 -->
+      <div class="tier-card t3 reveal">
+        <div class="tier-head">
+          <span class="tier-emoji">✨</span>
+          <div><h3>Valor + tendencia — Barrios que se ponen de moda</h3><div class="tier-sub">Revalorización por "derrame" y nueva identidad</div></div>
+          <div class="tier-badge"><span class="tier-chip">Riesgo medio</span><span class="tier-chip">Momentum alto</span></div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-hoods"><span class="hood-pill">Villa Crespo</span><span class="hood-pill">Chacarita</span><span class="hood-pill">Caballito</span><span class="hood-pill">Almagro</span><span class="hood-pill">Agronomía</span></div>
+          <p>Barrios que captan el <strong>derrame de demanda</strong> de zonas caras vecinas (Palermo) y ganan identidad propia con gastronomía, cultura y obra nueva. Villa Crespo subió 15-20% en USD entre 2025 y 2026; Chacarita y Colegiales crecen 8-12% anual. Buen punto de entrada para quien quiere capturar tendencia con un ticket más accesible que el corredor premium.</p>
+          <div class="tier-meta">
+            <div><div class="tm-lbl">Variación destacada</div><div class="tm-val">Villa Crespo +15-20%</div></div>
+            <div><div class="tm-lbl">Perfil</div><div class="tm-val">Moderado-agresivo</div></div>
+            <div><div class="tm-lbl">Mejor para</div><div class="tm-val">Revalorización + renta temporaria</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 4 -->
+      <div class="tier-card t4 reveal">
+        <div class="tier-head">
+          <span class="tier-emoji">🎯</span>
+          <div><h3>Apuesta a largo plazo — Mayor riesgo, mayor upside</h3><div class="tier-sub">Comprar barato hoy apostando a la transformación urbana</div></div>
+          <div class="tier-badge"><span class="tier-chip">Riesgo alto</span><span class="tier-chip">Horizonte 7-10 años</span></div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-hoods"><span class="hood-pill">Barracas</span><span class="hood-pill">La Boca</span><span class="hood-pill">Boedo</span><span class="hood-pill">Parque Patricios</span><span class="hood-pill">Sur en general</span></div>
+          <p>El sur tiene el m² más barato de la ciudad (desde USD 800-1.000) y es donde más impacto pueden tener las obras de infraestructura de la próxima década — sobre todo la <strong>Línea F del subte</strong> (Barracas-Palermo) y la reconversión de la costa. Es la apuesta más especulativa: mayor potencial de revalorización, pero también más incertidumbre y menor liquidez. Solo con horizonte largo y capital que puedas inmovilizar.</p>
+          <div class="tier-meta">
+            <div><div class="tm-lbl">Precio m²</div><div class="tm-val">Desde USD 800-1.000</div></div>
+            <div><div class="tm-lbl">Catalizador</div><div class="tm-val">Línea F · BA Costa</div></div>
+            <div><div class="tm-lbl">Mejor para</div><div class="tm-val">Apuesta paciente</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Drivers (dark) -->
+  <section class="section section-dark" id="drivers">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">La tesis a 10 años</div>
+        <h2>Qué va a mover el valor en la próxima década</h2>
+        <p>La revalorización no es magia: la empujan obras, crédito y normativa. Estos son los catalizadores reales que ya están en marcha.</p>
+      </div>
+      <div class="grid-2">
+        <div class="driver-card reveal reveal-delay-1"><div class="d-icon">🚇</div><h3>Línea F del Subte</h3><p>La mayor obra de transporte de la ciudad (US$1.350-1.500M) unirá Barracas con Palermo, con inicio de obras en 2026 y primera etapa hacia 2031. Históricamente, una nueva estación de subte revaloriza las propiedades a metros de ella.</p><div class="d-impact">↑ Impacto: Barracas, Boedo, Almagro, sur-centro</div></div>
+        <div class="driver-card reveal reveal-delay-2"><div class="d-icon">🌊</div><h3>BA Costa y Costa Salguero</h3><p>La reconversión de 7,6 km de costanera norte en paseo público, parques y polo de eventos reconecta la ciudad con el río. Genera nuevos espacios verdes y atractivo, empujando el valor del corredor costero.</p><div class="d-impact">↑ Impacto: Núñez, Palermo, corredor costero</div></div>
+        <div class="driver-card reveal reveal-delay-3"><div class="d-icon">🏦</div><h3>Crédito hipotecario</h3><p>En 2025 se desembolsaron ~US$3.300M, el mejor registro desde 2018. El primer semestre 2026 viene "planchado" por tasas altas (TNA hasta 17%), pero su recuperación amplía la base de compradores y sostiene la demanda a futuro.</p><div class="d-impact">↑ Impacto: toda la ciudad, sobre todo ticket medio</div></div>
+        <div class="driver-card reveal reveal-delay-4"><div class="d-icon">🏗️</div><h3>Normativa y densificación</h3><p>Los barrios que más suben combinan código urbano que permite construir en altura + infraestructura. Ahí se concentra la obra nueva, y la obra nueva es lo que empuja el m² de toda la zona.</p><div class="d-impact">↑ Impacto: corredor norte y barrios de moda</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Estrategias -->
+  <section class="section" id="estrategias">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">Según tu perfil</div>
+        <h2>5 estrategias para tu primera inversión</h2>
+        <p>No hay una sola forma de invertir en ladrillo. Elegí la que combine con tu capital, tu tiempo y tu tolerancia al riesgo.</p>
+      </div>
+      <div class="strategy-grid">
+        <div class="strategy-card reveal reveal-delay-1">
+          <h3>🔑 Renta tradicional</h3><span class="s-tag risk-low">Riesgo bajo</span>
+          <p>Comprás y alquilás con contrato largo. Flujo predecible y bajo mantenimiento.</p>
+          <ul><li>Ideal para empezar</li><li>Renta bruta ~5-6% anual</li><li>Mejor en Tier 1 y 2</li></ul>
+        </div>
+        <div class="strategy-card reveal reveal-delay-2">
+          <h3>🛎️ Alquiler temporario</h3><span class="s-tag risk-mid">Riesgo medio</span>
+          <p>Airbnb / corto plazo en zonas turísticas. Mayor renta, pero más gestión y vacancia.</p>
+          <ul><li>Rinde más que el tradicional</li><li>Mejor en Palermo, Villa Crespo, Recoleta</li><li>Requiere tiempo o administración</li></ul>
+        </div>
+        <div class="strategy-card reveal reveal-delay-3">
+          <h3>🏗️ Compra en pozo</h3><span class="s-tag risk-mid">Riesgo medio</span>
+          <p>Comprás antes de que esté construido, más barato. Capturás la revalorización de obra.</p>
+          <ul><li>Entrada más accesible</li><li>Ideal en el corredor norte (Tier 2)</li><li>Riesgo de obra: elegí desarrollador serio</li></ul>
+        </div>
+        <div class="strategy-card reveal reveal-delay-1">
+          <h3>🔨 Refacción y reventa</h3><span class="s-tag risk-high">Riesgo alto</span>
+          <p>Comprás barato, refaccionás y revendés (flipping). Requiere ojo, gestión y capital de obra.</p>
+          <ul><li>Mayor retorno potencial</li><li>Mejor en barrios de moda (Tier 3)</li><li>No apto para 100% debutante solo</li></ul>
+        </div>
+        <div class="strategy-card reveal reveal-delay-2">
+          <h3>🧱 Ladrillo como reserva</h3><span class="s-tag risk-low">Riesgo bajo</span>
+          <p>Comprás para resguardar capital en USD, sin foco en la renta. Prioridad: que no pierda valor.</p>
+          <ul><li>Antiinflación en pesos</li><li>Mejor en Tier 1 (líquido)</li><li>Horizonte largo</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Errores -->
+  <section class="section" id="errores" style="background:var(--gray-50);">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">Aprendé de los demás</div>
+        <h2>7 errores que comete todo debutante</h2>
+        <p>Evitarlos te ahorra años y miles de dólares.</p>
+      </div>
+      <div class="mistake-list">
+        <div class="mistake-item reveal reveal-delay-1"><h4>1. Enamorarse de la propiedad</h4><p>Invertís en números, no en "qué linda". Si la rentabilidad no cierra, no importa lo linda que sea.</p></div>
+        <div class="mistake-item reveal reveal-delay-2"><h4>2. Ignorar los costos ocultos</h4><p>Expensas altas, ABL, escribano y refacciones se comen tu rentabilidad. Calculá siempre la neta.</p></div>
+        <div class="mistake-item reveal reveal-delay-3"><h4>3. No comparar el USD/m²</h4><p>Pagar de más para el barrio arruina la inversión desde el día uno. Validá con comparables reales.</p></div>
+        <div class="mistake-item reveal reveal-delay-1"><h4>4. Buscar ganar rápido</h4><p>El ladrillo es a 5-10 años. Quien entra esperando una diferencia en meses, sale perdiendo.</p></div>
+        <div class="mistake-item reveal reveal-delay-2"><h4>5. Concentrar todo en un solo activo</h4><p>Si podés, diversificá. Una sola propiedad mal elegida inmoviliza todo tu capital.</p></div>
+        <div class="mistake-item reveal reveal-delay-3"><h4>6. Olvidar la vacancia</h4><p>No siempre vas a tener inquilino. Presupuestá 1-2 meses al año sin renta.</p></div>
+        <div class="mistake-item reveal reveal-delay-1"><h4>7. No verificar títulos</h4><p>Comprar sin chequear la situación legal del inmueble puede costarte la propiedad entera.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Checklist -->
+  <section class="section" id="checklist">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">Antes de firmar</div>
+        <h2>Checklist del inversor debutante</h2>
+        <p>Tocá cada ítem para marcarlo. No ofertes hasta tener todos en verde.</p>
+      </div>
+      <div class="checklist reveal">
+        <div class="check-row"><div class="ck-box" role="checkbox" aria-checked="false" tabindex="0">✓</div><div class="ck-txt"><strong>Definí tu objetivo y horizonte</strong><span>Renta, revalorización o reserva — y a cuántos años.</span></div></div>
+        <div class="check-row"><div class="ck-box" role="checkbox" aria-checked="false" tabindex="0">✓</div><div class="ck-txt"><strong>Calculaste la inversión total real</strong><span>Precio + ~7% de costos + refacciones previstas.</span></div></div>
+        <div class="check-row"><div class="ck-box" role="checkbox" aria-checked="false" tabindex="0">✓</div><div class="ck-txt"><strong>Validaste el USD/m² con comparables</strong><span>Lo cruzaste con el Dashboard y propiedades similares del barrio.</span></div></div>
+        <div class="check-row"><div class="ck-box" role="checkbox" aria-checked="false" tabindex="0">✓</div><div class="ck-txt"><strong>La rentabilidad neta cierra</strong><span>Descontaste expensas, ABL, vacancia y mantenimiento.</span></div></div>
+        <div class="check-row"><div class="ck-box" role="checkbox" aria-checked="false" tabindex="0">✓</div><div class="ck-txt"><strong>Elegiste zona según tu perfil</strong><span>Tier coherente con tu tolerancia al riesgo.</span></div></div>
+        <div class="check-row"><div class="ck-box" role="checkbox" aria-checked="false" tabindex="0">✓</div><div class="ck-txt"><strong>Verificaste la situación legal</strong><span>Títulos, deudas, expensas y escribano de confianza.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Glosario -->
+  <section class="section" id="glosario" style="background:var(--gray-50);">
+    <div class="container">
+      <div class="section-title reveal">
+        <div class="pill">Diccionario</div>
+        <h2>Glosario del inversor</h2>
+        <p>Los términos que vas a escuchar en cada operación.</p>
+      </div>
+      <div class="glossary reveal">
+        <details><summary>USD/m²</summary><p>Precio por metro cuadrado en dólares. Es la unidad estándar para comparar propiedades de distinto tamaño y barrio.</p></details>
+        <details><summary>Rentabilidad bruta vs. neta</summary><p>La bruta es el alquiler anual sobre el precio, sin descontar nada. La neta resta gastos (expensas, ABL, vacancia, mantenimiento) y es la que de verdad indica cuánto ganás.</p></details>
+        <details><summary>ROI (retorno sobre la inversión)</summary><p>Ganancia total (renta + revalorización) sobre el capital invertido, expresada en porcentaje. Mide el éxito global de la inversión.</p></details>
+        <details><summary>Compra en pozo</summary><p>Comprar una unidad antes o durante la construcción, a un precio menor que la terminada. Capturás la revalorización de la obra, asumiendo el riesgo de que se complete.</p></details>
+        <details><summary>Alquiler temporario</summary><p>Alquiler de corto plazo (turístico / Airbnb). Suele rendir más que el tradicional, pero implica más gestión, costos y vacancia.</p></details>
+        <details><summary>Vacancia</summary><p>El tiempo en que la propiedad está sin alquilar (sin generar renta). Hay que presupuestarla: típicamente 1-2 meses al año.</p></details>
+        <details><summary>Crédito hipotecario UVA</summary><p>Préstamo ajustado por inflación (Unidad de Valor Adquisitivo). Su disponibilidad y tasa amplían o achican la cantidad de compradores en el mercado.</p></details>
+        <details><summary>Reserva de valor</summary><p>Activo que conserva su poder adquisitivo en el tiempo. En Argentina, el inmueble en dólares cumple ese rol frente a la inflación en pesos.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA final -->
+  <section class="guide-cta">
+    <h2>Pasá de la teoría a la práctica</h2>
+    <p>Ya sabés los fundamentos y el mapa. Ahora usá las herramientas de Terrium para encontrar y validar tu primera inversión.</p>
+    <div class="cta-actions" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="calculator.html" class="btn btn-primary btn-lg">🧮 Calcular ROI de una propiedad</a>
+      <a href="dashboard.html" class="btn btn-outline btn-lg">📊 Ver el dashboard del mercado</a>
+      <a href="heatmap.html" class="btn btn-outline btn-lg">🗺️ Explorar el mapa de calor</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="logo-text">TERRIUM</span>
+        <p>Inteligencia inmobiliaria para invertir y vender con datos reales del mercado de CABA.</p>
+      </div>
+      <div><h4>Inversor</h4><ul><li><a href="dashboard.html">Dashboard</a></li><li><a href="listings.html">Propiedades</a></li><li><a href="calculator.html">Calculadora ROI</a></li><li><a href="investor-guide.html">Guía del inversor</a></li></ul></div>
+      <div><h4>Vendedor</h4><ul><li><a href="seller.html">Inicio vendedor</a></li><li><a href="seller-valuation.html">Precio justo</a></li><li><a href="seller-publish.html">Publicar</a></li></ul></div>
+      <div><h4>Plataforma</h4><ul><li><a href="pricing.html">Planes</a></li><li><a href="heatmap.html">Mapa de calor</a></li><li><a href="register.html">Crear cuenta</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Terrium. Contenido educativo, no asesoramiento financiero.</span>
+      <span style="font-size:0.78rem;color:var(--gray-600);">* Renta bruta de referencia (mayo 2026). Datos de mercado orientativos.</span>
+    </div>
+  </footer>
+
+  <div id="toast"></div>
+  <script src="assets/js/api.js" defer></script>
+  <script src="assets/js/auth.js" defer></script>
+  <script>
+    // Reveal on scroll
+    document.addEventListener('DOMContentLoaded', () => {
+      const els = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window) {
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+        }, { threshold: 0.12 });
+        els.forEach((el) => obs.observe(el));
+      } else {
+        els.forEach((el) => el.classList.add('visible'));
+      }
+
+      // Checklist toggle
+      document.querySelectorAll('.ck-box').forEach((box) => {
+        const toggle = () => {
+          const on = box.classList.toggle('checked');
+          box.setAttribute('aria-checked', on ? 'true' : 'false');
+        };
+        box.addEventListener('click', toggle);
+        box.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); } });
+      });
+
+      // Smooth-scroll for TOC / in-page anchors (offset por navbar sticky)
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener('click', (ev) => {
+          const id = a.getAttribute('href');
+          if (id.length < 2) return;
+          const target = document.querySelector(id);
+          if (!target) return;
+          ev.preventDefault();
+          const y = target.getBoundingClientRect().top + window.scrollY - 110;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
