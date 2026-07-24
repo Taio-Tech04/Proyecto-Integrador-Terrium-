@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Sin tests en la raiz del repo\""
+    "test": "echo \"Sin tests en la raiz del repo\"",
+    "test:all": "npm --prefix Terrium/api-gateway test --silent && npm --prefix Terrium/services/listings test --silent && npm --prefix Terrium/services/analytics test --silent && npm --prefix Terrium/services/notifications test --silent && npm --prefix Terrium/services/users test --silent && npm --prefix Terrium/services/valuations test --silent"
   },
   "private": true,
   "dependencies": {
